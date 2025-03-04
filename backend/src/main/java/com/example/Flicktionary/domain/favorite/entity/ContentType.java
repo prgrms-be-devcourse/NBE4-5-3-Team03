@@ -1,4 +1,4 @@
-package com.example.Flicktionary.favorite.entity;
+package com.example.Flicktionary.domain.favorite.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
-package com.example.Flicktionary.favorite.service;
+package com.example.Flicktionary.domain.favorite.service;
 
-import com.example.Flicktionary.favorite.repository.FavoriteRepository;
+import com.example.Flicktionary.domain.favorite.repository.FavoriteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
