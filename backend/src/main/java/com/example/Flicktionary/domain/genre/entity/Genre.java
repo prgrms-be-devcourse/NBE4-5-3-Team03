@@ -1,4 +1,4 @@
-package com.example.Flicktionary.actor.entity;
+package com.example.Flicktionary.domain.genre.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -9,13 +9,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class Actor {
+public class Genre {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
     private String name;
-
-    private String description;
 }

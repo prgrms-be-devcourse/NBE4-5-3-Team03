@@ -1,4 +1,4 @@
-package com.example.Flicktionary.Series.domain;
+package com.example.Flicktionary.domain.series.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

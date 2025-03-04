@@ -1,6 +1,6 @@
-package com.example.Flicktionary.favorite.controller;
+package com.example.Flicktionary.domain.favorite.controller;
 
-import com.example.Flicktionary.favorite.service.FavoriteService;
+import com.example.Flicktionary.domain.favorite.service.FavoriteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
