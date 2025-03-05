@@ -2,14 +2,18 @@ package com.example.Flicktionary.domain.series.service;
 
 import com.example.Flicktionary.domain.genre.entity.Genre;
 import com.example.Flicktionary.domain.genre.repository.GenreRepository;
-import com.example.Flicktionary.domain.tmdb.dto.TmdbSeriesDetailResponse;
-import com.example.Flicktionary.domain.tmdb.dto.TmdbSeriesPopularIdResponse;
 import com.example.Flicktionary.domain.series.entity.Series;
 import com.example.Flicktionary.domain.series.repository.SeriesRepository;
 import com.example.Flicktionary.domain.tmdb.dto.TmdbPopularSeriesResponse;
+import com.example.Flicktionary.domain.tmdb.dto.TmdbSeriesDetailResponse;
+import com.example.Flicktionary.domain.tmdb.dto.TmdbSeriesPopularIdResponse;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -112,7 +116,7 @@ public class SeriesService {
                     )
                     .collect(Collectors.toList());
 
-            seriesRepository.findByTmdbId(response.getBody().getTmdbId()).ifPresentOrElse(
+            seriesRepository.findById(response.getBody().getTmdbId()).ifPresentOrElse(
                     series -> updateSeries(series, response),
                     () -> seriesRepository.save(TmdbSeriesDetailResponse.toEntity(response, genres, baseImageUrl))
             );
@@ -137,5 +141,27 @@ public class SeriesService {
         if(body.getLastAirDate() != null){
             series.setReleaseEndDate(LocalDate.parse(body.getLastAirDate()));
         }
+    }
+
+    //Series 목록 조회(페이징, 정렬)
+    public Page<Series> getSeries(String keyword, int page, int pageSize, String sortBy) {
+        Sort sort;
+
+        if(sortBy.equalsIgnoreCase("id")){ //ID기준 오름차순
+            sort = Sort.by("id").ascending();
+        }else if(sortBy.equalsIgnoreCase("rating")) { //평점 기준 내림차순
+            sort = Sort.by("avgRating").descending();
+        }else if(sortBy.equalsIgnoreCase("rating-count")) { //리뷰 개수 내림차순
+            sort = Sort.by("ratingCount").descending();
+        }else{
+            throw new RuntimeException("잘못된 정렬 방식입니다.");
+        }
+
+        if(page < 1){
+            throw new RuntimeException("페이지는 1부터 요청 가능합니다.");
+        }
+
+        Pageable pageable = PageRequest.of(page-1, pageSize, sort);
+        return seriesRepository.findByTitleLike(keyword, pageable);
     }
 }

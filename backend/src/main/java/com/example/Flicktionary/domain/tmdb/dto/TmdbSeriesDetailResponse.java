@@ -48,6 +48,7 @@ public class TmdbSeriesDetailResponse {
         TmdbSeriesDetailResponse body = response.getBody();
 
         return Series.builder()
+                .id(body.getTmdbId())
                 .title(body.getName())
                 .plot(body.getOverview())
                 .episode(body.getNumberOfEpisodes())

@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,7 +19,7 @@ import java.util.List;
 public class Series {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long id;
 
     @Column(nullable = false)
@@ -48,26 +49,23 @@ public class Series {
 
     private String company;
 
-    @Column(nullable = false)
-    private Long tmdbId;
-
+    @Builder.Default
     @ManyToMany
     @JoinTable(
             name = "series_genre",
             joinColumns = @JoinColumn(name = "series_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
-    @Singular
-    private List<Genre> genres;
+    private List<Genre> genres = new ArrayList<>();
 
+    @Builder.Default
     @ManyToMany
     @JoinTable(
             name = "series_actor",
             joinColumns = @JoinColumn(name = "series_id"),
             inverseJoinColumns = @JoinColumn(name = "actor_id")
     )
-    @Singular
-    private List<Actor> actors;
+    private List<Actor> actors = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "director_id")
