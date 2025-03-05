@@ -14,13 +14,24 @@ public class FavoriteDto {
     private Long userId;
     private ContentType contentType;
     private Long contentId;
+    private Object data;
 
     // Entity -> DTO
     public static FavoriteDto fromEntity(Favorite favorite) {
+        Object contentData = null;
+        if (favorite.getContentType() == ContentType.MOVIE && favorite.getMovie() != null) {
+//            contentData = Hibernate.unproxy(favorite.getMovie());
+            contentData = favorite.getMovie();
+        } else if (favorite.getContentType() == ContentType.SERIES && favorite.getSeries() != null) {
+//            contentData = Hibernate.unproxy(favorite.getSeries());
+            contentData = favorite.getSeries();
+        }
+
         return FavoriteDto.builder()
                 .userId(favorite.getUser().getId())
                 .contentType(favorite.getContentType())
                 .contentId(favorite.getContentId())
+                .data(contentData)
                 .build();
     }
 

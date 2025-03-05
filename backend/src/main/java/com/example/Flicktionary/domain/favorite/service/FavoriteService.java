@@ -1,7 +1,7 @@
 package com.example.Flicktionary.domain.favorite.service;
 
+import com.example.Flicktionary.domain.favorite.dto.FavoriteDto;
 import com.example.Flicktionary.domain.favorite.entity.Favorite;
-import com.example.Flicktionary.domain.favorite.entity.FavoriteDto;
 import com.example.Flicktionary.domain.favorite.repository.FavoriteRepository;
 import com.example.Flicktionary.domain.movie.repository.MovieRepository;
 import com.example.Flicktionary.domain.series.repository.SeriesRepository;
@@ -61,7 +61,8 @@ public class FavoriteService {
         if (!userRepository.existsById(userId)) {
             throw new IllegalArgumentException("User not found");
         }
-        List<Favorite> favorites = favoriteRepository.findAllByUserId(userId);
+        List<Favorite> favorites = favoriteRepository.findAllByUserIdWithContent(userId);
+
         return favorites.stream()
                 .map(FavoriteDto::fromEntity)
                 .collect(Collectors.toList());
