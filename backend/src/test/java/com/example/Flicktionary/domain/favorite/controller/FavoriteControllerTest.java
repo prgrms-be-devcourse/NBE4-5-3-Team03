@@ -1,7 +1,7 @@
 package com.example.Flicktionary.domain.favorite.controller;
 
 import com.example.Flicktionary.domain.favorite.entity.ContentType;
-import com.example.Flicktionary.domain.favorite.entity.FavoriteDto;
+import com.example.Flicktionary.domain.favorite.dto.FavoriteDto;
 import com.example.Flicktionary.domain.favorite.service.FavoriteService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

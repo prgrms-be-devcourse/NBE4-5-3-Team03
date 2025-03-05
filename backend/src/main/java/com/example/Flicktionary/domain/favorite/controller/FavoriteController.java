@@ -1,6 +1,6 @@
 package com.example.Flicktionary.domain.favorite.controller;
 
-import com.example.Flicktionary.domain.favorite.entity.FavoriteDto;
+import com.example.Flicktionary.domain.favorite.dto.FavoriteDto;
 import com.example.Flicktionary.domain.favorite.service.FavoriteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

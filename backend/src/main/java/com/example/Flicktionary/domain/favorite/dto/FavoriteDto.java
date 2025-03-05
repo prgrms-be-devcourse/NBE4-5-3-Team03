@@ -1,5 +1,7 @@
-package com.example.Flicktionary.domain.favorite.entity;
+package com.example.Flicktionary.domain.favorite.dto;
 
+import com.example.Flicktionary.domain.favorite.entity.ContentType;
+import com.example.Flicktionary.domain.favorite.entity.Favorite;
 import com.example.Flicktionary.domain.user.entity.User;
 import lombok.*;
 
