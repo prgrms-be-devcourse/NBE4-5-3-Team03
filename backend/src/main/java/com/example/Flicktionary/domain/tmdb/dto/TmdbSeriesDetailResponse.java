@@ -1,4 +1,4 @@
-package com.example.Flicktionary.domain.series.dto;
+package com.example.Flicktionary.domain.tmdb.dto;
 
 import com.example.Flicktionary.domain.genre.dto.GenreDto;
 import com.example.Flicktionary.domain.genre.entity.Genre;
@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SeriesDetailDto {
+public class TmdbSeriesDetailResponse {
 
     private String name;
 
@@ -44,8 +44,8 @@ public class SeriesDetailDto {
     private List<ProductionCompanyDto> productionCompanies;
 
 
-    public static Series toEntity(ResponseEntity<SeriesDetailDto> response, List<Genre> genres, String baseImageUrl) {
-        SeriesDetailDto body = response.getBody();
+    public static Series toEntity(ResponseEntity<TmdbSeriesDetailResponse> response, List<Genre> genres, String baseImageUrl) {
+        TmdbSeriesDetailResponse body = response.getBody();
 
         return Series.builder()
                 .title(body.getName())

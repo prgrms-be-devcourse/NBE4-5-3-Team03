@@ -2,8 +2,8 @@ package com.example.Flicktionary.domain.series.service;
 
 import com.example.Flicktionary.domain.genre.entity.Genre;
 import com.example.Flicktionary.domain.genre.repository.GenreRepository;
-import com.example.Flicktionary.domain.series.dto.SeriesDetailDto;
-import com.example.Flicktionary.domain.series.dto.SeriesPopularIdDto;
+import com.example.Flicktionary.domain.tmdb.dto.TmdbSeriesDetailResponse;
+import com.example.Flicktionary.domain.tmdb.dto.TmdbSeriesPopularIdResponse;
 import com.example.Flicktionary.domain.series.entity.Series;
 import com.example.Flicktionary.domain.series.repository.SeriesRepository;
 import com.example.Flicktionary.domain.tmdb.dto.TmdbPopularSeriesResponse;
@@ -69,7 +69,7 @@ public class SeriesService {
                     throw new RuntimeException("TMDB API 응답이 null입니다.");
                 }
 
-                for (SeriesPopularIdDto dto : response.getBody().getResults()) {
+                for (TmdbSeriesPopularIdResponse dto : response.getBody().getResults()) {
                     fetchAndSaveSeriesDetails(dto.getId());
                 }
 
@@ -88,11 +88,11 @@ public class SeriesService {
             headers.set("Authorization", accessToken);
 
             HttpEntity<String> entity = new HttpEntity<>(headers);
-            ResponseEntity<SeriesDetailDto> response = restTemplate.exchange(
+            ResponseEntity<TmdbSeriesDetailResponse> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     entity,
-                    SeriesDetailDto.class
+                    TmdbSeriesDetailResponse.class
             );
 
             if (response.getBody() == null) {
@@ -114,7 +114,7 @@ public class SeriesService {
 
             seriesRepository.findByTmdbId(response.getBody().getTmdbId()).ifPresentOrElse(
                     series -> updateSeries(series, response),
-                    () -> seriesRepository.save(SeriesDetailDto.toEntity(response, genres, baseImageUrl))
+                    () -> seriesRepository.save(TmdbSeriesDetailResponse.toEntity(response, genres, baseImageUrl))
             );
 
 
@@ -124,8 +124,8 @@ public class SeriesService {
     }
 
     //이미 DB에 존재한다면 업데이트
-    private void updateSeries(Series series, ResponseEntity<SeriesDetailDto> response) {
-        SeriesDetailDto body = response.getBody();
+    private void updateSeries(Series series, ResponseEntity<TmdbSeriesDetailResponse> response) {
+        TmdbSeriesDetailResponse body = response.getBody();
         series.setTitle(body.getName());
         series.setPlot(body.getOverview());
         series.setEpisode(body.getNumberOfEpisodes());
