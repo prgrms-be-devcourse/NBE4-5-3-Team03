@@ -42,14 +42,14 @@ public class SeriesService {
     @PostConstruct
     public void fetchDataOnStartup() {
         int startPage = 1; // 시작 페이지
-        int endPage = 2;   // 끝 페이지
+        int endPage = 1;   // 끝 페이지
 
         // 페이지 번호에 따라 반복
         for (int page = startPage; page <= endPage; page++) {
             String url = String.format("https://api.themoviedb.org/3/tv/popular?language=ko-KR&page=%d", page);
             try {
                 HttpHeaders headers = new HttpHeaders();
-                headers.set("Authorization", "Bearer " + accessToken);
+                headers.set("Authorization", accessToken);
 
                 HttpEntity<String> entity = new HttpEntity<>(headers);
                 ResponseEntity<TmdbPopularSeriesResponse> response = restTemplate.exchange(
@@ -80,7 +80,7 @@ public class SeriesService {
         String url = String.format("https://api.themoviedb.org/3/tv/%d?language=ko-KR", seriesId);
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + accessToken);
+            headers.set("Authorization", accessToken);
 
             HttpEntity<String> entity = new HttpEntity<>(headers);
             ResponseEntity<SeriesDetailDto> response = restTemplate.exchange(
