@@ -14,12 +14,14 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Getter
+@Setter
 public class Series {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String title;
 
     @Lob
@@ -32,8 +34,10 @@ public class Series {
 
     private String imageUrl;
 
+    @Builder.Default
     private double avgRating = 0.0;
 
+    @Builder.Default
     private int ratingCount = 0;
 
     private LocalDate releaseStartDate;
@@ -43,6 +47,9 @@ public class Series {
     private String nation;
 
     private String company;
+
+    @Column(nullable = false)
+    private Long tmdbId;
 
     @ManyToMany
     @JoinTable(

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,9 +41,14 @@ public class SeriesService {
 
     // 인기도 순으로 DB에 저장(페이지당 20개)
     @PostConstruct
-    public void fetchDataOnStartup() {
+    public void fetchPopularSeries() {
+
+        if(seriesRepository.count() > 0){
+            return;
+        }
+
         int startPage = 1; // 시작 페이지
-        int endPage = 1;   // 끝 페이지
+        int endPage = 3;   // 끝 페이지
 
         // 페이지 번호에 따라 반복
         for (int page = startPage; page <= endPage; page++) {
@@ -76,7 +82,6 @@ public class SeriesService {
 
     // 각 시리즈의 상세 정보를 가져와서 DB에 저장
     private void fetchAndSaveSeriesDetails(Long seriesId) throws InterruptedException {
-        Thread.sleep(100);
         String url = String.format("https://api.themoviedb.org/3/tv/%d?language=ko-KR", seriesId);
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -107,12 +112,30 @@ public class SeriesService {
                     )
                     .collect(Collectors.toList());
 
-            // Series 엔티티 생성
-            Series series = SeriesDetailDto.toEntity(response, genres, baseImageUrl);
+            seriesRepository.findByTmdbId(response.getBody().getTmdbId()).ifPresentOrElse(
+                    series -> updateSeries(series, response),
+                    () -> seriesRepository.save(SeriesDetailDto.toEntity(response, genres, baseImageUrl))
+            );
 
-            seriesRepository.save(series);
+
         } catch (Exception e) {
             throw new RuntimeException("TMDB API 요청 실패2: " + e.getMessage());
+        }
+    }
+
+    //이미 DB에 존재한다면 업데이트
+    private void updateSeries(Series series, ResponseEntity<SeriesDetailDto> response) {
+        SeriesDetailDto body = response.getBody();
+        series.setTitle(body.getName());
+        series.setPlot(body.getOverview());
+        series.setEpisode(body.getNumberOfEpisodes());
+        series.setStatus(body.getStatus());
+        series.setImageUrl(baseImageUrl + body.getPosterPath());
+        if(body.getFirstAirDate() != null){
+            series.setReleaseStartDate(LocalDate.parse(body.getFirstAirDate()));
+        }
+        if(body.getLastAirDate() != null){
+            series.setReleaseEndDate(LocalDate.parse(body.getLastAirDate()));
         }
     }
 }

@@ -17,6 +17,9 @@ import java.util.List;
 @NoArgsConstructor
 public class SeriesDetailDto {
 
+    @JsonProperty("id")
+    private Long tmdbId;
+
     private String name;
 
     private String overview;
@@ -58,6 +61,7 @@ public class SeriesDetailDto {
                 .nation(getFirstOrDefault(body.getOriginCountry(), "Unknown"))
                 .company(getFirstCompanyOrDefault(body.getProductionCompanies(), "Unknown"))
                 .genres(genres)
+                .tmdbId(body.getTmdbId())
                 .build();
     }
 
