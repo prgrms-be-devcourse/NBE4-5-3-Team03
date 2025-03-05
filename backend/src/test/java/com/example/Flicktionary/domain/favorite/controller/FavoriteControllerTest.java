@@ -105,4 +105,45 @@ public class FavoriteControllerTest {
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    @DisplayName("중복 저장 테스트")
+    void checkDuplicate() throws Exception {
+        Long userId = 1L;
+        ContentType contentType = ContentType.MOVIE;
+        Long contentId = 200L;
+
+        // 첫 번째 저장 (201 Created)
+        String content = """
+                {
+                    "userId": "%d",
+                    "contentType": "%s",
+                    "contentId": "%d"
+                }
+                """
+                .formatted(userId, contentType, contentId)
+                .stripIndent();
+
+
+        mvc.perform(
+                        post("/api/favorite")
+                                .content(content)
+                                .contentType(
+                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                                )
+                )
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        // 중복 저장 시도 (IllegalArgumentException 발생, 500 Internal Server Error)
+        mvc.perform(
+                        post("/api/favorite")
+                                .content(content)
+                                .contentType(
+                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                                )
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 }
