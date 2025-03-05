@@ -49,7 +49,7 @@ public class FavoriteControllerTest {
 
         Long userId = 1L;
         ContentType contentType = ContentType.MOVIE;
-        Long contentId = 1L;
+        Long contentId = 999L;
 
         ResultActions resultActions = mvc
                 .perform(
@@ -74,7 +74,7 @@ public class FavoriteControllerTest {
 
     @Test
     @DisplayName("Read Favorite")
-    void readFavorite() throws Exception{
+    void getFavorite() throws Exception{
 
         Long userId = 1L;
 
@@ -135,10 +135,64 @@ public class FavoriteControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        // 중복 저장 시도 (IllegalArgumentException 발생, 500 Internal Server Error)
+        // 중복 저장 시도 (IllegalArgumentException 발생, 400 Bad Request)
         mvc.perform(
                         post("/api/favorite")
                                 .content(content)
+                                .contentType(
+                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                                )
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 ContentID 저장 테스트")
+    void checkContentId() throws Exception {
+        Long userId = 1L;
+        ContentType contentType = ContentType.MOVIE;
+        Long contentId = 9999L;
+
+        // 존재하지 않는 ContentID 저장 시도 (IllegalArgumentException 발생, 400 Bad Request)
+        mvc.perform(
+                        post("/api/favorite")
+                                .content("""
+                                        {
+                                            "userId": "%d",
+                                            "contentType": "%s",
+                                            "contentId": "%d"
+                                        }
+                                        """
+                                        .formatted(userId, contentType, contentId)
+                                        .stripIndent())
+                                .contentType(
+                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                                )
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 User 저장 테스트")
+    void checkUserId() throws Exception {
+        Long userId = 9999L;
+        ContentType contentType = ContentType.MOVIE;
+        Long contentId = 1L;
+
+        // 존재하지 않는 User 저장 시도 (IllegalArgumentException 발생, 400 Bad Request)
+        mvc.perform(
+                        post("/api/favorite")
+                                .content("""
+                                        {
+                                            "userId": "%d",
+                                            "contentType": "%s",
+                                            "contentId": "%d"
+                                        }
+                                        """
+                                        .formatted(userId, contentType, contentId)
+                                        .stripIndent())
                                 .contentType(
                                         new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
                                 )
