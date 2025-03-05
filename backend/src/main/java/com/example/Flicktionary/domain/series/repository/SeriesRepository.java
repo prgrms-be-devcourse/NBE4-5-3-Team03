@@ -1,7 +1,9 @@
 package com.example.Flicktionary.domain.series.repository;
 
-import com.example.Flicktionary.domain.series.domain.Series;
+import com.example.Flicktionary.domain.series.entity.Series;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface SeriesRepository extends JpaRepository<Series, Integer> {
+@Repository
+public interface SeriesRepository extends JpaRepository<Series, Long> {
 }

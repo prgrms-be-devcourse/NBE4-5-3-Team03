@@ -3,7 +3,9 @@ server:
 
 spring:
   config:
-    import: "application-apikey.yml"
+    import:
+      #- "classpath:application-apikey.yml"
+      - "classpath:application-apikey.yml"
 
   output:
     ansi:

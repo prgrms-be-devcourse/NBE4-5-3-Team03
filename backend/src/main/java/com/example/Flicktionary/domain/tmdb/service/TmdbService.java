@@ -42,4 +42,5 @@ public class TmdbService {
             throw new RuntimeException("TMDB API 요청 실패: " + e.getMessage());
         }
     }
+
 }
