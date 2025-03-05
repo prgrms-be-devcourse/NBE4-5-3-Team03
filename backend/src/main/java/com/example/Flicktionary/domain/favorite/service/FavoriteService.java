@@ -3,6 +3,8 @@ package com.example.Flicktionary.domain.favorite.service;
 import com.example.Flicktionary.domain.favorite.entity.Favorite;
 import com.example.Flicktionary.domain.favorite.entity.FavoriteDto;
 import com.example.Flicktionary.domain.favorite.repository.FavoriteRepository;
+import com.example.Flicktionary.domain.movie.repository.MovieRepository;
+import com.example.Flicktionary.domain.series.repository.SeriesRepository;
 import com.example.Flicktionary.domain.user.entity.User;
 import com.example.Flicktionary.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +19,26 @@ import java.util.stream.Collectors;
 public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
     private final UserRepository userRepository;
+    private final MovieRepository movieRepository;
+    private final SeriesRepository seriesRepository;
 
     @Transactional
     public FavoriteDto createFavorite(FavoriteDto favoriteDto) {
         User user = userRepository.findById(favoriteDto.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // contentType에 따라 contentId 검증
+        boolean contentExists = false;
+
+        if ("MOVIE".equalsIgnoreCase(String.valueOf(favoriteDto.getContentType()))) {
+            contentExists = movieRepository.existsById(favoriteDto.getContentId());
+        } else if ("SERIES".equalsIgnoreCase(String.valueOf(favoriteDto.getContentType()))) {
+            contentExists = seriesRepository.existsById(favoriteDto.getContentId());
+        }
+
+        if (!contentExists) {
+            throw new IllegalArgumentException(favoriteDto.getContentId() + "번 ContentID를 찾을 수 없습니다.");
+        }
 
         Favorite favorite = favoriteDto.toEntity(user);
 
