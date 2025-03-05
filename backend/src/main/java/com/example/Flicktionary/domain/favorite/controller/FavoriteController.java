@@ -18,8 +18,12 @@ public class FavoriteController {
     // 즐겨찾기 추가
     @PostMapping
     public ResponseEntity<FavoriteDto> createFavorite(@RequestBody FavoriteDto favoriteDto) {
-        FavoriteDto createdFavorite = favoriteService.createFavorite(favoriteDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdFavorite);
+        try {
+            FavoriteDto createdFavorite = favoriteService.createFavorite(favoriteDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdFavorite);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     // 특정 사용자 ID의 즐겨찾기 목록 조회
