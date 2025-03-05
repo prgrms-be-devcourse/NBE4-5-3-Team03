@@ -109,7 +109,7 @@ public class SeriesService {
                             genreRepository.findByName(genreDto.getName())
                                     .orElseGet(() -> {
                                         // 만약 DB에 없으면 새로 생성하여 저장
-                                        Genre newGenre = new Genre(genreDto.getName());
+                                        Genre newGenre = new Genre(genreDto.getId(), genreDto.getName());
                                         genreRepository.save(newGenre);
                                         return newGenre;  // 새로 생성된 장르를 반환
                                     })

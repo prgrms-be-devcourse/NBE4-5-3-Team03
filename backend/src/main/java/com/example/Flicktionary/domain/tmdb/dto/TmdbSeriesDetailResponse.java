@@ -17,6 +17,11 @@ import java.util.List;
 @NoArgsConstructor
 public class TmdbSeriesDetailResponse {
 
+    @JsonProperty("id")
+    @NonNull
+    private Long tmdbId;
+
+    @NonNull
     private String name;
 
     private String overview;

@@ -11,13 +11,14 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Genre {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long id;
 
     @Column(nullable = false)
     private String name;
 
-    public Genre(String name) {
+    public Genre(Long id, String name) {
+        this.id = id;
         this.name = name;
     }
 }
