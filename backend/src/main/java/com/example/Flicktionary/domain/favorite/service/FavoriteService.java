@@ -27,6 +27,17 @@ public class FavoriteService {
         User user = userRepository.findById(favoriteDto.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
+        // 즐겨찾기 목록에 존재하는지 확인
+        boolean exists = favoriteRepository.existsByUserIdAndContentTypeAndContentId(
+                favoriteDto.getUserId(),
+                favoriteDto.getContentType(),
+                favoriteDto.getContentId()
+        );
+
+        if (exists) {
+            throw new IllegalArgumentException("이미 즐겨찾기에 추가된 항목입니다.");
+        }
+
         // contentType에 따라 contentId 검증
         boolean contentExists = false;
 

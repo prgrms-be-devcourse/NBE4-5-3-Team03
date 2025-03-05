@@ -10,12 +10,15 @@ import lombok.*;
 @RequiredArgsConstructor
 @Builder
 @AllArgsConstructor
+@Table(name = "favorite", uniqueConstraints = {
+        @UniqueConstraint(name = "unique_favorite", columnNames = {"user_id", "content_type", "content_id"})
+})
 public class Favorite {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
