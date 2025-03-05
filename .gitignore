@@ -37,5 +37,4 @@ out/
 .vscode/
 
 ### custom ###
-application-secret.yml
 application-apikey.yml
