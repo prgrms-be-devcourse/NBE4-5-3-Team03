@@ -29,8 +29,12 @@ public class FavoriteController {
     // 특정 사용자 ID의 즐겨찾기 목록 조회
     @GetMapping("/{userId}")
     public ResponseEntity<List<FavoriteDto>> getUserFavorites(@PathVariable Long userId) {
-        List<FavoriteDto> favorites = favoriteService.getUserFavorites(userId);
-        return ResponseEntity.ok(favorites);
+        try {
+            List<FavoriteDto> favorites = favoriteService.getUserFavorites(userId);
+            return ResponseEntity.ok(favorites);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 //    // 즐겨찾기 수정

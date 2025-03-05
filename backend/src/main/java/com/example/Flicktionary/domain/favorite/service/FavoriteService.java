@@ -58,6 +58,9 @@ public class FavoriteService {
     }
 
     public List<FavoriteDto> getUserFavorites(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new IllegalArgumentException("User not found");
+        }
         List<Favorite> favorites = favoriteRepository.findAllByUserId(userId);
         return favorites.stream()
                 .map(FavoriteDto::fromEntity)
