@@ -41,8 +41,10 @@ public class MovieService {
     @Value("${tmdb.base-image-url}")
     private String baseImageUrl;
 
+    // tmdb api를 이용해서 영화 목록 정보를 받아와 저장합니다.
+    // 이미 있는 옇화에 대해서는 정보를 업데이트합니다.
     @Transactional
-    public void fetchAndSaveMovies(int pages) { // 이미 저장된 영화의 경우 update
+    public void fetchAndSaveMovies(int pages) {
         for (int i = 1; i <= pages; i++) {
             List<MovieDto> movieDtos = tmdbService.fetchMovies(i);
 
@@ -70,6 +72,8 @@ public class MovieService {
             sort = Sort.by(Sort.Direction.ASC, "id");
         } else if (sortBy.equalsIgnoreCase("rating")) {
             sort = Sort.by(Sort.Direction.DESC, "averageRating");
+        } else if (sortBy.equalsIgnoreCase("ratingCount")) {
+            sort = Sort.by(Sort.Direction.DESC, "ratingCount");
         } else {
             throw new RuntimeException("잘못된 정렬기준입니다.");
         }
@@ -83,11 +87,14 @@ public class MovieService {
 
     @Transactional
     public MovieResponseWithDetail getMovie(long id) {
-        Movie movie = movieRepository.findByIdWithActorsAndGenresAndDirector(id).orElseThrow(
-                () -> new NoSuchElementException("영화를 찾을 수 없습니다.")
+        // fetch join을 이용해서 영화에 연관된 배우와 감독 정보를 함께 가져옵니다.
+        // 장르와 배우가 모두 다대다이기 때문에 fetch join을 둘 다 사용하면 multibagfetch 에러 발생
+        // 장르는 lazy loading(batch size 사용)을 통해 가져옵니다.
+        Movie movie = movieRepository.findByIdWithActorsAndDirector(id).orElseThrow(
+                () -> new NoSuchElementException("%d번 영화를 찾을 수 없습니다.".formatted(id))
         );
 
-        // fetchDate가 7일 이상 지났다면 새로 데이터를 가져옴
+        // 상세 조회를 한 적이 없거나 상세 조회한 지 7일이 지났다면 tmdb api를 이용해서 상세 데이터를 받아옵니다.
         if (movie.getFetchDate() == null || movie.getFetchDate().isBefore(LocalDate.now().minusDays(7))) {
             return new MovieResponseWithDetail(fetchAndSaveMovie(movie));
         }
