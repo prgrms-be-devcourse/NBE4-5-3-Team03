@@ -38,7 +38,7 @@ public class MovieResponseWithDetail {
                 movie.getProductionCountry(),
                 movie.getProductionCompany(),
                 movie.getAverageRating(),
-                movie.getGenres().stream().map(g -> new GenreDto(g.getName())).toList(),
+                movie.getGenres().stream().map(g -> new GenreDto(g.getId(), g.getName())).toList(),
                 movie.getActors().stream().map(ActorDto::new).toList(),
                 new DirectorDto(movie.getDirector())
         );

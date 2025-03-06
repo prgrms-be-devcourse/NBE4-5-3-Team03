@@ -1,16 +1,21 @@
 package com.example.Flicktionary.domain.tmdb.dto;
 
-import com.example.Flicktionary.domain.genre.dto.GenreDto;
+import com.example.Flicktionary.domain.actor.entity.Actor;
+import com.example.Flicktionary.domain.director.entity.Director;
 import com.example.Flicktionary.domain.genre.entity.Genre;
 import com.example.Flicktionary.domain.series.entity.Series;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.util.List;
+
+import static com.example.Flicktionary.domain.tmdb.dto.TmdbMovieResponseWithDetail.TmdbCredits;
+import static com.example.Flicktionary.domain.tmdb.dto.TmdbMovieResponseWithDetail.TmdbGenre;
 
 @Getter
 @AllArgsConstructor
@@ -32,7 +37,7 @@ public class TmdbSeriesDetailResponse {
     @JsonProperty("poster_path")
     private String posterPath;
 
-    private List<GenreDto> genres;
+    private List<TmdbGenre> genres;
 
     @JsonProperty("first_air_date")
     private String firstAirDate;
@@ -48,8 +53,16 @@ public class TmdbSeriesDetailResponse {
     @JsonProperty("production_companies")
     private List<ProductionCompanyDto> productionCompanies;
 
+    @JsonProperty("credits")
+    private TmdbCredits tmdbCredits;
 
-    public static Series toEntity(ResponseEntity<TmdbSeriesDetailResponse> response, List<Genre> genres, String baseImageUrl) {
+
+    public static Series toEntity(
+            ResponseEntity<TmdbSeriesDetailResponse> response,
+            List<Genre> genres,
+            List<Actor> actors,
+            Director director,
+            String baseImageUrl) {
         TmdbSeriesDetailResponse body = response.getBody();
 
         return Series.builder()
@@ -64,6 +77,8 @@ public class TmdbSeriesDetailResponse {
                 .nation(getFirstOrDefault(body.getOriginCountry(), "Unknown"))
                 .company(getFirstCompanyOrDefault(body.getProductionCompanies(), "Unknown"))
                 .genres(genres)
+                .actors(actors)
+                .director(director)
                 .build();
     }
 

@@ -1,5 +1,9 @@
 package com.example.Flicktionary.domain.series.service;
 
+import com.example.Flicktionary.domain.actor.entity.Actor;
+import com.example.Flicktionary.domain.actor.repository.ActorRepository;
+import com.example.Flicktionary.domain.director.entity.Director;
+import com.example.Flicktionary.domain.director.repository.DirectorRepository;
 import com.example.Flicktionary.domain.genre.entity.Genre;
 import com.example.Flicktionary.domain.genre.repository.GenreRepository;
 import com.example.Flicktionary.domain.series.entity.Series;
@@ -34,6 +38,10 @@ public class SeriesService {
     private final SeriesRepository seriesRepository;
 
     private final GenreRepository genreRepository;
+
+    private final ActorRepository actorRepository;
+
+    private final DirectorRepository directorRepository;
 
     private final RestTemplate restTemplate;
 
@@ -86,7 +94,7 @@ public class SeriesService {
 
     // 각 시리즈의 상세 정보를 가져와서 DB에 저장
     private void fetchAndSaveSeriesDetails(Long seriesId) throws InterruptedException {
-        String url = String.format("https://api.themoviedb.org/3/tv/%d?language=ko-KR", seriesId);
+        String url = String.format("https://api.themoviedb.org/3/tv/%d?language=ko-KR&append_to_response=credits", seriesId);
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", accessToken);
@@ -106,19 +114,45 @@ public class SeriesService {
             //Genre 엔티티 생성
             List<Genre> genres = response.getBody().getGenres().stream()
                     .map(genreDto ->
-                            genreRepository.findByName(genreDto.getName())
+                            genreRepository.findById(genreDto.id())
                                     .orElseGet(() -> {
                                         // 만약 DB에 없으면 새로 생성하여 저장
-                                        Genre newGenre = new Genre(genreDto.getId(), genreDto.getName());
+                                        Genre newGenre = new Genre(genreDto.id(), genreDto.name());
                                         genreRepository.save(newGenre);
                                         return newGenre;  // 새로 생성된 장르를 반환
                                     })
                     )
                     .collect(Collectors.toList());
 
+            //Actor 엔티티 생성
+            List<Actor> actors = response.getBody().getTmdbCredits().cast().stream()
+                    .limit(5)
+                    .map(actorDto ->
+                            actorRepository.findById(actorDto.id())
+                                    .orElseGet(() -> {
+                                        Actor newActor = new Actor(actorDto.id(), actorDto.name());
+                                        actorRepository.save(newActor);
+                                        return newActor;
+                                    })
+                    )
+                    .collect(Collectors.toList());
+
+            //Director 엔티티 생성
+            Director director = response.getBody().getTmdbCredits().crew().stream()
+                    .findFirst()
+                    .map(directorDto ->
+                            directorRepository.findById(directorDto.id())
+                                    .orElseGet(() -> {
+                                        Director newDirector = new Director(directorDto.id(), directorDto.name());
+                                        directorRepository.save(newDirector);
+                                        return newDirector;
+                                    })
+                    )
+                    .orElse(null); // 감독이 없으면 null 반환
+
             seriesRepository.findById(response.getBody().getTmdbId()).ifPresentOrElse(
                     series -> updateSeries(series, response),
-                    () -> seriesRepository.save(TmdbSeriesDetailResponse.toEntity(response, genres, baseImageUrl))
+                    () -> seriesRepository.save(TmdbSeriesDetailResponse.toEntity(response, genres, actors, director, baseImageUrl))
             );
 
 
