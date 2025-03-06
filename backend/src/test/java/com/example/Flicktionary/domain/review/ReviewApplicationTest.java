@@ -5,18 +5,16 @@ import com.example.Flicktionary.domain.movie.repository.MovieRepository;
 import com.example.Flicktionary.domain.review.dto.ReviewDto;
 import com.example.Flicktionary.domain.review.repository.ReviewRepository;
 import com.example.Flicktionary.domain.review.service.ReviewService;
-import com.example.Flicktionary.domain.series.domain.Series;
-import com.example.Flicktionary.domain.series.domain.SeriesStatus;
+import com.example.Flicktionary.domain.series.entity.Series;
 import com.example.Flicktionary.domain.series.repository.SeriesRepository;
 import com.example.Flicktionary.domain.user.entity.User;
+import com.example.Flicktionary.domain.user.repository.UserRepository;
 import com.example.Flicktionary.global.dto.PageDto;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +22,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
@@ -82,7 +79,7 @@ public class ReviewApplicationTest {
                 .title("테스트용 드라마 제목")
                 .plot("테스트용 드라마 줄거리")
                 .episode(12)
-                .status(SeriesStatus.ONGOING)
+                .status("상영중")
                 .imageUrl("테스트용 이미지")
                 .avgRating(4.5)
                 .ratingCount(10)
@@ -280,8 +277,8 @@ public class ReviewApplicationTest {
         int page = 0, size = 5;
 
         // 페이징 적용해서 영화 리뷰 목록 조회
-        Page<ReviewDto> reviewDtoPage = reviewService.reviewMovieDtoPage(testMovie.getId(), page, size);
-        List<ReviewDto> reviews = reviewDtoPage.getContent();
+        PageDto<ReviewDto> reviewDtoPage = reviewService.reviewMovieDtoPage(testMovie.getId(), page, size);
+        List<ReviewDto> reviews = reviewDtoPage.getItems();
 
         /// 검증 ///
         // 출력
@@ -289,12 +286,12 @@ public class ReviewApplicationTest {
             System.out.println("리뷰 내용 : " + reviewDto.getContent());
         }
 
-        assertThat(reviewDtoPage).isNotEmpty();
-        assertThat(reviewDtoPage.getSize()).isEqualTo(size);
-        assertThat(reviewDtoPage.getNumber()).isEqualTo(page);
-        assertThat(reviewDtoPage.getTotalElements()).isEqualTo(20);
-        assertThat(reviewDtoPage.getTotalPages()).isEqualTo(4);
+        assertThat(reviewDtoPage).isNotNull();
         assertThat(reviews).isNotEmpty();
+        assertThat(reviewDtoPage.getPageSize()).isEqualTo(size);
+        assertThat(reviewDtoPage.getCurPageNo()).isEqualTo(page + 1);
+        assertThat(reviewDtoPage.getTotalItems()).isEqualTo(20);
+        assertThat(reviewDtoPage.getTotalPages()).isEqualTo(4);
         assertThat(reviews.size()).isEqualTo(size);
     }
 }
