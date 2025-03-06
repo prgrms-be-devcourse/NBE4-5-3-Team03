@@ -42,7 +42,7 @@ public class MovieService {
     private String baseImageUrl;
 
     // tmdb api를 이용해서 영화 목록 정보를 받아와 저장합니다.
-    // 이미 있는 옇화에 대해서는 정보를 업데이트합니다.
+    // 이미 있는 영화에 대해서는 정보를 업데이트합니다.
     @Transactional
     public void fetchAndSaveMovies(int pages) {
         for (int i = 1; i <= pages; i++) {
