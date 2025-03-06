@@ -31,7 +31,7 @@ public class Review {
     private Movie movie;
 
     // 드라마 id (외래키)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "series_id")
     private Series series;
 
