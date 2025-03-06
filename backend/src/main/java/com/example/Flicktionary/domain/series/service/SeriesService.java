@@ -6,6 +6,7 @@ import com.example.Flicktionary.domain.director.entity.Director;
 import com.example.Flicktionary.domain.director.repository.DirectorRepository;
 import com.example.Flicktionary.domain.genre.entity.Genre;
 import com.example.Flicktionary.domain.genre.repository.GenreRepository;
+import com.example.Flicktionary.domain.series.dto.SeriesDetailResponse;
 import com.example.Flicktionary.domain.series.entity.Series;
 import com.example.Flicktionary.domain.series.repository.SeriesRepository;
 import com.example.Flicktionary.domain.tmdb.dto.TmdbPopularSeriesResponse;
@@ -197,5 +198,12 @@ public class SeriesService {
 
         Pageable pageable = PageRequest.of(page-1, pageSize, sort);
         return seriesRepository.findByTitleLike(keyword, pageable);
+    }
+
+    public SeriesDetailResponse getSeriesDetail(Long id) {
+        Series series = seriesRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("id에 해당하는 Series가 존재하지 않습니다."));
+
+        return new SeriesDetailResponse(series);
     }
 }
