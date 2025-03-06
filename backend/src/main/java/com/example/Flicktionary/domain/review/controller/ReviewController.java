@@ -2,14 +2,15 @@ package com.example.Flicktionary.domain.review.controller;
 
 import com.example.Flicktionary.domain.review.dto.ReviewDto;
 import com.example.Flicktionary.domain.review.service.ReviewService;
-import com.example.Flicktionary.global.dto.PageDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/reviews")
+@RequestMapping("/api/review")
 @RequiredArgsConstructor
 public class ReviewController {
 
@@ -41,21 +42,21 @@ public class ReviewController {
 
     // 특정 영화의 리뷰를 페이지로 조회 (0 ~ 5 페이지)
     @GetMapping("/movie/{movie_id}")
-    public PageDto<ReviewDto> reviewMovieDtoPage(
-            @PathVariable Long movieId,
+    public ResponseEntity<Page<ReviewDto>> reviewMovieDtoPage(
+            @PathVariable Long movie_id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
 
-        return reviewService.reviewMovieDtoPage(movieId, page, size);
+        return ResponseEntity.ok(reviewService.reviewMovieDtoPage(movie_id, page, size));
     }
 
     // 특정 드라마의 리뷰를 페이지로 조회 (0 ~ 5 페이지)
     @GetMapping("/series/{series_id}")
-    public PageDto<ReviewDto> reviewSeriesDtoPage(
-            @PathVariable Long seriesId,
+    public ResponseEntity<Page<ReviewDto>> reviewSeriesDtoPage(
+            @PathVariable Long series_id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
 
-        return reviewService.reviewSeriesDtoPage(seriesId, page, size);
+        return ResponseEntity.ok(reviewService.reviewSeriesDtoPage(series_id, page, size));
     }
 }
