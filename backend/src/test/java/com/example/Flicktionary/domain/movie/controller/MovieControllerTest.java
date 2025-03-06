@@ -58,6 +58,28 @@ class MovieControllerTest {
     }
 
     @Test
+    @DisplayName("영화 목록 조회 - 실패 - 잘못된 정렬 기준")
+    void getMovies2() throws Exception {
+        String keyword = "";
+        int page = 1;
+        int pageSize = 10;
+        String sortBy = "Unknown";
+
+        ResultActions resultActions = mvc.perform(get("/api/movies")
+                        .param("keyword", keyword)
+                        .param("page", "%d".formatted(page))
+                        .param("pageSize", "%d".formatted(pageSize))
+                        .param("sortBy", sortBy)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isBadRequest())
+                .andExpect(handler().handlerType(MovieController.class))
+                .andExpect(handler().methodName("getMovies"));
+    }
+
+    @Test
     @DisplayName("영화 상세 조회 - 성공")
     void getMovie1() throws Exception {
         long id = 1L;
@@ -76,6 +98,21 @@ class MovieControllerTest {
                 .andExpect(jsonPath("$.tmdbId").value(result.getTmdbId()))
                 .andExpect(jsonPath("$.title").value(result.getTitle()))
                 .andExpect(jsonPath("$.actors[0].id").value(result.getActors().getFirst().getId()))
-                .andExpect(jsonPath("$.genres[0].name").value(result.getGenres().getFirst().getName()));
+                .andExpect(jsonPath("$.genres[0].id").value(result.getGenres().getFirst().getId()));
+    }
+
+    @Test
+    @DisplayName("영화 상세 조회 - 실패 - 없는 영화 조회")
+    void getMovie2() throws Exception {
+        long id = 1000000000000000000L;
+
+        ResultActions resultActions = mvc.perform(get("/api/movies/%d".formatted(id))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(handler().handlerType(MovieController.class))
+                .andExpect(handler().methodName("getMovie"));
     }
 }
