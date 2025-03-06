@@ -1,13 +1,14 @@
 package com.example.Flicktionary.domain.movie.controller;
 
-import com.example.Flicktionary.domain.movie.entity.Movie;
+import com.example.Flicktionary.domain.movie.dto.MovieResponse;
+import com.example.Flicktionary.domain.movie.dto.MovieResponseWithDetail;
 import com.example.Flicktionary.domain.movie.service.MovieService;
+import com.example.Flicktionary.global.dto.PageDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -43,16 +44,38 @@ class MovieControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print());
 
-        Page<Movie> result = movieService.getMovies(keyword, page, pageSize, sortBy);
+        PageDto<MovieResponse> result = movieService.getMovies(keyword, page, pageSize, sortBy);
 
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(MovieController.class))
                 .andExpect(handler().methodName("getMovies"))
                 .andExpect(jsonPath("$.items").isArray())
-                .andExpect(jsonPath("$.items[0].id").value(result.getContent().getFirst().getId()))
-                .andExpect(jsonPath("$.items[1].id").value(result.getContent().get(1).getId()))
+                .andExpect(jsonPath("$.items[0].id").value(result.getItems().getFirst().getId()))
+                .andExpect(jsonPath("$.items[1].id").value(result.getItems().get(1).getId()))
                 .andExpect(jsonPath("$.totalPages").value(result.getTotalPages()))
-                .andExpect(jsonPath("$.totalItems").value(result.getTotalElements()));
+                .andExpect(jsonPath("$.totalItems").value(result.getTotalItems()));
+    }
+
+    @Test
+    @DisplayName("영화 상세 조회 - 성공")
+    void getMovie1() throws Exception {
+        long id = 1L;
+
+        ResultActions resultActions = mvc.perform(get("/api/movies/%d".formatted(id))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        MovieResponseWithDetail result = movieService.getMovie(id);
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(MovieController.class))
+                .andExpect(handler().methodName("getMovie"))
+                .andExpect(jsonPath("$.id").value(result.getId()))
+                .andExpect(jsonPath("$.tmdbId").value(result.getTmdbId()))
+                .andExpect(jsonPath("$.title").value(result.getTitle()))
+                .andExpect(jsonPath("$.actors[0].id").value(result.getActors().getFirst().getId()))
+                .andExpect(jsonPath("$.genres[0].name").value(result.getGenres().getFirst().getName()));
     }
 }
