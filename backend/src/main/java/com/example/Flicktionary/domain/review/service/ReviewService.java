@@ -8,6 +8,7 @@ import com.example.Flicktionary.domain.review.repository.ReviewRepository;
 import com.example.Flicktionary.domain.series.domain.Series;
 import com.example.Flicktionary.domain.series.repository.SeriesRepository;
 import com.example.Flicktionary.domain.user.entity.User;
+import com.example.Flicktionary.global.dto.PageDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -109,20 +110,28 @@ public class ReviewService {
     }
 
     // 페이지네이션을 이용해서 특정 영화의 리뷰 목록을 조회
-    public Page<ReviewDto> reviewMovieDtoPage(Long movie_id, int page, int size) {
+    public PageDto<ReviewDto> reviewMovieDtoPage(Long movieId, int page, int size) {
 
         // Pageable 변수로 페이지와 크기를 받아 변수에 저장
         Pageable pageable = PageRequest.of(page, size);
 
-        return reviewRepository.findByMovieId(movie_id, pageable).map(ReviewDto::fromEntity);
+        // 영화 id로 영화를 찾아 ReviewDto 객체 목록으로 변환하여, Page 변수에 담아 return
+        Page<ReviewDto> reviewDtoPage = reviewRepository.findByMovie_Id(movieId, pageable)
+                .map(ReviewDto::fromEntity);
+
+        return new PageDto<>(reviewDtoPage);
     }
 
     // 페이지네이션을 이용해서 특정 드라마의 리뷰 목록을 조회
-    public Page<ReviewDto> reviewSeriesDtoPage(Long series_id, int page, int size) {
+    public PageDto<ReviewDto> reviewSeriesDtoPage(Long seriesId, int page, int size) {
 
         // Pageable 변수로 페이지와 크기를 받아 변수에 저장
         Pageable pageable = PageRequest.of(page, size);
 
-        return reviewRepository.findBySeriesId(series_id, pageable).map(ReviewDto::fromEntity);
+        // 드라마 id로 드라마를 찾아 ReviewDto 객체 목록으로 변환하여, Page 변수에 담아 return
+        Page<ReviewDto> reviewDtoPage = reviewRepository.findBySeries_Id(seriesId, pageable)
+                .map(ReviewDto::fromEntity);
+
+        return new PageDto<>(reviewDtoPage);
     }
 }

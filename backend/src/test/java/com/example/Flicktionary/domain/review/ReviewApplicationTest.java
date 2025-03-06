@@ -9,6 +9,7 @@ import com.example.Flicktionary.domain.series.domain.Series;
 import com.example.Flicktionary.domain.series.domain.SeriesStatus;
 import com.example.Flicktionary.domain.series.repository.SeriesRepository;
 import com.example.Flicktionary.domain.user.entity.User;
+import com.example.Flicktionary.global.dto.PageDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -189,13 +190,33 @@ public class ReviewApplicationTest {
         // 리뷰 생성
         reviewService.createReview(reviewDto);
 
-        // 영화 id로 영화를 찾아 리뷰들을 List 변수에 저장
-        Page<ReviewDto> reviewDtoPage = reviewService.reviewMovieDtoPage(reviewDto.getMovieId(), 0, 5);
-        List<ReviewDto> review = reviewDtoPage.getContent();
+        // 영화 id로 영화를 찾아 리뷰들을 PageDto 변수에 저장
+        PageDto<ReviewDto> reviewDtoPageDto = reviewService.reviewMovieDtoPage(reviewDto.getMovieId(), 0, 5);
 
         /// 검증 ///
-        assertThat(review).isNotEmpty();
-        assertThat(review.get(0).getMovieId()).isEqualTo(reviewDto.getMovieId());
+        assertThat(reviewDtoPageDto).isNotNull();
+        assertThat(reviewDtoPageDto.getItems()).isNotEmpty();
+        assertThat(reviewDtoPageDto.getItems().get(0).getMovieId()).isEqualTo(reviewDto.getMovieId());
+        assertThat(reviewDtoPageDto.getCurPageNo()).isEqualTo(1);
+        assertThat(reviewDtoPageDto.getPageSize()).isEqualTo(5);
+    }
+
+    @Test
+    @DisplayName("특정 드라마의 리뷰 조회")
+    void printReviewBySeries() {
+
+        // 리뷰 생성
+        reviewService.createReview(reviewDto);
+
+        // 드라마 id로 드라마를 찾아 리뷰들을 PageDto 변수에 저장
+        PageDto<ReviewDto> reviewDtoPageDto = reviewService.reviewSeriesDtoPage(reviewDto.getSeriesId(), 0, 5);
+
+        /// 검증 ///
+        assertThat(reviewDtoPageDto).isNotNull();
+        assertThat(reviewDtoPageDto.getItems()).isNotEmpty();
+        assertThat(reviewDtoPageDto.getItems().get(0).getSeriesId()).isEqualTo(reviewDto.getSeriesId());
+        assertThat(reviewDtoPageDto.getCurPageNo()).isEqualTo(1);
+        assertThat(reviewDtoPageDto.getPageSize()).isEqualTo(5);
     }
 
     @Test
