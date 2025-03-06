@@ -113,7 +113,7 @@ public class MovieService {
         // 장르 저장
         List<Genre> genres = new ArrayList<>(response.genres().stream()
                 .map(g -> genreRepository.findByName(g.name())
-                        .orElseGet(() -> genreRepository.save(new Genre(g.name()))))
+                        .orElseGet(() -> genreRepository.save(new Genre(g.id(), g.name()))))
                 .toList());  // 불변 리스트를 가변 리스트로 변환
         movie.setGenres(genres);
 

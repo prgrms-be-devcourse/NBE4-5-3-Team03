@@ -1,15 +1,23 @@
 package com.example.Flicktionary.domain.series.service;
 
+import com.example.Flicktionary.domain.actor.entity.Actor;
+import com.example.Flicktionary.domain.actor.repository.ActorRepository;
+import com.example.Flicktionary.domain.director.entity.Director;
+import com.example.Flicktionary.domain.director.repository.DirectorRepository;
 import com.example.Flicktionary.domain.genre.entity.Genre;
 import com.example.Flicktionary.domain.genre.repository.GenreRepository;
-import com.example.Flicktionary.domain.series.dto.SeriesDetailDto;
-import com.example.Flicktionary.domain.series.dto.SeriesPopularIdDto;
 import com.example.Flicktionary.domain.series.entity.Series;
 import com.example.Flicktionary.domain.series.repository.SeriesRepository;
 import com.example.Flicktionary.domain.tmdb.dto.TmdbPopularSeriesResponse;
+import com.example.Flicktionary.domain.tmdb.dto.TmdbSeriesDetailResponse;
+import com.example.Flicktionary.domain.tmdb.dto.TmdbSeriesPopularIdResponse;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -30,6 +38,10 @@ public class SeriesService {
     private final SeriesRepository seriesRepository;
 
     private final GenreRepository genreRepository;
+
+    private final ActorRepository actorRepository;
+
+    private final DirectorRepository directorRepository;
 
     private final RestTemplate restTemplate;
 
@@ -69,7 +81,7 @@ public class SeriesService {
                     throw new RuntimeException("TMDB API 응답이 null입니다.");
                 }
 
-                for (SeriesPopularIdDto dto : response.getBody().getResults()) {
+                for (TmdbSeriesPopularIdResponse dto : response.getBody().getResults()) {
                     fetchAndSaveSeriesDetails(dto.getId());
                 }
 
@@ -82,17 +94,17 @@ public class SeriesService {
 
     // 각 시리즈의 상세 정보를 가져와서 DB에 저장
     private void fetchAndSaveSeriesDetails(Long seriesId) throws InterruptedException {
-        String url = String.format("https://api.themoviedb.org/3/tv/%d?language=ko-KR", seriesId);
+        String url = String.format("https://api.themoviedb.org/3/tv/%d?language=ko-KR&append_to_response=credits", seriesId);
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", accessToken);
 
             HttpEntity<String> entity = new HttpEntity<>(headers);
-            ResponseEntity<SeriesDetailDto> response = restTemplate.exchange(
+            ResponseEntity<TmdbSeriesDetailResponse> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     entity,
-                    SeriesDetailDto.class
+                    TmdbSeriesDetailResponse.class
             );
 
             if (response.getBody() == null) {
@@ -102,19 +114,45 @@ public class SeriesService {
             //Genre 엔티티 생성
             List<Genre> genres = response.getBody().getGenres().stream()
                     .map(genreDto ->
-                            genreRepository.findByName(genreDto.getName())
+                            genreRepository.findById(genreDto.id())
                                     .orElseGet(() -> {
                                         // 만약 DB에 없으면 새로 생성하여 저장
-                                        Genre newGenre = new Genre(genreDto.getName());
+                                        Genre newGenre = new Genre(genreDto.id(), genreDto.name());
                                         genreRepository.save(newGenre);
                                         return newGenre;  // 새로 생성된 장르를 반환
                                     })
                     )
                     .collect(Collectors.toList());
 
-            seriesRepository.findByTmdbId(response.getBody().getTmdbId()).ifPresentOrElse(
+            //Actor 엔티티 생성
+            List<Actor> actors = response.getBody().getTmdbCredits().cast().stream()
+                    .limit(5)
+                    .map(actorDto ->
+                            actorRepository.findById(actorDto.id())
+                                    .orElseGet(() -> {
+                                        Actor newActor = new Actor(actorDto.id(), actorDto.name());
+                                        actorRepository.save(newActor);
+                                        return newActor;
+                                    })
+                    )
+                    .collect(Collectors.toList());
+
+            //Director 엔티티 생성
+            Director director = response.getBody().getTmdbCredits().crew().stream()
+                    .findFirst()
+                    .map(directorDto ->
+                            directorRepository.findById(directorDto.id())
+                                    .orElseGet(() -> {
+                                        Director newDirector = new Director(directorDto.id(), directorDto.name());
+                                        directorRepository.save(newDirector);
+                                        return newDirector;
+                                    })
+                    )
+                    .orElse(null); // 감독이 없으면 null 반환
+
+            seriesRepository.findById(response.getBody().getTmdbId()).ifPresentOrElse(
                     series -> updateSeries(series, response),
-                    () -> seriesRepository.save(SeriesDetailDto.toEntity(response, genres, baseImageUrl))
+                    () -> seriesRepository.save(TmdbSeriesDetailResponse.toEntity(response, genres, actors, director, baseImageUrl))
             );
 
 
@@ -124,8 +162,8 @@ public class SeriesService {
     }
 
     //이미 DB에 존재한다면 업데이트
-    private void updateSeries(Series series, ResponseEntity<SeriesDetailDto> response) {
-        SeriesDetailDto body = response.getBody();
+    private void updateSeries(Series series, ResponseEntity<TmdbSeriesDetailResponse> response) {
+        TmdbSeriesDetailResponse body = response.getBody();
         series.setTitle(body.getName());
         series.setPlot(body.getOverview());
         series.setEpisode(body.getNumberOfEpisodes());
@@ -137,5 +175,27 @@ public class SeriesService {
         if(body.getLastAirDate() != null){
             series.setReleaseEndDate(LocalDate.parse(body.getLastAirDate()));
         }
+    }
+
+    //Series 목록 조회(페이징, 정렬)
+    public Page<Series> getSeries(String keyword, int page, int pageSize, String sortBy) {
+        Sort sort;
+
+        if(sortBy.equalsIgnoreCase("id")){ //ID기준 오름차순
+            sort = Sort.by("id").ascending();
+        }else if(sortBy.equalsIgnoreCase("rating")) { //평점 기준 내림차순
+            sort = Sort.by("avgRating").descending();
+        }else if(sortBy.equalsIgnoreCase("rating-count")) { //리뷰 개수 내림차순
+            sort = Sort.by("ratingCount").descending();
+        }else{
+            throw new RuntimeException("잘못된 정렬 방식입니다.");
+        }
+
+        if(page < 1){
+            throw new RuntimeException("페이지는 1부터 요청 가능합니다.");
+        }
+
+        Pageable pageable = PageRequest.of(page-1, pageSize, sort);
+        return seriesRepository.findByTitleLike(keyword, pageable);
     }
 }
