@@ -2,12 +2,12 @@ package com.example.Flicktionary.domain.favorite.controller;
 
 import com.example.Flicktionary.domain.favorite.dto.FavoriteDto;
 import com.example.Flicktionary.domain.favorite.service.FavoriteService;
+import com.example.Flicktionary.global.dto.PageDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/favorite")
@@ -28,9 +28,15 @@ public class FavoriteController {
 
     // 특정 사용자 ID의 즐겨찾기 목록 조회
     @GetMapping("/{userId}")
-    public ResponseEntity<List<FavoriteDto>> getUserFavorites(@PathVariable Long userId) {
+    public ResponseEntity<PageDto<FavoriteDto>> getUserFavorites(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
         try {
-            List<FavoriteDto> favorites = favoriteService.getUserFavorites(userId);
+            Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
+            PageDto<FavoriteDto> favorites = favoriteService.getUserFavorites(userId, page, pageSize, sort);
             return ResponseEntity.ok(favorites);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
