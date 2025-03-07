@@ -41,8 +41,10 @@ public class MovieService {
     @Value("${tmdb.base-image-url}")
     private String baseImageUrl;
 
+    // tmdb api를 이용해서 인기 영화 목록 정보를 받아와 저장합니다.
+    // 이미 있는 영화에 대해서는 정보를 업데이트합니다.
     @Transactional
-    public void fetchAndSaveMovies(int pages) { // 이미 저장된 영화의 경우 update
+    public void fetchAndSaveMovies(int pages) {
         for (int i = 1; i <= pages; i++) {
             List<MovieDto> movieDtos = tmdbService.fetchMovies(i);
 
@@ -55,6 +57,20 @@ public class MovieService {
         }
     }
 
+    // tmdb api를 이용해서 영화 검색 결과를 받아와 저장합니다.
+    // 이미 있는 영화에 대해서는 정보를 업데이트합니다.
+    @Transactional
+    public void fetchAndSaveMovies(String keyword) {
+        List<MovieDto> movieDtos = tmdbService.searchMovies(keyword);
+
+        for (MovieDto movieDto : movieDtos) {
+            movieRepository.findByTmdbId(movieDto.id()).ifPresentOrElse(
+                    movie -> updateMovie(movie, movieDto),
+                    () -> movieRepository.save(movieDto.toEntity(baseImageUrl))
+            );
+        }
+    }
+
     private void updateMovie(Movie movie, MovieDto movieDto) {
         movie.setTitle(movieDto.title());
         movie.setOverview(movieDto.overview());
@@ -62,33 +78,47 @@ public class MovieService {
         movie.setPosterPath(movieDto.posterPath());
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public PageDto<MovieResponse> getMovies(String keyword, int page, int pageSize, String sortBy) {
-        Sort sort;
-
-        if (sortBy.equalsIgnoreCase("id")) {
-            sort = Sort.by(Sort.Direction.ASC, "id");
-        } else if (sortBy.equalsIgnoreCase("rating")) {
-            sort = Sort.by(Sort.Direction.DESC, "averageRating");
-        } else {
-            throw new RuntimeException("잘못된 정렬기준입니다.");
-        }
-
+        Sort sort = getSort(sortBy);
         Pageable pageable = PageRequest.of(page - 1, pageSize, sort);
 
         Page<Movie> movies = movieRepository.findByTitleLike(keyword, pageable);
 
+        // 검색 결과가 없으면 tmdb api를 통해 데이터를 가져옵니다.
+        if (movies.isEmpty()) {
+            fetchAndSaveMovies(keyword);
+            movies = movieRepository.findByTitleLike(keyword, pageable);
+        }
+
         return new PageDto<>(movies.map(MovieResponse::new));
+    }
+
+    private Sort getSort(String sortBy) {
+        if (sortBy.equalsIgnoreCase("id")) {
+            return Sort.by(Sort.Direction.ASC, "id");
+        }
+        if (sortBy.equalsIgnoreCase("rating")) {
+            return Sort.by(Sort.Direction.DESC, "averageRating");
+        }
+        if (sortBy.equalsIgnoreCase("ratingCount")) {
+            return Sort.by(Sort.Direction.DESC, "ratingCount");
+        }
+        throw new RuntimeException("잘못된 정렬기준입니다.");
     }
 
     @Transactional
     public MovieResponseWithDetail getMovie(long id) {
-        Movie movie = movieRepository.findByIdWithActorsAndGenresAndDirector(id).orElseThrow(
-                () -> new NoSuchElementException("영화를 찾을 수 없습니다.")
+        // fetch join을 이용해서 영화에 연관된 배우와 감독 정보를 가져옵니다.
+        // 장르는 lazy loading
+        Movie movie = movieRepository.findByIdWithActorsAndDirector(id).orElseThrow(
+                () -> new NoSuchElementException("%d번 영화를 찾을 수 없습니다.".formatted(id))
         );
 
-        // fetchDate가 7일 이상 지났다면 새로 데이터를 가져옴
-        if (movie.getFetchDate() == null || movie.getFetchDate().isBefore(LocalDate.now().minusDays(7))) {
+        // 상세 조회를 한 적이 없거나 상태가 개봉 전이고 상세 조회한 지 7일이 지났다면 tmdb api를 이용해서 상세 데이터를 받아옵니다.
+        if (movie.getFetchDate() == null ||
+                (!movie.getStatus().equals("Released") &&
+                        movie.getFetchDate().isBefore(LocalDate.now().minusDays(7)))) {
             return new MovieResponseWithDetail(fetchAndSaveMovie(movie));
         }
 

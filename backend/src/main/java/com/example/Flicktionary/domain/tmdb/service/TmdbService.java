@@ -22,30 +22,15 @@ public class TmdbService {
         this.restClient = builder.baseUrl(BASE_URL).build();
     }
 
+    // 인기 영화 목록에서 영화를 가져옵니다.
     public List<MovieDto> fetchMovies(int page) {
-        String url = "/movie/popular?&language=ko-KR&page=" + page;
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", accessToken);
-
-            TmdbMoviesResponse response = restClient.get()
-                    .uri(url)
-                    .headers(h -> h.addAll(headers))
-                    .retrieve()
-                    .body(TmdbMoviesResponse.class);
-
-            if (response == null) {
-                throw new RuntimeException("TMDB API 응답이 null입니다.");
-            }
-
-            return response.getResults();
-        } catch (HttpClientErrorException e) {
-            throw new RuntimeException("TMDB API 요청 실패: " + e.getMessage());
-        }
+        String url = "/movie/popular?language=ko-KR&page=" + page;
+        return getMovies(url);
     }
 
+    // 영화 상세 정보를 가져옵니다.
     public TmdbMovieResponseWithDetail fetchMovie(long tmdbId) {
-        String url = "/movie/%d?&language=ko-KR&append_to_response=credits".formatted(tmdbId);
+        String url = "/movie/%d?language=ko-KR&append_to_response=credits".formatted(tmdbId);
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", accessToken);
@@ -60,5 +45,30 @@ public class TmdbService {
         }
     }
 
+    // 영화 검색 결과를 가져옵니다.
+    public List<MovieDto> searchMovies(String keyword) {
+        String url = "/search/movie?query=%s&language=ko-KR".formatted(keyword);
+        return getMovies(url);
+    }
 
+    private List<MovieDto> getMovies(String url) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", accessToken);
+
+            TmdbMoviesResponse response = restClient.get()
+                    .uri(url)
+                    .headers(h -> h.addAll(headers))
+                    .retrieve()
+                    .body(TmdbMoviesResponse.class);
+
+            if (response == null) {
+                throw new RuntimeException("TMDB API 응답 내용이 없습니다.");
+            }
+
+            return response.getResults();
+        } catch (HttpClientErrorException e) {
+            throw new RuntimeException("TMDB API 요청 실패: " + e.getMessage());
+        }
+    }
 }

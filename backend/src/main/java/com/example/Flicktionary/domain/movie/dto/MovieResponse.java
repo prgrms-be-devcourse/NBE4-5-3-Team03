@@ -12,8 +12,9 @@ public class MovieResponse {
     private final String title;
     private final String posterPath;
     private final float averageRating;
+    private final int ratingCount;
 
     public MovieResponse(Movie movie) {
-        this(movie.getId(), movie.getTmdbId(), movie.getTitle(), movie.getPosterPath(), movie.getAverageRating());
+        this(movie.getId(), movie.getTmdbId(), movie.getTitle(), movie.getPosterPath(), movie.getAverageRating(), movie.getRatingCount());
     }
 }

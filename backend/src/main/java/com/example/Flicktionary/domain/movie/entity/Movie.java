@@ -6,8 +6,6 @@ import com.example.Flicktionary.domain.genre.entity.Genre;
 import com.example.Flicktionary.domain.review.entity.Review;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -24,7 +22,7 @@ public class Movie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "tmdb_id", nullable = false)
+    @Column(name = "tmdb_id", nullable = false, unique = true)
     private Long tmdbId;
 
     @Column(nullable = false)
@@ -49,6 +47,8 @@ public class Movie {
 
     private float averageRating;
 
+    private int ratingCount;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "movie_genre",
@@ -64,7 +64,6 @@ public class Movie {
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "actor_id")
     )
-    @Fetch(FetchMode.SUBSELECT)
     @Builder.Default
     private List<Actor> actors = new ArrayList<>();
 
