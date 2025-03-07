@@ -4,7 +4,6 @@ import com.example.Flicktionary.domain.favorite.dto.FavoriteDto;
 import com.example.Flicktionary.domain.favorite.service.FavoriteService;
 import com.example.Flicktionary.global.dto.PageDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,8 +34,7 @@ public class FavoriteController {
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "desc") String direction) {
         try {
-            Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
-            PageDto<FavoriteDto> favorites = favoriteService.getUserFavorites(userId, page, pageSize, sort);
+            PageDto<FavoriteDto> favorites = favoriteService.getUserFavorites(userId, page, pageSize, sortBy, direction);
             return ResponseEntity.ok(favorites);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
