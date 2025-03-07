@@ -6,8 +6,8 @@ import lombok.Getter;
  * 유저 계정의 분류를 나타내는 열거형.
  */
 public enum UserAccountType {
-    USER("User"),
-    ADMIN("Admin");
+    USER("USER"),
+    ADMIN("ADMIN");
 
     /**
      * 각 열거형의 문자열 표현.
