@@ -20,6 +20,8 @@ public class SeriesDetailResponse {
 
     private Long id;
 
+    private Long tmdbId;
+
     private String title;
 
     private String imageUrl;
@@ -50,6 +52,7 @@ public class SeriesDetailResponse {
 
     public SeriesDetailResponse(Series series) {
         this.id = series.getId();
+        this.tmdbId = series.getTmdbId();
         this.title = series.getTitle();
         this.imageUrl = series.getImageUrl();
         this.averageRating = series.getAverageRating();

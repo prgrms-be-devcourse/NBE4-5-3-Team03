@@ -78,7 +78,7 @@ public class ReviewApplicationTest {
                 .episode(12)
                 .status("상영중")
                 .imageUrl("테스트용 이미지")
-                .avgRating(4.5)
+                .averageRating(4.5)
                 .ratingCount(10)
                 .releaseStartDate(LocalDate.of(2024, 1, 1))
                 .releaseEndDate(LocalDate.of(2200, 1, 2))

@@ -55,7 +55,7 @@ public class SeriesServiceTest {
         // items 리스트의 avgRating이 내림차순으로 정렬되었는지 확인
         List<SeriesSummaryResponse> items = result.getItems();
         for (int i = 1; i < items.size(); i++) {
-            assertTrue(items.get(i - 1).getAvgRating() >= items.get(i).getAvgRating());
+            assertTrue(items.get(i - 1).getAverageRating() >= items.get(i).getAverageRating());
         }
     }
 
