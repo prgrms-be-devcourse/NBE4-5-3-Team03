@@ -3,7 +3,7 @@ package com.example.Flicktionary.domain.review.dto;
 import com.example.Flicktionary.domain.movie.entity.Movie;
 import com.example.Flicktionary.domain.review.entity.Review;
 import com.example.Flicktionary.domain.series.entity.Series;
-import com.example.Flicktionary.domain.user.entity.User;
+import com.example.Flicktionary.domain.user.entity.UserAccount;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,8 +28,8 @@ public class ReviewDto {
 
         return ReviewDto.builder()
                 .id(review.getId())
-                .userId(review.getUser().getId())
-                .nickname(review.getUser().getNickname())
+                .userId(review.getUserAccount().getId())
+                .nickname(review.getUserAccount().getNickname())
                 .movieId(review.getMovie() != null ? review.getMovie().getId() : null)
                 .seriesId(review.getSeries() != null ? review.getSeries().getId() : null)
                 .rating(review.getRating())
@@ -38,10 +38,10 @@ public class ReviewDto {
     }
 
     // DTO를 Entity로 변환
-    public Review toEntity(User user, Movie movie, Series series) {
+    public Review toEntity(UserAccount user, Movie movie, Series series) {
 
         return Review.builder()
-                .user(user)
+                .userAccount(user)
                 .movie(movie)
                 .series(series)
                 .rating(this.rating)

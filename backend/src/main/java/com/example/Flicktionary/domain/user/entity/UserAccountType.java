@@ -5,9 +5,9 @@ import lombok.Getter;
 /**
  * 유저 계정의 분류를 나타내는 열거형.
  */
-public enum UserType {
-    USER("User"),
-    ADMIN("Admin");
+public enum UserAccountType {
+    USER("USER"),
+    ADMIN("ADMIN");
 
     /**
      * 각 열거형의 문자열 표현.
@@ -15,7 +15,7 @@ public enum UserType {
     @Getter
     public final String description;
 
-    UserType(String description) {
+    UserAccountType(String description) {
         this.description = description;
     }
 }

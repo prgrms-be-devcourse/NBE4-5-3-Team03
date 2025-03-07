@@ -2,7 +2,7 @@ package com.example.Flicktionary.domain.favorite.dto;
 
 import com.example.Flicktionary.domain.favorite.entity.ContentType;
 import com.example.Flicktionary.domain.favorite.entity.Favorite;
-import com.example.Flicktionary.domain.user.entity.User;
+import com.example.Flicktionary.domain.user.entity.UserAccount;
 import lombok.*;
 
 @Getter
@@ -28,7 +28,7 @@ public class FavoriteDto {
         }
 
         return FavoriteDto.builder()
-                .userId(favorite.getUser().getId())
+                .userId(favorite.getUserAccount().getId())
                 .contentType(favorite.getContentType())
                 .contentId(favorite.getContentId())
                 .data(contentData)
@@ -36,9 +36,9 @@ public class FavoriteDto {
     }
 
     // DTO -> Entity
-    public Favorite toEntity(User user) {
+    public Favorite toEntity(UserAccount user) {
         return Favorite.builder()
-                .user(user)
+                .userAccount(user)
                 .contentType(this.contentType)
                 .contentId(this.contentId)
                 .build();
