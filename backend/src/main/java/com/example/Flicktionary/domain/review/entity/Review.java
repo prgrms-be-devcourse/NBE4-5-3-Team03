@@ -22,7 +22,7 @@ public class Review {
 
     // 유저 id (외래키)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private UserAccount userAccount;
 
     // 영화 id (외래키)
