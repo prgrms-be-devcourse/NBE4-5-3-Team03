@@ -16,8 +16,6 @@ import java.util.*;
 @Getter
 @Setter
 @NoArgsConstructor
-// User는 흔히 쓰이는 이름이기 때문에, RDBMS단에서의 오류를 방지하기 위해 테이블 이름 지정
-@Table(name = "user_tbl")
 public class UserAccount {
 
     /**

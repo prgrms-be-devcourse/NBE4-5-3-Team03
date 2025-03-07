@@ -1,13 +1,8 @@
 package com.example.Flicktionary.domain.review.dto;
 
-import com.example.Flicktionary.domain.movie.entity.Movie;
 import com.example.Flicktionary.domain.review.entity.Review;
-import com.example.Flicktionary.domain.series.entity.Series;
-import com.example.Flicktionary.domain.user.entity.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
 @Getter
 @NoArgsConstructor
@@ -15,35 +10,36 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ReviewDto {
 
+    @NonNull
     private Long id;
-    private Long userId;
-    private String nickname;
-    private Long movieId;
-    private Long seriesId;
+
+    @NonNull
+    private Long user_id;
+
+    private Long movie_id;
+    private Long series_id;
+
+    @NonNull
     private int rating;
+    @NotBlank
     private String content;
 
     // Entity를 DTO로 변환
     public static ReviewDto fromEntity(Review review) {
-
         return ReviewDto.builder()
                 .id(review.getId())
-                .userId(review.getUser().getId())
-                .nickname(review.getUser().getNickname())
-                .movieId(review.getMovie() != null ? review.getMovie().getId() : null)
-                .seriesId(review.getSeries() != null ? review.getSeries().getId() : null)
+                .user_id(review.getUserAccount().getId())
+                .movie_id(review.getMovie() != null ? review.getMovie().getId() : null)
+                .series_id(review.getSeries() != null ? review.getSeries().getId() : null)
                 .rating(review.getRating())
                 .content(review.getContent())
                 .build();
     }
 
     // DTO를 Entity로 변환
-    public Review toEntity(User user, Movie movie, Series series) {
-
+    public Review toEntity() {
         return Review.builder()
-                .user(user)
-                .movie(movie)
-                .series(series)
+                .id(this.id)
                 .rating(this.rating)
                 .content(this.content)
                 .build();

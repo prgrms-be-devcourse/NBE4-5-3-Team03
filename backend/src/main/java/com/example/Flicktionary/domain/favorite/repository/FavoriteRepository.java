@@ -9,9 +9,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
-    List<Favorite> findAllByUserId(Long userId);
+    List<Favorite> findAllByUserAccountId(Long userId);
 
-    boolean existsByUserIdAndContentTypeAndContentId(Long userId, ContentType contentType, Long contentId);
+    boolean existsByUserAccountIdAndContentTypeAndContentId(Long userId, ContentType contentType, Long contentId);
 
 //    @Query("SELECT f FROM Favorite f " +
 //            "LEFT JOIN FETCH Movie m ON f.contentId = m.id AND f.contentType = 'MOVIE' " +
@@ -20,8 +20,8 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     @Query("SELECT f FROM Favorite f " +
             "LEFT JOIN FETCH f.movie " +
             "LEFT JOIN FETCH f.series " +
-            "WHERE f.user.id = :userId")
-    List<Favorite> findAllByUserIdWithContent(@Param("userId") Long userId);
+            "WHERE f.userAccount.id = :userId")
+    List<Favorite> findAllByUserAccountIdWithContent(@Param("userId") Long userId);
 
 
 //    @Query("SELECT f, m FROM Favorite f " +
@@ -29,8 +29,8 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 //            "WHERE f.user.id = :userId AND f.contentType = 'MOVIE'")
     @Query("SELECT f FROM Favorite f " +
             "LEFT JOIN FETCH f.movie " +
-            "WHERE f.user.id = :userId AND f.contentType = 'MOVIE'")
-    List<Favorite> findAllMoviesByUserId(@Param("userId") Long userId);
+            "WHERE f.userAccount.id = :userId AND f.contentType = 'MOVIE'")
+    List<Favorite> findAllMoviesByUserAccountId(@Param("userId") Long userId);
 
 
 //    @Query("SELECT f, s FROM Favorite f " +
@@ -38,8 +38,8 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 //            "WHERE f.user.id = :userId AND f.contentType = 'SERIES'")
     @Query("SELECT f FROM Favorite f " +
             "LEFT JOIN FETCH f.series " +
-            "WHERE f.user.id = :userId AND f.contentType = 'SERIES'")
-    List<Favorite> findAllSeriesByUserId(@Param("userId") Long userId);
+            "WHERE f.userAccount.id = :userId AND f.contentType = 'SERIES'")
+    List<Favorite> findAllSeriesByUserAccountId(@Param("userId") Long userId);
 
 
 }
