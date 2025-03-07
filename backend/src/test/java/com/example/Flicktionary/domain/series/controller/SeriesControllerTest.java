@@ -21,7 +21,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -49,7 +48,7 @@ public class SeriesControllerTest {
         int pageSize = 2;
         String sortBy = "id";
 
-        // Mockito seriesService가 반환할 데이터 준비
+        //given
         List<Series> mockSeriesList = List.of(
                 Series.builder()
                         .id(1L)
@@ -71,14 +70,10 @@ public class SeriesControllerTest {
                         .build()
         );
         Page<Series> mockSeriesPage = new PageImpl<>(mockSeriesList, PageRequest.of(page - 1, pageSize), mockSeriesList.size());
-
-        // 예상 반환값
         PageDto<SeriesSummaryResponse> result = new PageDto<>(mockSeriesPage.map(SeriesSummaryResponse::new));
 
-        // mockSeriesPage를 seriesService.getSeries()에서 반환하도록 설정
+        // mockSeriesPage를 seriesService.getSeries()에서 반환하도록 설정(when)
         when(seriesService.getSeries(keyword, page, pageSize, sortBy)).thenReturn(mockSeriesPage);
-
-
         ResultActions resultActions = mvc.perform(get("/api/series")
                         .param("keyword", keyword)
                         .param("page", String.valueOf(page))
@@ -87,7 +82,7 @@ public class SeriesControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print());
 
-        // 예상 반환값과 API 요청 반환 값 비교
+        // 예상 반환값과 API 요청 반환 값 비교(then)
         resultActions
                 .andExpect(status().isOk())  // HTTP 상태 코드가 200 OK인지 확인
                 .andExpect(handler().handlerType(SeriesController.class))  // 호출된 핸들러가 SeriesController인지 확인
@@ -122,9 +117,10 @@ public class SeriesControllerTest {
                 .director(null)
                 .build();
 
-        given(seriesService.getSeriesDetail(seriesId)).willReturn(response);
+        //when
+        when(seriesService.getSeriesDetail(seriesId)).thenReturn(response);
 
-        // when & then
+        //then
         mvc.perform(get("/api/series/{id}", seriesId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
