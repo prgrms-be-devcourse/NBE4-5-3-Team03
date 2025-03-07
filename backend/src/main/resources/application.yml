@@ -43,7 +43,7 @@ logging:
 
 custom:
   jwt:
-    secret-key: abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890
+    secret-key: ${JWT_SECRET_KEY}
     # 접근 토큰 유효기간(초)
     access-expire-seconds: "#{300}"
     # 리프레시 토큰 유효기간(일)
