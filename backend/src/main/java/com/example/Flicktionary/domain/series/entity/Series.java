@@ -49,6 +49,7 @@ public class Series {
 
     private String company;
 
+    //@BatchSize(size = 10)
     @Builder.Default
     @ManyToMany
     @JoinTable(
@@ -58,6 +59,7 @@ public class Series {
     )
     private List<Genre> genres = new ArrayList<>();
 
+    //@BatchSize(size = 10)
     @Builder.Default
     @ManyToMany
     @JoinTable(

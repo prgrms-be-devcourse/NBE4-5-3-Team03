@@ -14,10 +14,10 @@ import java.util.Optional;
 @Repository
 public interface SeriesRepository extends JpaRepository<Series, Long> {
 
-    //Genre, Actor, director 한번에 가져오기
-    @EntityGraph(attributePaths = {"genres", "actors", "director"})
-    Optional<Series> findById(Long id);
-
     @Query("SELECT s FROM Series s WHERE s.title LIKE %:keyword%")
     Page<Series> findByTitleLike(@Param("keyword") String keyword, Pageable pageable);
+
+    //다대다 2개 쓸 수 없기 때문에 genre는 따로
+    @EntityGraph(attributePaths = {"actors", "director"})
+    Optional<Series> findById(Long id);
 }
