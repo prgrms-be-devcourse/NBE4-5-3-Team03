@@ -47,13 +47,14 @@ public class JwtUtils {
             if (!claims.containsKey("exp")) {
                 throw new RuntimeException("토큰의 만료시각이 없습니다.");
             }
+            // TODO: 만료된 토큰을 검증할때 JJWT 라이브러리가 만료시각까지 확인하는 것 같은데, 거기에 맞춰 검증 로직 수정
             Date exp = new Date((Long) claims.get("exp") * 1000L);
             if (exp.before(new Date())) {
                 throw new RuntimeException("토큰이 만료되었습니다.");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            // TODO: 토큰이 유효하지 않을때 예외를 던질지, false를 반환할지 결정
+            throw e;
         }
         return true;
     }
