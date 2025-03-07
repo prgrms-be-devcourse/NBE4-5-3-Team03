@@ -1,5 +1,6 @@
 package com.example.Flicktionary.domain.series.service;
 
+import com.example.Flicktionary.domain.series.dto.SeriesDetailResponse;
 import com.example.Flicktionary.domain.series.dto.SeriesSummaryResponse;
 import com.example.Flicktionary.domain.series.entity.Series;
 import com.example.Flicktionary.global.dto.PageDto;
@@ -54,7 +55,7 @@ public class SeriesServiceTest {
         // items 리스트의 avgRating이 내림차순으로 정렬되었는지 확인
         List<SeriesSummaryResponse> items = result.getItems();
         for (int i = 1; i < items.size(); i++) {
-            assertTrue(items.get(i - 1).getAvgRating() >= items.get(i).getAvgRating());
+            assertTrue(items.get(i - 1).getAverageRating() >= items.get(i).getAverageRating());
         }
     }
 
@@ -107,5 +108,29 @@ public class SeriesServiceTest {
             seriesService.getSeries(keyword, page, pageSize, sortBy);
         });
         assertEquals("잘못된 정렬 방식입니다.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Series 상세 정보 조회 성공 테스트")
+    void testGetSeriesDetail_Success() {
+        // given
+        Long seriesId = 1L;
+
+        // when
+        SeriesDetailResponse response = seriesService.getSeriesDetail(seriesId);
+
+        // then
+        assertNotNull(response);
+        assertEquals(seriesId, response.getId());
+    }
+
+    @Test
+    @DisplayName("Series 상세 정보 조회 실패 테스트 (존재하지 않는 ID)")
+    void testGetSeriesDetail_Fail_NotFound() {
+        // given
+        Long seriesId = 999L;  // 존재하지 않는 ID
+
+        // when & then
+        assertThrows(RuntimeException.class, () -> seriesService.getSeriesDetail(seriesId));
     }
 }
