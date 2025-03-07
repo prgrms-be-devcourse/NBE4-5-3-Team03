@@ -19,6 +19,7 @@ public class MovieResponseWithDetail {
     private final String overview;
     private final LocalDate releaseDate;
     private final String posterPath;
+    private final String status;
     private final int runtime;
     private final String productionCountry;
     private final String productionCompany;
@@ -34,6 +35,7 @@ public class MovieResponseWithDetail {
                 movie.getOverview(),
                 movie.getReleaseDate(),
                 movie.getPosterPath(),
+                movie.getStatus(),
                 movie.getRuntime(),
                 movie.getProductionCountry(),
                 movie.getProductionCompany(),
