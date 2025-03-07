@@ -7,8 +7,8 @@ import com.example.Flicktionary.domain.review.repository.ReviewRepository;
 import com.example.Flicktionary.domain.review.service.ReviewService;
 import com.example.Flicktionary.domain.series.entity.Series;
 import com.example.Flicktionary.domain.series.repository.SeriesRepository;
-import com.example.Flicktionary.domain.user.entity.User;
-import com.example.Flicktionary.domain.user.repository.UserRepository;
+import com.example.Flicktionary.domain.user.entity.UserAccount;
+import com.example.Flicktionary.domain.user.repository.UserAccountRepository;
 import com.example.Flicktionary.global.dto.PageDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,7 +36,7 @@ public class ReviewApplicationTest {
     private ReviewService reviewService;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserAccountRepository userAccountRepository;
 
     @Autowired
     private MovieRepository movieRepository;
@@ -44,7 +44,7 @@ public class ReviewApplicationTest {
     @Autowired
     private SeriesRepository seriesRepository;
 
-    private User testUser;
+    private UserAccount testUser;
     private Movie testMovie;
     private Series testSeries;
     private ReviewDto reviewDto;
@@ -53,12 +53,9 @@ public class ReviewApplicationTest {
     void beforeEach() {
 
         // 테스트용 User 엔티티 생성 및 저장
-        testUser = userRepository.save(User.builder()
-                .username("테스트용 유저")
-                .password("test1234")
-                .email("test@email.com")
-                .nickname("테스트 유저")
-                .build());
+        testUser = userAccountRepository.save(new UserAccount(
+                null, "테스트용 유저", "test12345", "test@email.com", "테스트 유저", null
+                ));
 
         // 테스트용 Movie 엔티티 생성
         testMovie = movieRepository.save(Movie.builder()
@@ -91,7 +88,7 @@ public class ReviewApplicationTest {
         );
 
         reviewDto = ReviewDto.builder()
-                .userId(testUser.getId())
+                .userAccountId(testUser.getId())
                 .nickname(testUser.getNickname())
                 .movieId(testMovie.getId())
                 .rating(5)
@@ -125,7 +122,7 @@ public class ReviewApplicationTest {
 
         // 리뷰 내용이 비어있는 리뷰 생성
         ReviewDto reviewEmpty = ReviewDto.builder()
-                .userId(testUser.getId())
+                .userAccountId(testUser.getId())
                 .nickname(testUser.getNickname())
                 .movieId(testMovie.getId())
                 .rating(5)
@@ -134,7 +131,7 @@ public class ReviewApplicationTest {
 
         // 리뷰 내용이 null인 리뷰 생성
         ReviewDto reviewNull = ReviewDto.builder()
-                .userId(testUser.getId())
+                .userAccountId(testUser.getId())
                 .nickname(testUser.getNickname())
                 .movieId(testMovie.getId())
                 .rating(5)
@@ -154,7 +151,7 @@ public class ReviewApplicationTest {
 
         // 평점이 없는 리뷰 생성
         ReviewDto reviewNoRating = ReviewDto.builder()
-                .userId(testUser.getId())
+                .userAccountId(testUser.getId())
                 .nickname(testUser.getNickname())
                 .movieId(testMovie.getId())
                 .rating(0)
@@ -226,7 +223,7 @@ public class ReviewApplicationTest {
         // 수정할 리뷰 내용 변수에 저장
         ReviewDto updatedReviewDto = ReviewDto.builder()
                 .id(savedReview.getId())
-                .userId(savedReview.getUserId())
+                .userAccountId(savedReview.getUserAccountId())
                 .nickname(savedReview.getNickname())
                 .movieId(savedReview.getMovieId())
                 .rating(4)
@@ -263,7 +260,7 @@ public class ReviewApplicationTest {
         // 리뷰 20개 생성 및 DB에 저장
         for (int i = 0; i < 20; i++) {
             ReviewDto savedReview = ReviewDto.builder()
-                    .userId(testUser.getId())
+                    .userAccountId(testUser.getId())
                     .nickname(testUser.getNickname())
                     .movieId(testMovie.getId())
                     .rating(4)

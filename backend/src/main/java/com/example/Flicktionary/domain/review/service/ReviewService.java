@@ -7,8 +7,8 @@ import com.example.Flicktionary.domain.review.entity.Review;
 import com.example.Flicktionary.domain.review.repository.ReviewRepository;
 import com.example.Flicktionary.domain.series.entity.Series;
 import com.example.Flicktionary.domain.series.repository.SeriesRepository;
-import com.example.Flicktionary.domain.user.entity.User;
-import com.example.Flicktionary.domain.user.repository.UserRepository;
+import com.example.Flicktionary.domain.user.entity.UserAccount;
+import com.example.Flicktionary.domain.user.repository.UserAccountRepository;
 import com.example.Flicktionary.global.dto.PageDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final UserRepository userRepository;
+    private final UserAccountRepository userAccountRepository;
     private final MovieRepository movieRepository;
     private final SeriesRepository seriesRepository;
 
@@ -36,7 +36,7 @@ public class ReviewService {
     public ReviewDto createReview(ReviewDto reviewDto) {
 
         // 먼저 user를 찾아 id 저장. 없을 경우 오류 호출
-        User user = userRepository.findById(reviewDto.getUserId())
+        UserAccount userAccount = userAccountRepository.findById(reviewDto.getUserAccountId())
                 .orElseThrow(() -> new IllegalArgumentException("찾으시려는 유저 id가 없습니다."));
 
         // 영화를 찾아 저장. 없을 경우 null
@@ -62,7 +62,7 @@ public class ReviewService {
         }
 
         // ReviewDto를 Entity로 변환해 변수에 저장
-        Review review = reviewDto.toEntity(user, movie, series);
+        Review review = reviewDto.toEntity(userAccount, movie, series);
 
         // 레포지터리에 DB 영속화 및 변수에 저장
         Review savedReview = reviewRepository.save(review);

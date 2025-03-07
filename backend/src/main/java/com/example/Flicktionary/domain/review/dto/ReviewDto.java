@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class ReviewDto {
 
     private Long id;
-    private Long userId;
+    private Long userAccountId;
     private String nickname;
     private Long movieId;
     private Long seriesId;
@@ -28,7 +28,7 @@ public class ReviewDto {
 
         return ReviewDto.builder()
                 .id(review.getId())
-                .userId(review.getUserAccount().getId())
+                .userAccountId(review.getUserAccount().getId())
                 .nickname(review.getUserAccount().getNickname())
                 .movieId(review.getMovie() != null ? review.getMovie().getId() : null)
                 .seriesId(review.getSeries() != null ? review.getSeries().getId() : null)
@@ -38,10 +38,10 @@ public class ReviewDto {
     }
 
     // DTO를 Entity로 변환
-    public Review toEntity(UserAccount user, Movie movie, Series series) {
+    public Review toEntity(UserAccount userAccount, Movie movie, Series series) {
 
         return Review.builder()
-                .userAccount(user)
+                .userAccount(userAccount)
                 .movie(movie)
                 .series(series)
                 .rating(this.rating)
