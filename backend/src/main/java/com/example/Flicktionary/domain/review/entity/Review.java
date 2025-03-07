@@ -2,7 +2,7 @@ package com.example.Flicktionary.domain.review.entity;
 
 import com.example.Flicktionary.domain.movie.entity.Movie;
 import com.example.Flicktionary.domain.series.entity.Series;
-import com.example.Flicktionary.domain.user.entity.User;
+import com.example.Flicktionary.domain.user.entity.UserAccount;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,8 +22,8 @@ public class Review {
 
     // 유저 id (외래키)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
-    private User user;
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserAccount userAccount;
 
     // 영화 id (외래키)
     @ManyToOne(fetch = FetchType.LAZY)

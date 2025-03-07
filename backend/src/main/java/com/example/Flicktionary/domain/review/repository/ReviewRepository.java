@@ -16,4 +16,3 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @EntityGraph(attributePaths = {"user"}) // 최적화를 위해 EntityGraph 사용
     Page<Review> findBySeries_Id(Long seriesId, Pageable pageable);
 }
-

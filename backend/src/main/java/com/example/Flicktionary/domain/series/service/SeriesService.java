@@ -6,6 +6,7 @@ import com.example.Flicktionary.domain.director.entity.Director;
 import com.example.Flicktionary.domain.director.repository.DirectorRepository;
 import com.example.Flicktionary.domain.genre.entity.Genre;
 import com.example.Flicktionary.domain.genre.repository.GenreRepository;
+import com.example.Flicktionary.domain.series.dto.SeriesDetailResponse;
 import com.example.Flicktionary.domain.series.entity.Series;
 import com.example.Flicktionary.domain.series.repository.SeriesRepository;
 import com.example.Flicktionary.domain.tmdb.dto.TmdbPopularSeriesResponse;
@@ -150,7 +151,7 @@ public class SeriesService {
                     )
                     .orElse(null); // 감독이 없으면 null 반환
 
-            seriesRepository.findById(response.getBody().getTmdbId()).ifPresentOrElse(
+            seriesRepository.findByTmdbId(response.getBody().getTmdbId()).ifPresentOrElse(
                     series -> updateSeries(series, response),
                     () -> seriesRepository.save(TmdbSeriesDetailResponse.toEntity(response, genres, actors, director, baseImageUrl))
             );
@@ -184,7 +185,7 @@ public class SeriesService {
         if(sortBy.equalsIgnoreCase("id")){ //ID기준 오름차순
             sort = Sort.by("id").ascending();
         }else if(sortBy.equalsIgnoreCase("rating")) { //평점 기준 내림차순
-            sort = Sort.by("avgRating").descending();
+            sort = Sort.by("averageRating").descending();
         }else if(sortBy.equalsIgnoreCase("rating-count")) { //리뷰 개수 내림차순
             sort = Sort.by("ratingCount").descending();
         }else{
@@ -197,5 +198,13 @@ public class SeriesService {
 
         Pageable pageable = PageRequest.of(page-1, pageSize, sort);
         return seriesRepository.findByTitleLike(keyword, pageable);
+    }
+
+    //Series 상세 조회
+    public SeriesDetailResponse getSeriesDetail(Long id) {
+        Series series = seriesRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("id에 해당하는 Series가 존재하지 않습니다."));
+
+        return new SeriesDetailResponse(series);
     }
 }

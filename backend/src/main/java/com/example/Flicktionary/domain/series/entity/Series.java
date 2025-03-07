@@ -19,8 +19,11 @@ import java.util.List;
 public class Series {
 
     @Id
-    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true)
+    private Long tmdbId;
 
     @Column(nullable = false)
     private String title;
@@ -35,12 +38,6 @@ public class Series {
 
     private String imageUrl;
 
-    @Builder.Default
-    private double avgRating = 0.0;
-
-    @Builder.Default
-    private int ratingCount = 0;
-
     private LocalDate releaseStartDate;
 
     private LocalDate releaseEndDate;
@@ -48,6 +45,12 @@ public class Series {
     private String nation;
 
     private String company;
+
+    @Builder.Default
+    private double averageRating = 0.0;
+
+    @Builder.Default
+    private int ratingCount = 0;
 
     @Builder.Default
     @ManyToMany

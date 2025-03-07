@@ -8,6 +8,8 @@ import com.example.Flicktionary.domain.series.repository.SeriesRepository;
 import com.example.Flicktionary.domain.user.entity.User;
 import com.example.Flicktionary.domain.user.repository.UserRepository;
 import com.example.Flicktionary.global.dto.PageDto;
+import com.example.Flicktionary.domain.user.entity.UserAccount;
+import com.example.Flicktionary.domain.user.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,17 +22,17 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
-    private final UserRepository userRepository;
+    private final UserAccountRepository userAccountRepository;
     private final MovieRepository movieRepository;
     private final SeriesRepository seriesRepository;
 
     @Transactional
     public FavoriteDto createFavorite(FavoriteDto favoriteDto) {
-        User user = userRepository.findById(favoriteDto.getUserId())
+        UserAccount user = userAccountRepository.findById(favoriteDto.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         // 즐겨찾기 목록에 존재하는지 확인
-        boolean exists = favoriteRepository.existsByUserIdAndContentTypeAndContentId(
+        boolean exists = favoriteRepository.existsByUserAccountIdAndContentTypeAndContentId(
                 favoriteDto.getUserId(),
                 favoriteDto.getContentType(),
                 favoriteDto.getContentId()
@@ -60,7 +62,7 @@ public class FavoriteService {
     }
 
     public PageDto<FavoriteDto> getUserFavorites(Long userId, int page, int pageSize, Sort sort) {
-        if (!userRepository.existsById(userId)) {
+        if (!userAccountRepository.existsById(userId)) {
             throw new IllegalArgumentException("User not found");
         }
 
