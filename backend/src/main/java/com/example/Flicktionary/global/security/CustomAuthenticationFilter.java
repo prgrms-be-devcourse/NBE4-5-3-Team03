@@ -41,9 +41,9 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
      * 인증에서 제회할 URI 경로.
      */
     private static final String[] excluded_urls = {
-            "/api/v1/users/login",
-            "/api/v1/users/register",
-            "/api/v1/users/refresh",
+            "/api/users/login",
+            "/api/users/register",
+            "/api/users/refresh",
             "/h2-console/**"
     };
 

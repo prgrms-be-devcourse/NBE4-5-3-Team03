@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.*;
 /**
  * 회원 도메인에 해당하는 API 엔드포인트
  */
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/users")
 @Controller
 @RequiredArgsConstructor
-public class ApiV1UserAccountController {
+public class UserAccountController {
 
     private final UserAccountService userAccountService;
 
@@ -59,7 +59,7 @@ public class ApiV1UserAccountController {
         response.addCookie(accessToken);
         response.addCookie(refreshToken);
 
-        return ResponseEntity.ok("토큰이 성공적으로 발행되었습니다..");
+        return ResponseEntity.ok("토큰이 성공적으로 발행되었습니다.");
     }
 
     /**
@@ -69,8 +69,8 @@ public class ApiV1UserAccountController {
      */
     @GetMapping("/logout")
     public ResponseEntity<String> logoutUser(HttpServletResponse response) {
-        Cookie accessToken = newCookieWithDefaultSettings("accessToken", null);
-        Cookie refreshToken = newCookieWithDefaultSettings("refreshToken", null);
+        Cookie accessToken = newCookieWithDefaultSettings("accessToken", "");
+        Cookie refreshToken = newCookieWithDefaultSettings("refreshToken", "");
         response.addCookie(accessToken);
         response.addCookie(refreshToken);
 
@@ -142,7 +142,7 @@ public class ApiV1UserAccountController {
      * @return 새 쿠키 오브젝트
      */
     private Cookie newCookieWithDefaultSettings(String name, String value) {
-        Cookie cookie = new Cookie(name, value);
+        Cookie cookie = new Cookie(name, value == null ? "" : value);
         cookie.setHttpOnly(true);
         cookie.setDomain("localhost");
         cookie.setPath("/");
