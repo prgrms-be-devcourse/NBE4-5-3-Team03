@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -198,5 +199,56 @@ public class FavoriteControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Read Favorite - Page, id 내림차순 정렬(기본)")
+    void getFavoritePage() throws Exception{
+
+        Long userId = 1L;
+        int page = 1;
+        int pageSize = 5;
+
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/favorite/%d?page=%d&pageSize=%d".formatted(userId, page, pageSize))
+                                .contentType(
+                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                                )
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.curPageNo").value(page))
+                .andExpect(jsonPath("$.pageSize").value(pageSize))
+                .andExpect(jsonPath("$.items").isArray());
+    }
+
+    @Test
+    @DisplayName("Read Favorite - Page, id 오름차순 정렬")
+    void getFavoritePageSortByIdDesc() throws Exception{
+
+        Long userId = 1L;
+        int page = 1;
+        int pageSize = 5;
+        String sortBy = "id";
+        String direction = "asc";
+
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/favorite/{userId}", userId)
+                                .param("page", "%d".formatted(page))
+                                .param("pageSize", "%d".formatted(pageSize))
+                                .param("sortBy", sortBy)
+                                .param("direction", direction)
+                                .contentType(
+                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                                )
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.curPageNo").value(page))
+                .andExpect(jsonPath("$.pageSize").value(pageSize))
+                .andExpect(jsonPath("$.sortBy").exists())
+                .andExpect(jsonPath("$.items").isArray());
     }
 }
