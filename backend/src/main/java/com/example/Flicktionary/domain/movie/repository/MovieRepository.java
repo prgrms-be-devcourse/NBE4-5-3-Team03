@@ -14,7 +14,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     @Query("SELECT m FROM Movie m WHERE m.title LIKE CONCAT('%', :keyword, '%')")
     Page<Movie> findByTitleLike(String keyword, Pageable pageable);
 
-    @Query("SELECT m FROM Movie m " +
+    @Query("SELECT DISTINCT m FROM Movie m " +
             "LEFT JOIN FETCH m.actors a " +
             "LEFT JOIN FETCH m.director d " +
             "WHERE m.id = :id")
