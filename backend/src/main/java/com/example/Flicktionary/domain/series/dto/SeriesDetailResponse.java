@@ -24,7 +24,7 @@ public class SeriesDetailResponse {
 
     private String imageUrl;
 
-    private double avgRating;
+    private double averageRating;
 
     private int ratingCount;
 
@@ -52,7 +52,7 @@ public class SeriesDetailResponse {
         this.id = series.getId();
         this.title = series.getTitle();
         this.imageUrl = series.getImageUrl();
-        this.avgRating = series.getAvgRating();
+        this.averageRating = series.getAverageRating();
         this.ratingCount = series.getRatingCount();
         this.episode = series.getEpisode();
         this.plot = series.getPlot();

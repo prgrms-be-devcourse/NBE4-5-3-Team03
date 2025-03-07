@@ -35,12 +35,6 @@ public class Series {
 
     private String imageUrl;
 
-    @Builder.Default
-    private double avgRating = 0.0;
-
-    @Builder.Default
-    private int ratingCount = 0;
-
     private LocalDate releaseStartDate;
 
     private LocalDate releaseEndDate;
@@ -49,7 +43,12 @@ public class Series {
 
     private String company;
 
-    //@BatchSize(size = 10)
+    @Builder.Default
+    private double averageRating = 0.0;
+
+    @Builder.Default
+    private int ratingCount = 0;
+
     @Builder.Default
     @ManyToMany
     @JoinTable(
@@ -59,7 +58,6 @@ public class Series {
     )
     private List<Genre> genres = new ArrayList<>();
 
-    //@BatchSize(size = 10)
     @Builder.Default
     @ManyToMany
     @JoinTable(
