@@ -11,7 +11,7 @@ public class MovieResponse {
     private final long tmdbId;
     private final String title;
     private final String posterPath;
-    private final float averageRating;
+    private final double averageRating;
     private final int ratingCount;
 
     public MovieResponse(Movie movie) {

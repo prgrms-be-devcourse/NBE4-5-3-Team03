@@ -20,11 +20,9 @@ public class FavoriteDto {
     public static FavoriteDto fromEntity(Favorite favorite) {
         Object contentData = null;
         if (favorite.getContentType() == ContentType.MOVIE && favorite.getMovie() != null) {
-//            contentData = Hibernate.unproxy(favorite.getMovie());
-            contentData = favorite.getMovie();
+            contentData = FavoriteContentDto.fromMovie(favorite.getMovie());
         } else if (favorite.getContentType() == ContentType.SERIES && favorite.getSeries() != null) {
-//            contentData = Hibernate.unproxy(favorite.getSeries());
-            contentData = favorite.getSeries();
+            contentData = FavoriteContentDto.fromSeries(favorite.getSeries());
         }
 
         return FavoriteDto.builder()

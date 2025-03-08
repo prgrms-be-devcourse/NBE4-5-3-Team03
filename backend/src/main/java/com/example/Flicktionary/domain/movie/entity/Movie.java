@@ -45,7 +45,7 @@ public class Movie {
 
     private String productionCompany;
 
-    private float averageRating;
+    private double averageRating;
 
     private int ratingCount;
 

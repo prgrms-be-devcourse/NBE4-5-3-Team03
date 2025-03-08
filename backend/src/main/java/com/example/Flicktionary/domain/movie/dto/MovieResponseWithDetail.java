@@ -23,7 +23,7 @@ public class MovieResponseWithDetail {
     private final int runtime;
     private final String productionCountry;
     private final String productionCompany;
-    private final float averageRating;
+    private final double averageRating;
     private final List<GenreDto> genres;
     private final List<ActorDto> actors;
     private final DirectorDto director;
