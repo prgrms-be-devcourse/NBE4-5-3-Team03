@@ -9,10 +9,10 @@ import lombok.Getter;
 @AllArgsConstructor
 public class MovieCastDto {
     private final ActorDto actor;
-    private final String character;
+    private final String characterName;
 
     public MovieCastDto(MovieCast movieCast) {
         this.actor = new ActorDto(movieCast.getActor());
-        this.character = movieCast.getCharacterName();
+        this.characterName = movieCast.getCharacterName();
     }
 }
