@@ -13,7 +13,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  test:
 
     runs-on: ubuntu-latest
     permissions:
@@ -34,7 +34,7 @@ jobs:
       with:
         cache-cleanup: on-success
 
-    - name: Test with Gradle Wrapper
+    - name: Test with Gradle
       working-directory: ./backend
       run: gradle test
 
