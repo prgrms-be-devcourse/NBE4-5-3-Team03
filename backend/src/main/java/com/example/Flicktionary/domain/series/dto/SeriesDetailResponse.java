@@ -46,7 +46,7 @@ public class SeriesDetailResponse {
 
     private List<GenreDto> genres;
 
-    private List <ActorDto> actors;
+    private List <SeriesCastDto> casts;
 
     private DirectorDto director;
 
@@ -71,10 +71,10 @@ public class SeriesDetailResponse {
                 .map(GenreDto::new)
                 .toList();
 
-        this.actors = Optional.ofNullable(series.getActors())
+        this.casts = Optional.ofNullable(series.getCasts())
                 .orElseGet(Collections::emptyList)
                 .stream()
-                .map(ActorDto::new)
+                .map(SeriesCastDto::new)
                 .toList();
 
         this.director = series.getDirector() != null ? new DirectorDto(series.getDirector()) : null;
