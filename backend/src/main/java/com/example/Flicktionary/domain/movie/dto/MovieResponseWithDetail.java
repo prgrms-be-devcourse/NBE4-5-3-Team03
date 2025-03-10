@@ -28,7 +28,7 @@ public class MovieResponseWithDetail {
     private final String productionCountry;
     private final String productionCompany;
     @NonNull
-    private final float averageRating;
+    private final double averageRating;
     @NonNull
     private final int ratingCount;
     private final List<GenreDto> genres;

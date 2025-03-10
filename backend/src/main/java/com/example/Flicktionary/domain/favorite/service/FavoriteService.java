@@ -7,12 +7,14 @@ import com.example.Flicktionary.domain.movie.repository.MovieRepository;
 import com.example.Flicktionary.domain.series.repository.SeriesRepository;
 import com.example.Flicktionary.domain.user.entity.UserAccount;
 import com.example.Flicktionary.domain.user.repository.UserAccountRepository;
+import com.example.Flicktionary.global.dto.PageDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -57,15 +59,23 @@ public class FavoriteService {
         return FavoriteDto.fromEntity(favorite);
     }
 
-    public List<FavoriteDto> getUserFavorites(Long userId) {
+    public PageDto<FavoriteDto> getUserFavorites(Long userId, int page, int pageSize, String sortBy, String direction) {
         if (!userAccountRepository.existsById(userId)) {
             throw new IllegalArgumentException("User not found");
         }
-        List<Favorite> favorites = favoriteRepository.findAllByUserAccountIdWithContent(userId);
 
-        return favorites.stream()
-                .map(FavoriteDto::fromEntity)
-                .collect(Collectors.toList());
+        Sort sort = switch (sortBy) {
+            case "rating" ->
+                    Sort.by(Sort.Direction.fromString(direction), "movie.averageRating", "series.averageRating");
+            case "reviews" -> Sort.by(Sort.Direction.fromString(direction), "movie.ratingCount", "series.ratingCount");
+            default -> Sort.by(Sort.Direction.fromString(direction), "id");
+        };
+
+        Pageable pageable = PageRequest.of(page - 1, pageSize, sort);
+        Page<Favorite> favorites = favoriteRepository.findAllByUserAccountIdWithContent(userId, pageable);
+
+        Page<FavoriteDto> favoriteDtos = favorites.map(FavoriteDto::fromEntity);
+        return new PageDto<>(favoriteDtos);
     }
 
     @Transactional

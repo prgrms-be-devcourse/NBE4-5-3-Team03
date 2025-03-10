@@ -16,7 +16,7 @@ public class MovieResponse {
     private final String title;
     private final String posterPath;
     @NonNull
-    private final float averageRating;
+    private final double averageRating;
     @NonNull
     private final int ratingCount;
 
