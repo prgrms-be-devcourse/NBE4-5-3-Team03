@@ -35,5 +35,6 @@ jobs:
         cache-cleanup: on-success
 
     - name: Test with Gradle Wrapper
-      run: gradle test
+      working-directory: ./backend
+      run: ./gradlew test
 
