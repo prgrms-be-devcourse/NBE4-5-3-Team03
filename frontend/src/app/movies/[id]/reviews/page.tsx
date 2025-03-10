@@ -9,7 +9,7 @@ export default async function Page({
   const { movie_id } = params;
 
   // 특정 영화의 리뷰 목록 가져오기
-  const response = await client.GET("/api/reviews/movie/{movie_id}", {
+  const response = await client.GET("/api/reviews/movie/{movie_id}" as any, {
     params: { path: { movie_id } },
   });
 

@@ -17,9 +17,7 @@ export default function ClientPage({
   const [reviews, setReviews] = useState(data.items);
 
   // 리뷰 추가 후 리스트 업데이트
-  const handleReviewAdded = (
-    newReview: components["schemas"]["PageDtoReviewDto"]
-  ) => {
+  const handleReviewAdded = (newReview: components["schemas"]["ReviewDto"]) => {
     // 최신 리뷰를 맨 위로 추가
     setReviews([newReview, ...reviews]);
   };
