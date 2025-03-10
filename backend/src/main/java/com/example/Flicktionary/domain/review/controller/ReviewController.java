@@ -33,6 +33,16 @@ public class ReviewController {
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
 
+    // 리뷰 닉넴임과 내용으로 검색
+    @GetMapping("/search")
+    public ResponseEntity<PageDto<ReviewDto>> searchReviews(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        return ResponseEntity.ok(reviewService.searchReviews(keyword, page, size));
+    }
+
     // 리뷰 수정
     @PutMapping("/{id}")
     public ResponseEntity<ReviewDto> updateReview(
