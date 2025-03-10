@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
   TableCell,
-} from "/src/components/ui/table";
+} from "@/components/ui/table";
 
 export default function AdminReviewPage() {
   const router = useRouter();
