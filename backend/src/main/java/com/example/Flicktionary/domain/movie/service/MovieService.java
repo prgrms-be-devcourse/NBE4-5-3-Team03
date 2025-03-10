@@ -10,6 +10,7 @@ import com.example.Flicktionary.domain.movie.dto.MovieDto;
 import com.example.Flicktionary.domain.movie.dto.MovieResponse;
 import com.example.Flicktionary.domain.movie.dto.MovieResponseWithDetail;
 import com.example.Flicktionary.domain.movie.entity.Movie;
+import com.example.Flicktionary.domain.movie.entity.MovieCast;
 import com.example.Flicktionary.domain.movie.repository.MovieRepository;
 import com.example.Flicktionary.domain.tmdb.dto.TmdbMovieResponseWithDetail;
 import com.example.Flicktionary.domain.tmdb.service.TmdbService;
@@ -111,7 +112,7 @@ public class MovieService {
     public MovieResponseWithDetail getMovie(long id) {
         // fetch join을 이용해서 영화에 연관된 배우와 감독 정보를 가져옵니다.
         // 장르는 lazy loading
-        Movie movie = movieRepository.findByIdWithActorsAndDirector(id).orElseThrow(
+        Movie movie = movieRepository.findByIdWithCastsAndDirector(id).orElseThrow(
                 () -> new NoSuchElementException("%d번 영화를 찾을 수 없습니다.".formatted(id))
         );
 
@@ -148,21 +149,25 @@ public class MovieService {
         movie.setGenres(genres);
 
         // 배우 저장
-        List<Actor> actors = new ArrayList<>(response.credits().cast().stream()
+        // 기존 캐스팅 목록을 비운 후 새 목록 추가 (orphanRemoval 문제 해결)
+        movie.getCasts().clear(); // 기존 데이터 삭제
+        List<MovieCast> newCasts = response.credits().cast().stream()
                 .limit(5) // 상위 5명만 저장
-                .map(a -> actorRepository.findById(a.id())
-                        .orElseGet(() -> actorRepository.save(new Actor(a.id(), a.name()))))
-                .toList());  // 불변 리스트를 가변 리스트로 변환
-        movie.setActors(actors);
+                .map(a -> {
+                    Actor actor = actorRepository.findById(a.id())
+                            .orElseGet(() -> actorRepository.save(new Actor(a.id(), a.name(), baseImageUrl + a.profilePath())));
+                    return MovieCast.builder().movie(movie).actor(actor).characterName(a.character()).build();
+                })
+                .toList();
+        movie.getCasts().addAll(newCasts); // 새로운 데이터 추가
 
         // 감독 저장
         Optional<TmdbMovieResponseWithDetail.TmdbCrew> directorData = response.credits().crew().stream()
                 .filter(c -> "Director".equals(c.job()))
                 .findFirst();
-
         directorData.ifPresent(d -> {
             Director director = directorRepository.findById(d.id())
-                    .orElseGet(() -> directorRepository.save(new Director(d.id(), d.name())));
+                    .orElseGet(() -> directorRepository.save(new Director(d.id(), d.name(), baseImageUrl + d.profilePath())));
             movie.setDirector(director);
         });
 
