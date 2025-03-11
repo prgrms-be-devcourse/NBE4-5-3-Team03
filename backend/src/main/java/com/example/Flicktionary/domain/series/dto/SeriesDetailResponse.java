@@ -24,7 +24,7 @@ public class SeriesDetailResponse {
 
     private String title;
 
-    private String imageUrl;
+    private String posterPath;
 
     private double averageRating;
 
@@ -54,7 +54,7 @@ public class SeriesDetailResponse {
         this.id = series.getId();
         this.tmdbId = series.getTmdbId();
         this.title = series.getTitle();
-        this.imageUrl = series.getImageUrl();
+        this.posterPath = series.getImageUrl();
         this.averageRating = series.getAverageRating();
         this.ratingCount = series.getRatingCount();
         this.episode = series.getEpisode();
