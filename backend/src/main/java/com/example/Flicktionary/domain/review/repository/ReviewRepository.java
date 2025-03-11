@@ -17,5 +17,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Page<Review> findBySeries_Id(Long seriesId, Pageable pageable);
 
     // 닉네임 또는 리뷰 내용으로 검색하는 기능
-    Page<Review> findByNicknameContainingOrContentContaing(String nickname, String content, Pageable pageable);
+    Page<Review> findByUserAccount_NicknameContainingOrContentContaining(String nickname, String content, Pageable pageable);
 }

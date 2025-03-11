@@ -21,7 +21,6 @@ spring:
         use_sql_comments: true
         default_batch_fetch_size: 10
 
-
 tmdb:
   access-token: ${TMDB_ACCESS_TOKEN}
   base-image-url: ${TMDB_BASE_IMAGE_URL}

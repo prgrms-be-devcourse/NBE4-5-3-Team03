@@ -84,7 +84,7 @@ public class ReviewService {
 
         // 닉네임 또는 리뷰 내용에 검색어가 포함된 리뷰 조회
         Page<Review> reviewPage = reviewRepository
-                .findByNicknameContainingOrContentContaing(keyword, keyword, pageable);
+                .findByUserAccount_NicknameContainingOrContentContaining(keyword, keyword, pageable);
 
         return new PageDto<>(reviewPage.map(ReviewDto::fromEntity));
     }
