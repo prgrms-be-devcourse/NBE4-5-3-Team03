@@ -76,6 +76,19 @@ public class ReviewService {
                 .collect(Collectors.toList());
     }
 
+    // 리뷰 닉네임과 내용으로 검색
+    public PageDto<ReviewDto> searchReviews(String keyword, int page, int size) {
+
+        // Pageable 변수로 페이지와 크기를 받아 변수에 저장
+        Pageable pageable = PageRequest.of(page, size);
+
+        // 닉네임 또는 리뷰 내용에 검색어가 포함된 리뷰 조회
+        Page<Review> reviewPage = reviewRepository
+                .findByUserAccount_NicknameContainingOrContentContaining(keyword, keyword, pageable);
+
+        return new PageDto<>(reviewPage.map(ReviewDto::fromEntity));
+    }
+
     // 리뷰 수정
     public ReviewDto updateReview(Long id, ReviewDto reviewDto) {
 
