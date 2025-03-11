@@ -24,7 +24,7 @@ export default function ClientPage({
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">🎬 영화 리뷰</h1>
+      <h1 className="text-2xl font-bold mb-4">영화 리뷰</h1>
 
       {/* 리뷰 작성 폼 */}
       <ReviewForm movieId={movieId} onReviewAdded={handleReviewAdded} />

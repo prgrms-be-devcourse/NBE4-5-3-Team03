@@ -18,27 +18,58 @@ export default function ReviewForm({
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!content.trim()) return alert("리뷰를 입력해주세요!");
+    if (!content.trim()) return alert("리뷰를 입력해주세요.");
 
     setLoading(true);
 
-    const response = await fetch(`/api/reviews`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ movieId, content, rating }),
-    });
+    /* 나중에 로그인 구현되면, 이 곳에 userAccountId를 받아 로그인 하는 기능 구현할 것 */
 
-    if (!response.ok) {
-      alert("리뷰 작성에 실패했습니다.");
+    const reviewData = {
+      userAccountId: 1, // 임시로 1로 설정
+      movieId: Number(movieId),
+      content,
+      rating,
+    };
+
+    // 디버깅용 콘솔 로그
+    console.log("📡 전송할 리뷰 데이터:", reviewData);
+
+    try {
+      const response = await fetch("http://localhost:8080/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reviewData),
+      });
+
+      // 응답 확인
+      console.log("서버 응답 상태:", response.status);
+
+      if (!response.ok) {
+        alert("리뷰 작성에 실패했습니다.");
+        setLoading(false);
+
+        // 로그
+        const errorData = await response.json();
+        console.error("리뷰 작성 실패:", errorData);
+        alert(`리뷰 작성 실패: ${errorData.message || response.statusText}`);
+        return;
+      }
+
+      const newReview = await response.json();
+
+      console.log("작성된 리뷰:", newReview);
+
+      // 최신 리뷰 추가
+      onReviewAdded(newReview);
+      setContent("");
+      setRating(5);
       setLoading(false);
-      return;
+    } catch (error) {
+      console.error("네트워크 오류:", error);
+      alert("리뷰 작성 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
     }
-
-    const newReview = await response.json();
-    onReviewAdded(newReview); // 최신 리뷰 추가
-    setContent("");
-    setRating(5);
-    setLoading(false);
   };
 
   return (
