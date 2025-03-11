@@ -199,7 +199,7 @@ public class SeriesService {
             sort = Sort.by("id").ascending();
         } else if (sortBy.equalsIgnoreCase("rating")) { //평점 기준 내림차순
             sort = Sort.by("averageRating").descending();
-        } else if (sortBy.equalsIgnoreCase("rating-count")) { //리뷰 개수 내림차순
+        } else if (sortBy.equalsIgnoreCase("ratingCount")) { //리뷰 개수 내림차순
             sort = Sort.by("ratingCount").descending();
         } else {
             throw new RuntimeException("잘못된 정렬 방식입니다.");
