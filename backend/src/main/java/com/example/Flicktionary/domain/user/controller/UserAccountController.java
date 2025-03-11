@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * 회원 도메인에 해당하는 API 엔드포인트
  */
+// TODO: ResponseEntity<String> 대신 JSON을 반환하게끔 수정
 @RequestMapping("/api/users")
 @RestController
 @RequiredArgsConstructor
@@ -160,6 +161,7 @@ public class UserAccountController {
      * @param value 쿠키의 값
      * @return 새 쿠키 오브젝트
      */
+    // TODO: Expires / Max-Age 설정 추가
     private Cookie newCookieWithDefaultSettings(String name, String value) {
         Cookie cookie = new Cookie(name, value == null ? "" : value);
         cookie.setHttpOnly(true);
