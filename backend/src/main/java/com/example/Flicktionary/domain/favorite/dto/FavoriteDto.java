@@ -11,6 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class FavoriteDto {
+    private Long id;
     private Long userId;
     private ContentType contentType;
     private Long contentId;
@@ -26,6 +27,7 @@ public class FavoriteDto {
         }
 
         return FavoriteDto.builder()
+                .id(favorite.getId())
                 .userId(favorite.getUserAccount().getId())
                 .contentType(favorite.getContentType())
                 .contentId(favorite.getContentId())
