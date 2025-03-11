@@ -69,7 +69,7 @@ public class TmdbSeriesDetailResponse {
                 .plot(body.getOverview())
                 .episode(body.getNumberOfEpisodes())
                 .status(body.getStatus())
-                .imageUrl(baseImageUrl + body.getPosterPath())
+                .imageUrl(baseImageUrl +"/w342" + body.getPosterPath())
                 .releaseStartDate(parseDate(body.getFirstAirDate()))
                 .releaseEndDate(parseDate(body.getLastAirDate()))
                 .nation(getFirstOrDefault(body.getOriginCountry(), "Unknown"))

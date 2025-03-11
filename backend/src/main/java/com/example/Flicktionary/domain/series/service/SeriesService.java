@@ -50,7 +50,7 @@ public class SeriesService {
     @Value("${tmdb.access-token}")
     private String accessToken;
 
-    private final String baseImageUrl = "https://image.tmdb.org/t/p/w500";
+    private final String baseImageUrl = "https://image.tmdb.org/t/p";
 
     // 인기도 순으로 DB에 저장(페이지당 20개)
     @PostConstruct
@@ -125,13 +125,15 @@ public class SeriesService {
                     )
                     .collect(Collectors.toList());
 
-            //Director 엔티티 생성
+            // Director 엔티티 생성
             Director director = response.getBody().getTmdbCredits().crew().stream()
                     .findFirst()
                     .map(directorDto ->
                             directorRepository.findById(directorDto.id())
                                     .orElseGet(() -> {
-                                        Director newDirector = new Director(directorDto.id(), directorDto.name(), baseImageUrl+directorDto.profilePath());
+                                        // profilePath가 없으면 null을 넣도록 처리
+                                        String profileUrl = (directorDto.profilePath() != null) ? baseImageUrl + "/w185" + directorDto.profilePath() : null;
+                                        Director newDirector = new Director(directorDto.id(), directorDto.name(), profileUrl);
                                         directorRepository.save(newDirector);
                                         return newDirector;
                                     })
@@ -146,14 +148,16 @@ public class SeriesService {
                         List<SeriesCast> casts = response.getBody().getTmdbCredits().cast().stream()
                                 .limit(5)
                                 .map(actorDto -> {
+                                    // profilePath가 없으면 null을 넣도록 처리
+                                    String actorProfileUrl = (actorDto.profilePath() != null) ? baseImageUrl + "/w185" + actorDto.profilePath() : null;
                                     // Actor 엔티티 바로 생성
-                                    Actor actor = new Actor(actorDto.id(), actorDto.name(), baseImageUrl+actorDto.profilePath());
+                                    Actor actor = new Actor(actorDto.id(), actorDto.name(), actorProfileUrl);
                                     actorRepository.save(actor);  // 바로 DB에 저장
 
                                     // SeriesCast 엔티티 생성
                                     SeriesCast seriesCast = new SeriesCast();
 
-                                    //연결
+                                    // 연결
                                     seriesCast.setActor(actor);
                                     seriesCast.setCharacterName(actorDto.character());
                                     seriesCast.setSeries(series);
@@ -178,7 +182,7 @@ public class SeriesService {
         series.setPlot(body.getOverview());
         series.setEpisode(body.getNumberOfEpisodes());
         series.setStatus(body.getStatus());
-        series.setImageUrl(baseImageUrl + body.getPosterPath());
+        series.setImageUrl(baseImageUrl + "/w342" + body.getPosterPath());
         if (body.getFirstAirDate() != null) {
             series.setReleaseStartDate(LocalDate.parse(body.getFirstAirDate()));
         }
