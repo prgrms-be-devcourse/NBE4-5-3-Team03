@@ -24,7 +24,6 @@ spring:
 
 tmdb:
   access-token: ${TMDB_ACCESS_TOKEN}
-  base-image-url: ${TMDB_BASE_IMAGE_URL}
 
 custom:
   jwt:

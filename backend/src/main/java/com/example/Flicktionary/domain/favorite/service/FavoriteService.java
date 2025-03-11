@@ -96,7 +96,7 @@ public class FavoriteService {
             return switch (sortBy) {
                 case "rating" -> contentDto.getAverageRating();
                 case "reviews" -> contentDto.getRatingCount();
-                default -> favoriteDto.getFavoriteId(); // 기본값은 ID 정렬
+                default -> favoriteDto.getContentId(); // 기본값은 ID 정렬
             };
         }
         return 0.0; // 기본값

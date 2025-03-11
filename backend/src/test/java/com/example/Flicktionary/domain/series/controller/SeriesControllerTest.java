@@ -102,7 +102,7 @@ public class SeriesControllerTest {
         SeriesDetailResponse response = SeriesDetailResponse.builder()
                 .id(seriesId)
                 .title("Test Series")
-                .imageUrl("http://test.com/image.jpg")
+                .posterPath("http://test.com/image.jpg")
                 .averageRating(4.5)
                 .ratingCount(100)
                 .episode(10)
