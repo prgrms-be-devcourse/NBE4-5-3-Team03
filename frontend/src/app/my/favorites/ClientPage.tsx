@@ -182,7 +182,7 @@ export default function ClientPage({
             variant="outline"
             onClick={() =>
               router.push(
-                `/favorites?userId=${userId}&page=${page - 1}&pageSize=${pageSize}&sortBy=${sortBy}`,
+                `/my/favorites?page=${Number(page) - 1}&pageSize=${pageSize}&sortBy=${sortBy}`,
               )
             }
           >
@@ -197,7 +197,7 @@ export default function ClientPage({
             variant="outline"
             onClick={() =>
               router.push(
-                `/favorites?userId=${userId}&page=${page + 1}&pageSize=${pageSize}&sortBy=${sortBy}`,
+                `/my/favorites?page=${Number(page) + 1}&pageSize=${pageSize}&sortBy=${sortBy}`,
               )
             }
           >
