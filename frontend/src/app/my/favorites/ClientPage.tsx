@@ -177,7 +177,8 @@ export default function ClientPage({
 
       {/* 페이지네이션 */}
       <div className="flex justify-center mt-8 space-x-2">
-        {page > 1 && (
+        {/* 이전 버튼 */}
+        {Number(page) > 1 && (
           <Button
             variant="outline"
             onClick={() =>
@@ -190,9 +191,37 @@ export default function ClientPage({
           </Button>
         )}
 
-        <span className="px-4 py-2 bg-black text-white rounded">{page}</span>
+        {/* 페이지 번호 버튼 */}
+        {Array.from({ length: totalPages }, (_, i) => i + 1)
+          .filter(
+            (pageNo) =>
+              pageNo === 1 ||
+              pageNo === totalPages ||
+              (pageNo >= Number(page) - 2 && pageNo <= Number(page) + 2),
+          )
+          .map((pageNo, index, arr) => (
+            <>
+              {/* "..." 표시 추가 (범위가 연속되지 않는 경우) */}
+              {index > 0 && pageNo !== arr[index - 1] + 1 && (
+                <span className="px-2">...</span>
+              )}
 
-        {page < totalPages && (
+              <Button
+                key={pageNo}
+                variant={pageNo === Number(page) ? "default" : "outline"}
+                onClick={() =>
+                  router.push(
+                    `/my/favorites?page=${pageNo}&pageSize=${pageSize}&sortBy=${sortBy}`,
+                  )
+                }
+              >
+                {pageNo}
+              </Button>
+            </>
+          ))}
+
+        {/* 다음 버튼 */}
+        {Number(page) < totalPages && (
           <Button
             variant="outline"
             onClick={() =>
