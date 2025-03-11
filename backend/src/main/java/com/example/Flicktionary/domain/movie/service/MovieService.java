@@ -16,7 +16,6 @@ import com.example.Flicktionary.domain.tmdb.dto.TmdbMovieResponseWithDetail;
 import com.example.Flicktionary.domain.tmdb.service.TmdbService;
 import com.example.Flicktionary.global.dto.PageDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,9 +37,8 @@ public class MovieService {
     private final GenreRepository genreRepository;
     private final ActorRepository actorRepository;
     private final DirectorRepository directorRepository;
-
-    @Value("${tmdb.base-image-url}")
-    private String baseImageUrl;
+    
+    private final String BASE_IMAGE_URL = "https://image.tmdb.org/t/p";
 
     // tmdb api를 이용해서 인기 영화 목록 정보를 받아와 저장합니다.
     // 이미 있는 영화에 대해서는 정보를 업데이트합니다.
@@ -52,7 +50,7 @@ public class MovieService {
             for (MovieDto movieDto : movieDtos) {
                 movieRepository.findByTmdbId(movieDto.id()).ifPresentOrElse(
                         movie -> updateMovie(movie, movieDto),
-                        () -> movieRepository.save(movieDto.toEntity(baseImageUrl + "/w342"))
+                        () -> movieRepository.save(movieDto.toEntity(BASE_IMAGE_URL + "/w342"))
                 );
             }
         }
@@ -67,7 +65,7 @@ public class MovieService {
         for (MovieDto movieDto : movieDtos) {
             movieRepository.findByTmdbId(movieDto.id()).ifPresentOrElse(
                     movie -> updateMovie(movie, movieDto),
-                    () -> movieRepository.save(movieDto.toEntity(baseImageUrl + "/w342"))
+                    () -> movieRepository.save(movieDto.toEntity(BASE_IMAGE_URL + "/w342"))
             );
         }
     }
@@ -135,7 +133,7 @@ public class MovieService {
         movie.setOverview(response.overview());
         movie.setReleaseDate(response.releaseDate().isEmpty() ? null : LocalDate.parse(response.releaseDate()));
         movie.setStatus(response.status());
-        movie.setPosterPath(baseImageUrl + "/w342" + response.posterPath());
+        movie.setPosterPath(BASE_IMAGE_URL + "/w342" + response.posterPath());
         movie.setRuntime(response.runtime());
         movie.setProductionCountry(response.productionCountries().isEmpty() ? "Unknown" : response.productionCountries().getFirst().name());
         movie.setProductionCompany(response.productionCompanies().isEmpty() ? "Unknown" : response.productionCompanies().getFirst().name());
@@ -155,7 +153,7 @@ public class MovieService {
                 .limit(5) // 상위 5명만 저장
                 .map(a -> {
                     Actor actor = actorRepository.findById(a.id())
-                            .orElseGet(() -> actorRepository.save(new Actor(a.id(), a.name(), baseImageUrl + "/w185" + a.profilePath())));
+                            .orElseGet(() -> actorRepository.save(new Actor(a.id(), a.name(), BASE_IMAGE_URL + "/w185" + a.profilePath())));
                     return MovieCast.builder().movie(movie).actor(actor).characterName(a.character()).build();
                 })
                 .toList();
@@ -167,7 +165,7 @@ public class MovieService {
                 .findFirst();
         directorData.ifPresent(d -> {
             Director director = directorRepository.findById(d.id())
-                    .orElseGet(() -> directorRepository.save(new Director(d.id(), d.name(), baseImageUrl + "/w185" + d.profilePath())));
+                    .orElseGet(() -> directorRepository.save(new Director(d.id(), d.name(), BASE_IMAGE_URL + "/w185" + d.profilePath())));
             movie.setDirector(director);
         });
 
