@@ -74,7 +74,9 @@ export default function ClientPage({
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-6 text-center">⭐ 즐겨찾기 목록</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">
+        ⭐ 즐겨찾기 목록 ({data.totalItems ?? 0})
+      </h1>
 
       {/* 정렬 옵션 + 페이지 크기 선택 */}
       <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-6">
