@@ -9,11 +9,19 @@ import { components } from "@/lib/backend/apiV1/schema";
 import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function MainPage() {
   const router = useRouter();
   const sortBy = "rating";
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchType, setSearchType] = useState("movies");
   const [tab, setTab] = useState("movies");
   const [movies, setMovies] =
     useState<components["schemas"]["PageDtoMovieResponse"]>();
@@ -63,7 +71,7 @@ export default function MainPage() {
     e.preventDefault();
     if (!searchQuery.trim()) return;
     router.push(
-      `/${tab === "movies" ? "movies" : "series"}?keyword=${encodeURIComponent(searchQuery)}`
+      `/${searchType === "movies" ? "movies" : "series"}?keyword=${encodeURIComponent(searchQuery)}`
     );
   };
 
@@ -94,6 +102,15 @@ export default function MainPage() {
         onSubmit={handleSearch}
         className="flex gap-3 bg-white p-5 shadow-md rounded-lg max-w-2xl w-full"
       >
+        <Select value={searchType} onValueChange={setSearchType}>
+          <SelectTrigger className="w-32">
+            <SelectValue placeholder="검색 타입" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="movies">영화</SelectItem>
+            <SelectItem value="series">시리즈</SelectItem>
+          </SelectContent>
+        </Select>
         <Input
           type="text"
           placeholder="검색어를 입력하세요"
@@ -116,7 +133,7 @@ export default function MainPage() {
           variant={tab === "series" ? "default" : "outline"}
           onClick={() => setTab("series")}
         >
-          드라마
+          시리즈
         </Button>
       </div>
       {loading ? (
