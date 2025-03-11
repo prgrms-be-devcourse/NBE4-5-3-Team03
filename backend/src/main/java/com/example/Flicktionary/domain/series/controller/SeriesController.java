@@ -22,8 +22,8 @@ public class SeriesController {
     public ResponseEntity<PageDto<SeriesSummaryResponse>> getSeries(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10", name = "page-size") int pageSize,
-            @RequestParam(defaultValue = "id", name = "sort-by") String sortBy) {
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "id") String sortBy) {
 
         Page<Series> series = seriesService.getSeries(keyword, page, pageSize, sortBy);
         PageDto<SeriesSummaryResponse> pageDto = new PageDto<>(series.map(SeriesSummaryResponse::new));

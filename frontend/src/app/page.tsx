@@ -45,7 +45,7 @@ export default function MainPage() {
         const seriesResponse = await client.GET("/api/series", {
           params: {
             query: {
-              "sort-by": sortBy,
+              sortBy,
             },
           },
         });
