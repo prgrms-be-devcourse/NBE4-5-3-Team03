@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import React from "react";
 
 type FavoriteContentDto = {
   title: string;
@@ -176,20 +177,20 @@ export default function ClientPage({
       </div>
 
       {/* 페이지네이션 */}
-      <div className="flex justify-center mt-8 space-x-2">
-        {/* 이전 버튼 */}
-        {Number(page) > 1 && (
-          <Button
-            variant="outline"
-            onClick={() =>
-              router.push(
-                `/my/favorites?page=${Number(page) - 1}&pageSize=${pageSize}&sortBy=${sortBy}`,
-              )
-            }
-          >
-            이전
-          </Button>
-        )}
+      <div className="flex justify-center mt-8 space-x-2 min-w-[250px]">
+        {/* 이전 버튼 (첫 페이지에서는 숨김) */}
+        <Button
+          variant="outline"
+          className={Number(page) === 1 ? "invisible" : ""}
+          onClick={() =>
+            Number(page) > 1 &&
+            router.push(
+              `/my/favorites?page=${Number(page) - 1}&pageSize=${pageSize}&sortBy=${sortBy}`,
+            )
+          }
+        >
+          이전
+        </Button>
 
         {/* 페이지 번호 버튼 */}
         {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -200,10 +201,12 @@ export default function ClientPage({
               (pageNo >= Number(page) - 2 && pageNo <= Number(page) + 2),
           )
           .map((pageNo, index, arr) => (
-            <>
+            <React.Fragment key={pageNo}>
               {/* "..." 표시 추가 (범위가 연속되지 않는 경우) */}
               {index > 0 && pageNo !== arr[index - 1] + 1 && (
-                <span className="px-2">...</span>
+                <span key={`dots-${pageNo}`} className="px-2">
+                  ...
+                </span>
               )}
 
               <Button
@@ -217,22 +220,22 @@ export default function ClientPage({
               >
                 {pageNo}
               </Button>
-            </>
+            </React.Fragment>
           ))}
 
-        {/* 다음 버튼 */}
-        {Number(page) < totalPages && (
-          <Button
-            variant="outline"
-            onClick={() =>
-              router.push(
-                `/my/favorites?page=${Number(page) + 1}&pageSize=${pageSize}&sortBy=${sortBy}`,
-              )
-            }
-          >
-            다음
-          </Button>
-        )}
+        {/* 다음 버튼 (마지막 페이지에서는 숨김) */}
+        <Button
+          variant="outline"
+          className={Number(page) === totalPages ? "invisible" : ""}
+          onClick={() =>
+            Number(page) < totalPages &&
+            router.push(
+              `/my/favorites?page=${Number(page) + 1}&pageSize=${pageSize}&sortBy=${sortBy}`,
+            )
+          }
+        >
+          다음
+        </Button>
       </div>
     </div>
   );
