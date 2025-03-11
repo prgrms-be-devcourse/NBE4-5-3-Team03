@@ -24,7 +24,7 @@ public class SeriesDetailResponse {
 
     private String title;
 
-    private String imageUrl;
+    private String posterPath;
 
     private double averageRating;
 
@@ -46,7 +46,7 @@ public class SeriesDetailResponse {
 
     private List<GenreDto> genres;
 
-    private List <ActorDto> actors;
+    private List <SeriesCastDto> casts;
 
     private DirectorDto director;
 
@@ -54,7 +54,7 @@ public class SeriesDetailResponse {
         this.id = series.getId();
         this.tmdbId = series.getTmdbId();
         this.title = series.getTitle();
-        this.imageUrl = series.getImageUrl();
+        this.posterPath = series.getImageUrl();
         this.averageRating = series.getAverageRating();
         this.ratingCount = series.getRatingCount();
         this.episode = series.getEpisode();
@@ -71,10 +71,10 @@ public class SeriesDetailResponse {
                 .map(GenreDto::new)
                 .toList();
 
-        this.actors = Optional.ofNullable(series.getActors())
+        this.casts = Optional.ofNullable(series.getCasts())
                 .orElseGet(Collections::emptyList)
                 .stream()
-                .map(ActorDto::new)
+                .map(SeriesCastDto::new)
                 .toList();
 
         this.director = series.getDirector() != null ? new DirectorDto(series.getDirector()) : null;

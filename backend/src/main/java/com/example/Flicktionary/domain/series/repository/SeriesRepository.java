@@ -14,11 +14,11 @@ import java.util.Optional;
 @Repository
 public interface SeriesRepository extends JpaRepository<Series, Long> {
 
-    @EntityGraph(attributePaths = {"actors", "director"})
+    @EntityGraph(attributePaths = {"director", "casts", "casts.actor"})
     Optional<Series> findById(Long id);
 
     Optional<Series> findByTmdbId(Long tmdbId);
 
-    @Query("SELECT s FROM Series s WHERE s.title LIKE %:keyword%")
+    @Query("SELECT s FROM Series s WHERE s.title LIKE CONCAT('%', :keyword, '%')")
     Page<Series> findByTitleLike(@Param("keyword") String keyword, Pageable pageable);
 }
