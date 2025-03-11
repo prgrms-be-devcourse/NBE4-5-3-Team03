@@ -32,7 +32,7 @@ export default function ReviewForm({
     };
 
     // 디버깅용 콘솔 로그
-    console.log("📡 전송할 리뷰 데이터:", reviewData);
+    console.log("전송할 리뷰 데이터:", reviewData);
 
     try {
       const response = await fetch("http://localhost:8080/api/reviews", {

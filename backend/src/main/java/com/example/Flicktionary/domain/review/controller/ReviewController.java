@@ -33,7 +33,7 @@ public class ReviewController {
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
 
-    // 리뷰 닉넴임과 내용으로 검색
+    // 리뷰 닉네임과 내용으로 검색
     @GetMapping("/search")
     public ResponseEntity<PageDto<ReviewDto>> searchReviews(
             @RequestParam String keyword,

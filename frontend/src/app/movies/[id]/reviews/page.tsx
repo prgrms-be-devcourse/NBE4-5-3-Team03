@@ -4,12 +4,14 @@ import ClientPage from "./ClientPage";
 export default async function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const movie_id = parseInt(id, 10);
+  // 기본 페이지는 0
+  const page = searchParams.page ? parseInt(searchParams.page, 10) : 0;
 
-  console.log(`Fetching reviews for movie_id: ${movie_id}`);
+  console.log(`Fetching reviews for movie_id: ${movie_id}, page: ${page}`);
 
   // 특정 영화의 리뷰 목록 가져오기
   const response = await client.GET("/api/reviews/movie/{movie_id}" as any, {
-    params: { path: { movie_id } },
+    params: { path: { movie_id }, query: { page, size: 5 } },
   });
 
   if (response.error) {
