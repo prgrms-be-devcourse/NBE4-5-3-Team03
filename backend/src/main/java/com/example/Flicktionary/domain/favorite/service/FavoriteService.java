@@ -1,5 +1,6 @@
 package com.example.Flicktionary.domain.favorite.service;
 
+import com.example.Flicktionary.domain.favorite.dto.FavoriteContentDto;
 import com.example.Flicktionary.domain.favorite.dto.FavoriteDto;
 import com.example.Flicktionary.domain.favorite.entity.Favorite;
 import com.example.Flicktionary.domain.favorite.repository.FavoriteRepository;
@@ -9,12 +10,12 @@ import com.example.Flicktionary.domain.user.entity.UserAccount;
 import com.example.Flicktionary.domain.user.repository.UserAccountRepository;
 import com.example.Flicktionary.global.dto.PageDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -74,8 +75,31 @@ public class FavoriteService {
         Pageable pageable = PageRequest.of(page - 1, pageSize, sort);
         Page<Favorite> favorites = favoriteRepository.findAllByUserAccountIdWithContent(userId, pageable);
 
-        Page<FavoriteDto> favoriteDtos = favorites.map(FavoriteDto::fromEntity);
-        return new PageDto<>(favoriteDtos);
+        // DTO 변환 후 수동 정렬 수행 (ASC/DESC 지원)
+        Comparator<FavoriteDto> comparator = Comparator.comparing(f -> getSortValue(f, sortBy));
+
+        if (direction.equalsIgnoreCase("DESC")) {
+            comparator = comparator.reversed();
+        }
+
+        List<FavoriteDto> sortedFavorites = favorites.stream()
+                .map(FavoriteDto::fromEntity)
+                .sorted(comparator)
+                .toList();
+
+        return new PageDto<>(new PageImpl<>(sortedFavorites, pageable, favorites.getTotalElements()));
+    }
+
+    // 정렬 기준 값을 가져오는 메서드
+    private double getSortValue(FavoriteDto favoriteDto, String sortBy) {
+        if (favoriteDto.getData() instanceof FavoriteContentDto contentDto) {
+            return switch (sortBy) {
+                case "rating" -> contentDto.getAverageRating();
+                case "reviews" -> contentDto.getRatingCount();
+                default -> favoriteDto.getFavoriteId(); // 기본값은 ID 정렬
+            };
+        }
+        return 0.0; // 기본값
     }
 
     @Transactional
