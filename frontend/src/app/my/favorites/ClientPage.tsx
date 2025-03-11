@@ -37,6 +37,10 @@ export default function ClientPage({
   const totalPages = data.totalPages ?? 1;
 
   const handleDelete = async (favoriteId: number) => {
+    if (!window.confirm("정말 삭제하시겠습니까?")) {
+      return; // 사용자가 취소하면 삭제 중단
+    }
+
     try {
       // console.log("삭제 요청 favoriteId:", favoriteId); // ✅ 삭제 요청 확인용 로그
 
