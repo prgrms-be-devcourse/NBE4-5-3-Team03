@@ -35,9 +35,24 @@ export default function ClientPage({
   // 리뷰 목록을 불러오는 함수
   const fetchReviews = async (page: number) => {
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/reviews/${contentType}/${contentId}?page=${page}`
-      );
+      const baseUrl = "http://localhost:8080/api/reviews";
+      let apiUrl = "";
+
+      if (contentType === "movies") {
+        // "/movies" 로 URL 시작
+        apiUrl = `${baseUrl}/movies/${contentId}?page=${page}`;
+      } else if (contentType === "series") {
+        // "/series" 로 URL 시작
+        apiUrl = `${baseUrl}/series/${contentId}?page=${page}`;
+      } else {
+        console.error("잘못된 contentType:", contentType);
+        return;
+      }
+
+      // 요청 URL 로그
+      console.log("fetchReviews 요청 URL:", apiUrl);
+
+      const response = await fetch(apiUrl);
 
       if (!response.ok) {
         throw new Error("리뷰 목록을 불러오는 데 실패했습니다.");
@@ -55,13 +70,26 @@ export default function ClientPage({
   };
 
   // 평균 평점을 가져오는 함수
-
   const fetchAverageRating = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/reviews/${contentType}/${contentId}/average-rating`
-      );
+      const baseUrl = "http://localhost:8080/api/reviews";
+      let apiUrl = "";
 
+      if (contentType === "movies") {
+        // "/movies" 로 URL 시작
+        apiUrl = `${baseUrl}/movies/${contentId}/average-rating`;
+      } else if (contentType === "series") {
+        // "/series" 로 URL 시작
+        apiUrl = `${baseUrl}/series/${contentId}/average-rating`;
+      } else {
+        console.error("잘못된 contentType:", contentType);
+        return;
+      }
+
+      // 요청 URL 로그
+      console.log("fetchAverageRating 요청 URL:", apiUrl);
+
+      const response = await fetch(apiUrl);
       if (!response.ok) {
         throw new Error("평균 평점을 불러오는 데 실패했습니다.");
       }
@@ -80,9 +108,24 @@ export default function ClientPage({
   // 총 리뷰 개수를 불러오는 함수
   const fetchTotalReviewsCount = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/reviews/${contentType}/${contentId}/count`
-      );
+      const baseUrl = "http://localhost:8080/api/reviews";
+      let apiUrl = "";
+
+      if (contentType === "movies") {
+        // "/movies" 로 URL 시작
+        apiUrl = `${baseUrl}/movies/${contentId}/count`;
+      } else if (contentType === "series") {
+        // "/series" 로 URL 시작
+        apiUrl = `${baseUrl}/series/${contentId}/count`;
+      } else {
+        console.error("잘못된 contentType:", contentType);
+        return;
+      }
+
+      // 요청 URL 로그
+      console.log("fetchTotalReviewsCount 요청 URL:", apiUrl);
+
+      const response = await fetch(apiUrl);
 
       if (!response.ok) {
         throw new Error("총 리뷰 개수를 불러오는 데 실패했습니다.");

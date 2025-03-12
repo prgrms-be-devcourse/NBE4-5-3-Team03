@@ -1,23 +1,40 @@
 import client from "@/lib/backend/client";
 import ClientPage from "@/app/reviews/[contentType]/[contentId]/ClientPage";
 
-export default async function Page({
-  params,
-}: {
+interface PageProps {
   params: {
     contentType: string;
     contentId: string;
   };
-}) {
-  const { contentType, contentId } = params; // 로그
-  console.log(`Fetching reviews for ${contentType} with id: ${contentId}`); // 특정 영화의 리뷰 목록 가져오기
+}
 
-  const response = await client.GET(
-    `/api/reviews/${contentType}/${contentId}` as any,
-    {
-      params: { path: { contentType: contentType, contentId: contentId } },
-    }
-  );
+export default async function Page({ params }: PageProps) {
+  const contentType = await params.contentType;
+  const contentId = await params.contentId;
+
+  // 로그
+  console.log(`Fetching reviews for ${contentType} with id: ${contentId}`);
+
+  // "/api/reviews/" 로 시작
+  let apiUrl = `/api/reviews/`;
+
+  if (contentType === "movies") {
+    // 영화 리뷰 목록 조회 경로: "/api/reviews/movies/{movie_id}"
+    apiUrl += `movies/${contentId}`;
+  } else if (contentType === "series") {
+    // 드라마 리뷰 목록 조회 경로: "/api/reviews/series/{series_id}"
+    apiUrl += `series/${contentId}`;
+  } else {
+    // 유효하지 않은 contentType 처리
+    console.error("잘못된 contentType:", contentType);
+    // 또는 사용자에게 에러 메시지 표시
+    return <div>잘못된 컨텐츠 타입입니다.</div>;
+  }
+
+  // API 요청 URL 로그
+  console.log("API 요청 URL:", apiUrl);
+
+  const response = await client.GET(apiUrl as any, {});
 
   if (response.error) {
     console.error("리뷰 가져오기 실패:", response.error);

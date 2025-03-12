@@ -44,7 +44,24 @@ export default function ReviewForm({
     console.log("전송할 리뷰 데이터:", reviewData);
 
     try {
-      const response = await fetch(`/api/reviews/${contentType}/${contentId}`, {
+      const baseUrl = "http://localhost:8080/api/reviews";
+      let apiUrl = "";
+
+      if (contentType === "movies") {
+        // "/movies" 로 URL 시작
+        apiUrl = `${baseUrl}/movies/${contentId}`;
+      } else if (contentType === "series") {
+        // "/series" 로 URL 시작
+        apiUrl = `${baseUrl}/series/${contentId}`;
+      } else {
+        console.error("잘못된 contentType:", contentType);
+        return;
+      }
+
+      // 요청 URL 로그
+      console.log("리뷰 작성 요청 URL:", apiUrl);
+
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reviewData),
