@@ -173,4 +173,12 @@ public class MovieService {
 
         return movieRepository.save(movie);
     }
+
+    @Transactional
+    public void fetchMovieDetail() {
+        List<Movie> movies = movieRepository.findAll();
+        for (Movie movie : movies) {
+            fetchAndSaveMovie(movie);
+        }
+    }
 }
