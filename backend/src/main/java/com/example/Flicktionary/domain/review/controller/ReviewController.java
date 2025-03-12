@@ -34,7 +34,7 @@ public class ReviewController {
     }
 
     // 특정 영화의 평균 평점 조회
-    @GetMapping("/movie/{movie_id}/average-rating")
+    @GetMapping("/movies/{movie_id}/average-rating")
     public ResponseEntity<Double> getMovieAverageRating(
             @PathVariable("movie_id") Long movieId) {
 
@@ -52,7 +52,7 @@ public class ReviewController {
     }
 
     // 특정 영화의 총 리뷰 개수 조회
-    @GetMapping("/movie/{movie_id}/count")
+    @GetMapping("/movies/{movie_id}/count")
     public ResponseEntity<Long> getMovieReviewCount(
             @PathVariable("movie_id") Long movieId) {
 
@@ -100,7 +100,7 @@ public class ReviewController {
     // TODO: 예외 처리를 서비스 레이어로 옮기는 것을 검토
     // TODO: Spring에서 제공하는 예외를 바로 던질지, 내부에서 따로 예외를 처리할지 여부를 검토
     // 특정 영화의 리뷰를 페이지로 조회 (0 ~ 5 페이지)
-    @GetMapping("/movie/{movie_id}")
+    @GetMapping("/movies/{movie_id}")
     public ResponseEntity<ResponseDto<PageDto<ReviewDto>>> reviewMovieDtoPage(
             @PathVariable Long movie_id,
             @RequestParam(defaultValue = "0") int page,
