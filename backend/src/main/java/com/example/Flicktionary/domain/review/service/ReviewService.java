@@ -79,14 +79,14 @@ public class ReviewService {
     }
 
     // 특정 영화의 평균 평점 조회
-    public Double getMovieAverageRating(Long movieId) {
-        return reviewRepository.findAverageRatingByMovie_Id(movieId);
-    }
+//    public Double getMovieAverageRating(Long movieId) {
+//        return reviewRepository.findAverageRatingByMovie_Id(movieId);
+//    }
 
     // 특정 드라마의 평균 평점 조회
-    public Double getSeriesAverageRating(Long seriesId) {
-        return reviewRepository.findAverageRatingBySeries_Id(seriesId);
-    }
+//    public Double getSeriesAverageRating(Long seriesId) {
+//        return reviewRepository.findAverageRatingBySeries_Id(seriesId);
+//    }
 
     // 리뷰 닉네임과 내용으로 검색
     public PageDto<ReviewDto> searchReviews(String keyword, int page, int size) {
@@ -143,12 +143,22 @@ public class ReviewService {
     // 공통 평점 업데이트 메서드
     private void updateRatingAndCount(Movie movie, Series series, int ratingChange, boolean isAddOrDelete) {
         if (movie != null) {
+            // 영화가 null인 경우 예외 처리 추가
+            if (series == null) {
+                return; // 또는 예외를 던지거나, 로깅하는 등 적절한 처리
+            }
+
             int newRatingCount = isAddOrDelete ? movie.getRatingCount() + (ratingChange > 0 ? 1 : -1) : movie.getRatingCount();
             double newAverageRating = (newRatingCount == 0) ? 0.0
                     : (movie.getAverageRating() * movie.getRatingCount() + ratingChange) / newRatingCount;
             movie.setRatingCount(newRatingCount);
             movie.setAverageRating(newAverageRating);
         } else {
+            // 드라마가 null인 경우 예외 처리 추가
+            if (series == null) {
+                return; // 또는 예외를 던지거나, 로깅하는 등 적절한 처리
+            }
+
             int newRatingCount = isAddOrDelete ? series.getRatingCount() + (ratingChange > 0 ? 1 : -1) : series.getRatingCount();
             double newAverageRating = (newRatingCount == 0) ? 0.0
                     : (series.getAverageRating() * series.getRatingCount() + ratingChange) / newRatingCount;
@@ -177,19 +187,19 @@ public class ReviewService {
         Pageable pageable = PageRequest.of(page, size);
 
         // 드라마 id로 드라마를 찾아 ReviewDto 객체 목록으로 변환하여, Page 변수에 담아 return
-        Page<ReviewDto> reviewDtoPage = reviewRepository.findBySeries_Id(seriesId, pageable)
+        Page<ReviewDto> reviewDtoPage = reviewRepository.findBySeries_IdOrderByIdDesc(seriesId, pageable)
                 .map(ReviewDto::fromEntity);
 
         return new PageDto<>(reviewDtoPage);
     }
 
     // 특정 영화의 총 리뷰 개수 조회
-    public long getMovieTotalCount(Long movieId) {
-        return reviewRepository.countByMovie_Id(movieId);
-    }
+//    public long getMovieTotalCount(Long movieId) {
+//        return reviewRepository.countByMovie_Id(movieId);
+//    }
 
     // 특정 드라마의 총 리뷰 개수 조회
-    public long getSeriesTotalCount(Long seriesId) {
-        return reviewRepository.countBySeries_Id(seriesId);
-    }
+//    public long getSeriesTotalCount(Long seriesId) {
+//        return reviewRepository.countBySeries_Id(seriesId);
+//    }
 }

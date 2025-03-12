@@ -34,40 +34,52 @@ public class ReviewController {
     }
 
     // 특정 영화의 평균 평점 조회
-    @GetMapping("/movies/{movie_id}/average-rating")
-    public ResponseEntity<Double> getMovieAverageRating(
-            @PathVariable("movie_id") Long movieId) {
-
-        Double averageRating = reviewService.getMovieAverageRating(movieId);
-        return new ResponseEntity<>(averageRating, HttpStatus.OK);
-    }
+//    @GetMapping("/movies/{movie_id}/average-rating")
+//    public ResponseEntity<Double> getMovieAverageRating(
+//            @PathVariable("movie_id") Long movieId) {
+//
+//        Double averageRating = reviewService.getMovieAverageRating(movieId);
+//
+//        if (averageRating == null) {
+//            // 평균 평점이 null인 경우 0.0 반환
+//            return new ResponseEntity<>(0.0, HttpStatus.OK);
+//        }
+//
+//        return new ResponseEntity<>(averageRating, HttpStatus.OK);
+//    }
 
     // 특정 드라마의 평균 평점 조회
-    @GetMapping("/series/{series_id}/average-rating")
-    public ResponseEntity<Double> getSeriesAverageRating(
-            @PathVariable("series_id") Long seriesId) {
-
-        Double averageRating = reviewService.getSeriesAverageRating(seriesId);
-        return new ResponseEntity<>(averageRating, HttpStatus.OK);
-    }
-
-    // 특정 영화의 총 리뷰 개수 조회
-    @GetMapping("/movies/{movie_id}/count")
-    public ResponseEntity<Long> getMovieReviewCount(
-            @PathVariable("movie_id") Long movieId) {
-
-        long totalReviews = reviewService.getMovieTotalCount(movieId);
-        return new ResponseEntity<>(totalReviews, HttpStatus.OK);
-    }
+//    @GetMapping("/series/{series_id}/average-rating")
+//    public ResponseEntity<Double> getSeriesAverageRating(
+//            @PathVariable("series_id") Long seriesId) {
+//
+//        Double averageRating = reviewService.getSeriesAverageRating(seriesId);
+//
+//        if (averageRating == null) {
+//            // 평균 평점이 null인 경우 0.0 반환
+//            return new ResponseEntity<>(0.0, HttpStatus.OK);
+//        }
+//
+//        return new ResponseEntity<>(averageRating, HttpStatus.OK);
+//    }
 
     // 특정 영화의 총 리뷰 개수 조회
-    @GetMapping("/series/{series_id}/count")
-    public ResponseEntity<Long> getSeriesReviewCount(
-            @PathVariable("series_id") Long seriesId) {
+//    @GetMapping("/movies/{movie_id}/count")
+//    public ResponseEntity<Long> getMovieReviewCount(
+//            @PathVariable("movie_id") Long movieId) {
+//
+//        long totalReviews = reviewService.getMovieTotalCount(movieId);
+//        return new ResponseEntity<>(totalReviews, HttpStatus.OK);
+//    }
 
-        long totalReviews = reviewService.getSeriesTotalCount(seriesId);
-        return new ResponseEntity<>(totalReviews, HttpStatus.OK);
-    }
+    // 특정 영화의 총 리뷰 개수 조회
+//    @GetMapping("/series/{series_id}/count")
+//    public ResponseEntity<Long> getSeriesReviewCount(
+//            @PathVariable("series_id") Long seriesId) {
+//
+//        long totalReviews = reviewService.getSeriesTotalCount(seriesId);
+//        return new ResponseEntity<>(totalReviews, HttpStatus.OK);
+//    }
 
     // 리뷰 닉네임과 내용으로 검색
     @GetMapping("/search")
