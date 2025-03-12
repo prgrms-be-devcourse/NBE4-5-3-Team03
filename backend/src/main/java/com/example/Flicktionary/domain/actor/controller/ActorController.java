@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/actor")
+@RequestMapping("/api/actors")
 @RequiredArgsConstructor
 public class ActorController {
     private final ActorService actorService;
