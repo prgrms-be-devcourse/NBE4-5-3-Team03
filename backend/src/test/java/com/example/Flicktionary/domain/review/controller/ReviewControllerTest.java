@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("ReviewControllerTest")
+@ActiveProfiles("test")
 @Transactional
 public class ReviewControllerTest {
 
@@ -168,8 +168,8 @@ public class ReviewControllerTest {
 
         // mockMvc로 put 요청 후 검증
         mockMvc.perform(put("/api/reviews/" + savedReview.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(modifyReview)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(modifyReview)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content")
                         .value("수정된 테스트용 리뷰"))
@@ -202,8 +202,8 @@ public class ReviewControllerTest {
 
         // mockMvc로 get 요청 후 검증
         mockMvc.perform(get("/api/reviews/movie/" + testMovie.getId())
-                .param("page", "0")
-                .param("size", "5"))
+                        .param("page", "0")
+                        .param("size", "5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.items[0].content")
                         .value("테스트용 리뷰 내용 (영화)"));
