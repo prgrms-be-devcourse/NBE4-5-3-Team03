@@ -32,9 +32,20 @@ export default function ReviewForm({
 
     /* 나중에 로그인 구현되면, 이 곳에 userAccountId를 받아 로그인 하는 기능 구현할 것 */
 
+    let movieId = null;
+    let seriesId = null;
+
+    // contentType에 따라 movieId 또는 seriesId 설정
+    if (contentType === "movies") {
+      movieId = Number(contentId);
+    } else if (contentType === "series") {
+      seriesId = Number(contentId);
+    }
+
     const reviewData = {
       userAccountId: 1, // 임시로 1로 설정
-      contentId: Number(contentId),
+      movieId: movieId,
+      seriesId: seriesId,
       contentType: contentType,
       content,
       rating: rating,

@@ -9,8 +9,7 @@ interface PageProps {
 }
 
 export default async function Page({ params }: PageProps) {
-  const { contentType } = await params;
-  const { contentId } = await params;
+  const { contentType, contentId } = params;
 
   // 로그
   console.log(`Fetching reviews for ${contentType} with id: ${contentId}`);
@@ -35,6 +34,8 @@ export default async function Page({ params }: PageProps) {
   console.log("API 요청 URL:", apiUrl);
 
   const response = await client.GET(apiUrl as any, {});
+
+  console.log("page.tsx - 서버 컴포넌트 API 응답:", response); // 👈 **[추가]** 서버 컴포넌트 API 응답 데이터 로그 출력
 
   if (response.error) {
     console.error("리뷰 가져오기 실패:", response.error);

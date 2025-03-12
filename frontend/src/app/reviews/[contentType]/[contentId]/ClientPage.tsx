@@ -16,6 +16,23 @@ export default function ClientPage({
   contentType,
   contentId,
 }: ClientPageProps) {
+  console.log("ClientPage.tsx - props:", { contentType, contentId }); // 기존 props 로그
+
+  if (
+    !contentType ||
+    typeof contentType !== "string" ||
+    !contentId ||
+    typeof contentId !== "string"
+  ) {
+    // props 유효성 검사 (존재 여부 및 타입 체크)
+    console.error(
+      "ClientPage.tsx - props 오류: contentType 또는 contentId 가 유효하지 않습니다.",
+      { contentType, contentId }
+    );
+    // props 유효성 검사 실패 시 에러 메시지 UI 렌더링
+    return <div>props 오류: 컨텐츠 정보를 불러올 수 없습니다.</div>;
+  }
+
   const [reviews, setReviews] = useState<components["schemas"]["ReviewDto"][]>(
     []
   );
@@ -28,8 +45,6 @@ export default function ClientPage({
 
   useEffect(() => {
     fetchReviews(currentPage);
-    // fetchAverageRating();
-    // fetchTotalReviewsCount();
   }, [currentPage, contentType, contentId]);
 
   // 리뷰 목록을 불러오는 함수
@@ -58,18 +73,32 @@ export default function ClientPage({
         throw new Error("리뷰 목록을 불러오는 데 실패했습니다.");
       }
 
-      const newData: components["schemas"]["PageDtoReviewDto"] =
-        await response.json();
+      const newData = await response.json();
 
-      if (newData && newData.items) {
+      // 백엔드 응답 전체 출력
+      console.log(
+        "fetchReviews - 백엔드 응답 전체:",
+        JSON.stringify(newData, null, 2)
+      );
+
+      // `items`가 어디 있는지 확인
+      if (newData?.items) {
         setReviews(newData.items);
-        setTotalPages(newData.totalPages);
+        setTotalPages(newData.totalPages ?? 1);
+      } else if (newData?.data?.items) {
+        // `data.items` 안에 있는 경우 처리
+        setReviews(newData.data.items);
+        setTotalPages(newData.data.totalPages ?? 1);
       } else {
+        console.warn(
+          "fetchReviews - newData.items가 없음! (백엔드 응답 확인 필요)"
+        );
         setReviews([]);
         setTotalPages(1);
       }
     } catch (error) {
       console.error("리뷰 목록 불러오기 오류:", error);
+      setReviews([]);
     }
   };
 
@@ -211,23 +240,25 @@ export default function ClientPage({
       <Card className="border border-gray-200 rounded-md">
         <CardContent className="p-6">
           <div className="space-y-4">
-            {reviews.map((review) => (
-              <Card key={review?.id} className="border border-gray-200">
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <p className="font-semibold">{review?.nickname}</p>
+            {reviews.map((review) => {
+              return (
+                <Card key={review?.id} className="border border-gray-200">
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <p className="font-semibold">{review?.nickname}</p>
 
-                    <div className="flex">
-                      {Array.from({ length: review?.rating || 0 }, (_, i) => (
-                        <span key={i}>⭐</span>
-                      ))}
+                      <div className="flex">
+                        {Array.from({ length: review?.rating || 0 }, (_, i) => (
+                          <span key={i}>⭐</span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  <p className="mt-2">{review?.content}</p>
-                </CardContent>
-              </Card>
-            ))}
+                    <p className="mt-2">{review?.content}</p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
 
           <div className="flex justify-center mt-4">
