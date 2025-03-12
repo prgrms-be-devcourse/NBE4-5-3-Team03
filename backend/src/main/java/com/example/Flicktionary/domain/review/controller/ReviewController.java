@@ -35,6 +35,42 @@ public class ReviewController {
         return ResponseEntity.ok(ResponseDto.ok(reviews));
     }
 
+    // 특정 영화의 평균 평점 조회
+    @GetMapping("/movie/{movie_id}/average-rating")
+    public ResponseEntity<Double> getMovieAverageRating(
+            @PathVariable("movie_id") Long movieId) {
+
+        Double averageRating = reviewService.getMovieAverageRating(movieId);
+        return new ResponseEntity<>(averageRating, HttpStatus.OK);
+    }
+
+    // 특정 드라마의 평균 평점 조회
+    @GetMapping("/series/{series_id}/average-rating")
+    public ResponseEntity<Double> getSeriesAverageRating(
+            @PathVariable("series_id") Long seriesId) {
+
+        Double averageRating = reviewService.getSeriesAverageRating(seriesId);
+        return new ResponseEntity<>(averageRating, HttpStatus.OK);
+    }
+
+    // 특정 영화의 총 리뷰 개수 조회
+    @GetMapping("/movie/{movie_id}/count")
+    public ResponseEntity<Long> getMovieReviewCount(
+            @PathVariable("movie_id") Long movieId) {
+
+        long totalReviews = reviewService.getMovieTotalCount(movieId);
+        return new ResponseEntity<>(totalReviews, HttpStatus.OK);
+    }
+
+    // 특정 영화의 총 리뷰 개수 조회
+    @GetMapping("/series/{series_id}/count")
+    public ResponseEntity<Long> getSeriesReviewCount(
+            @PathVariable("series_id") Long seriesId) {
+
+        long totalReviews = reviewService.getSeriesTotalCount(seriesId);
+        return new ResponseEntity<>(totalReviews, HttpStatus.OK);
+    }
+
     // 리뷰 닉네임과 내용으로 검색
     @GetMapping("/search")
     public ResponseEntity<ResponseDto<PageDto<ReviewDto>>> searchReviews(
@@ -70,7 +106,7 @@ public class ReviewController {
             @PathVariable Long movie_id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
-        
+
         try {
 
             // 특정 영화 리뷰 페이지를 조회해 변수에 담아 클라이언트에 반환

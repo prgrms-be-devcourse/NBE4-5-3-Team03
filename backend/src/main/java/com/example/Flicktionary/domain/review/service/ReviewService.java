@@ -78,6 +78,16 @@ public class ReviewService {
                 .collect(Collectors.toList());
     }
 
+    // 특정 영화의 평균 평점 조회
+    public Double getMovieAverageRating(Long movieId) {
+        return reviewRepository.findAverageRatingByMovie_Id(movieId);
+    }
+
+    // 특정 드라마의 평균 평점 조회
+    public Double getSeriesAverageRating(Long seriesId) {
+        return reviewRepository.findAverageRatingBySeries_Id(seriesId);
+    }
+
     // 리뷰 닉네임과 내용으로 검색
     public PageDto<ReviewDto> searchReviews(String keyword, int page, int size) {
 
@@ -154,7 +164,7 @@ public class ReviewService {
         Pageable pageable = PageRequest.of(page, size);
 
         // 영화 id로 영화를 찾아 ReviewDto 객체 목록으로 변환하여, Page 변수에 담아 return
-        Page<ReviewDto> reviewDtoPage = reviewRepository.findByMovie_Id(movieId, pageable)
+        Page<ReviewDto> reviewDtoPage = reviewRepository.findByMovie_IdOrderByIdDesc(movieId, pageable)
                 .map(ReviewDto::fromEntity);
 
         return new PageDto<>(reviewDtoPage);
@@ -171,5 +181,15 @@ public class ReviewService {
                 .map(ReviewDto::fromEntity);
 
         return new PageDto<>(reviewDtoPage);
+    }
+
+    // 특정 영화의 총 리뷰 개수 조회
+    public long getMovieTotalCount(Long movieId) {
+        return reviewRepository.countByMovie_Id(movieId);
+    }
+
+    // 특정 드라마의 총 리뷰 개수 조회
+    public long getSeriesTotalCount(Long seriesId) {
+        return reviewRepository.countBySeries_Id(seriesId);
     }
 }
