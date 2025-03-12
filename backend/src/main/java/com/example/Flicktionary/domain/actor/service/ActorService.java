@@ -25,9 +25,10 @@ public class ActorService {
 
     // 배우가 출연한 영화 리스트 조회
     public List<Movie> getMoviesByActorId(Long actorId) {
-        List<MovieCast> movieCasts = movieCastRepository.findByActorId(actorId);
+        List<MovieCast> movieCasts = movieCastRepository.findMoviesByActorId(actorId);
         return movieCasts.stream()
                 .map(MovieCast::getMovie)
+                .distinct() // 같은 영화가 중복될 경우 제거
                 .collect(Collectors.toList());
     }
 }

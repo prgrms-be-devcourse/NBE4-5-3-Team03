@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface MovieCastRepository extends JpaRepository<MovieCast, Long> {
 
-    List<MovieCast> findByActorId(Long actorId);
+    List<MovieCast> findMoviesByActorId(Long actorId);
 }
