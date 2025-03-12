@@ -9,8 +9,8 @@ interface PageProps {
 }
 
 export default async function Page({ params }: PageProps) {
-  const contentType = await params.contentType;
-  const contentId = await params.contentId;
+  const { contentType } = await params;
+  const { contentId } = await params;
 
   // 로그
   console.log(`Fetching reviews for ${contentType} with id: ${contentId}`);
@@ -19,7 +19,7 @@ export default async function Page({ params }: PageProps) {
   let apiUrl = `/api/reviews/`;
 
   if (contentType === "movies") {
-    // 영화 리뷰 목록 조회 경로: "/api/reviews/movies/{movie_id}"
+    // 영화 리뷰 목록 조회 경로: "/api/reviews/movie/{movie_id}"
     apiUrl += `movies/${contentId}`;
   } else if (contentType === "series") {
     // 드라마 리뷰 목록 조회 경로: "/api/reviews/series/{series_id}"
