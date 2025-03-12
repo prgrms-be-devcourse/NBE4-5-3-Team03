@@ -3,14 +3,23 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { components } from "@/lib/backend/apiV1/schema";
-import ReviewForm from "./ReviewForm";
 import { Button } from "@/components/ui/button";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import ReviewForm from "./ReviewForm";
 
-export default function ClientPage({ movieId }: { movieId: number }) {
+interface ClientPageProps {
+  contentType: string;
+  contentId: string;
+}
+
+export default function ClientPage({
+  contentType,
+  contentId,
+}: ClientPageProps) {
   const [reviews, setReviews] = useState<components["schemas"]["ReviewDto"][]>(
     []
   );
+
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [pageGroupStart, setPageGroupStart] = useState(0);
@@ -21,21 +30,24 @@ export default function ClientPage({ movieId }: { movieId: number }) {
     fetchReviews(currentPage);
     fetchAverageRating();
     fetchTotalReviewsCount();
-  }, [currentPage, movieId]);
+  }, [currentPage, contentType, contentId]);
 
   // 리뷰 목록을 불러오는 함수
   const fetchReviews = async (page: number) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/reviews/movie/${movieId}?page=${page}`
+        `http://localhost:8080/api/reviews/${contentType}/${contentId}?page=${page}`
       );
+
       if (!response.ok) {
         throw new Error("리뷰 목록을 불러오는 데 실패했습니다.");
       }
+
       const newData: components["schemas"]["PageDtoReviewDto"] =
         await response.json();
 
       setReviews(newData.items);
+
       setTotalPages(newData.totalPages);
     } catch (error) {
       console.error("리뷰 목록 불러오기 오류:", error);
@@ -43,16 +55,20 @@ export default function ClientPage({ movieId }: { movieId: number }) {
   };
 
   // 평균 평점을 가져오는 함수
+
   const fetchAverageRating = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/reviews/movie/${movieId}/average-rating`
+        `http://localhost:8080/api/reviews/${contentType}/${contentId}/average-rating`
       );
+
       if (!response.ok) {
         throw new Error("평균 평점을 불러오는 데 실패했습니다.");
       }
+
       // 응답 데이터를 숫자로 변환
       const averageRatingData: number = await response.json();
+
       // 평균 평점 상태 업데이트
       setAverageRating(averageRatingData);
     } catch (error) {
@@ -65,12 +81,15 @@ export default function ClientPage({ movieId }: { movieId: number }) {
   const fetchTotalReviewsCount = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/reviews/movie/${movieId}/count`
+        `http://localhost:8080/api/reviews/${contentType}/${contentId}/count`
       );
+
       if (!response.ok) {
         throw new Error("총 리뷰 개수를 불러오는 데 실패했습니다.");
       }
+
       const totalCount: number = await response.json();
+
       // 총 리뷰 개수 상태 업데이트
       setTotalReviewsCount(totalCount);
     } catch (error) {
@@ -101,6 +120,7 @@ export default function ClientPage({ movieId }: { movieId: number }) {
   };
 
   const pageNumbers = [];
+
   for (let i = pageGroupStart; i < pageGroupStart + 10; i++) {
     if (i >= totalPages) break;
     pageNumbers.push(i);
@@ -109,8 +129,11 @@ export default function ClientPage({ movieId }: { movieId: number }) {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">리뷰</h1>
-
-      <ReviewForm movieId={movieId} onReviewAdded={handleReviewAdded} />
+      <ReviewForm
+        contentType={contentType}
+        contentId={contentId}
+        onReviewAdded={handleReviewAdded}
+      />
 
       {/* --- [평균 평점 표시 UI] --- */}
       <div className="flex items-center mb-4">
@@ -130,12 +153,11 @@ export default function ClientPage({ movieId }: { movieId: number }) {
             </span>
           )
         )}
+        {/* 리뷰 개수 표시 */}
         <span className="text-gray-500 ml-1">
           ({totalReviewsCount}개의 리뷰)
         </span>{" "}
-        {/* 리뷰 개수 표시 */}
       </div>
-
       <Card className="border border-gray-200 rounded-md">
         <CardContent className="p-6">
           <div className="space-y-4">
@@ -144,12 +166,14 @@ export default function ClientPage({ movieId }: { movieId: number }) {
                 <CardContent>
                   <div className="flex items-center justify-between">
                     <p className="font-semibold">{review?.nickname}</p>
+
                     <div className="flex">
                       {Array.from({ length: review?.rating || 0 }, (_, i) => (
                         <span key={i}>⭐</span>
                       ))}
                     </div>
                   </div>
+
                   <p className="mt-2">{review?.content}</p>
                 </CardContent>
               </Card>
@@ -164,6 +188,7 @@ export default function ClientPage({ movieId }: { movieId: number }) {
             >
               <ChevronLeftIcon className="h-5 w-5" />
             </Button>
+
             {pageNumbers.map((page) => (
               <Button
                 key={page}
@@ -174,6 +199,7 @@ export default function ClientPage({ movieId }: { movieId: number }) {
                 {page + 1}
               </Button>
             ))}
+
             <Button
               onClick={handleNextGroup}
               disabled={pageGroupStart + 9 >= totalPages}

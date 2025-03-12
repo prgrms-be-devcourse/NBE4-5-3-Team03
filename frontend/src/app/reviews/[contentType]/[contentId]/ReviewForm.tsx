@@ -2,16 +2,19 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export default function ReviewForm({
-  movieId,
-  onReviewAdded,
-}: {
-  movieId: number;
+interface ReviewFormProps {
+  contentType: string;
+  contentId: string;
   onReviewAdded: (review: any) => void;
-}) {
+}
+
+export default function ReviewForm({
+  contentType,
+  contentId,
+  onReviewAdded,
+}: ReviewFormProps) {
   const router = useRouter();
   const [content, setContent] = useState("");
   // 평점 상태를 null 로 초기화, 선택되지 않았을 때 null 값 가짐
@@ -31,7 +34,8 @@ export default function ReviewForm({
 
     const reviewData = {
       userAccountId: 1, // 임시로 1로 설정
-      movieId: Number(movieId),
+      contentId: Number(contentId),
+      contentType: contentType,
       content,
       rating: rating,
     };
@@ -40,7 +44,7 @@ export default function ReviewForm({
     console.log("전송할 리뷰 데이터:", reviewData);
 
     try {
-      const response = await fetch("http://localhost:8080/api/reviews", {
+      const response = await fetch(`/api/reviews/${contentType}/${contentId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reviewData),
