@@ -10,7 +10,7 @@ export default async function Page({
 }) {
   const { id } = await params;
 
-  const response = await client.GET("/api/movies/{id}", {
+  const response = await client.GET("/api/series/{id}", {
     params: {
       path: {
         id,
@@ -18,8 +18,8 @@ export default async function Page({
     },
   });
 
-  if (response.data?.data == null) {
-    return <div>{response.data?.message}</div>;
+  if (response.error) {
+    return <div>{response}</div>;
   }
 
   const data = response.data.data;

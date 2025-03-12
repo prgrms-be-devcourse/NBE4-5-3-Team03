@@ -70,12 +70,12 @@ class UserAccountControllerTest {
                         .content("{\"fake\": \"json\"}")
                         .contentType("application/json"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("1"))
-                .andExpect(jsonPath("$.username").value("testUsername"))
-                .andExpect(jsonPath("$.password").value("testPassword"))
-                .andExpect(jsonPath("$.email").value("test@email.com"))
-                .andExpect(jsonPath("$.nickname").value("testNickname"))
-                .andExpect(jsonPath("$.role").value("USER"));
+                .andExpect(jsonPath("$.data.id").value("1"))
+                .andExpect(jsonPath("$.data.username").value("testUsername"))
+                .andExpect(jsonPath("$.data.password").value("testPassword"))
+                .andExpect(jsonPath("$.data.email").value("test@email.com"))
+                .andExpect(jsonPath("$.data.nickname").value("testNickname"))
+                .andExpect(jsonPath("$.data.role").value("USER"));
 
         then(userAccountService).should().registerUser(any(UserAccountDto.class));
     }
@@ -98,11 +98,14 @@ class UserAccountControllerTest {
                                 .contentType("application/json")
                                 .characterEncoding("UTF-8"))
                 .andExpect(status().isOk())
+                // TODO: 매번 쿠키 설정을 assert하는 대신 전용 테스트 케이스로 분리. 관련 메소드가 private이기 때문에 UserAccountController.logoutUser 메소드를 사용하면 될 듯.
                 .andExpect(cookie().value("accessToken", "fakeAccessToken"))
                 .andExpect(cookie().httpOnly("accessToken", true))
+                .andExpect(cookie().maxAge("accessToken", 25920000))
                 .andExpect(cookie().value("refreshToken", "fakeRefreshToken"))
                 .andExpect(cookie().httpOnly("refreshToken", true))
-                .andExpect(content().string("토큰이 성공적으로 발행되었습니다."));
+                .andExpect(cookie().maxAge("refreshToken", 25920000))
+                .andExpect(jsonPath("$.message").value("토큰이 성공적으로 발행되었습니다."));
 
         then(userAccountJwtAuthenticationService).should()
                 .createNewAccessTokenForUser(username, password);
@@ -119,9 +122,11 @@ class UserAccountControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(cookie().value("accessToken", ""))
                 .andExpect(cookie().httpOnly("accessToken", true))
+                .andExpect(cookie().maxAge("accessToken", 25920000))
                 .andExpect(cookie().value("refreshToken", ""))
                 .andExpect(cookie().httpOnly("refreshToken", true))
-                .andExpect(content().string("쿠키가 성공적으로 비워졌습니다."));
+                .andExpect(cookie().maxAge("refreshToken", 25920000))
+                .andExpect(jsonPath("$.message").value("쿠키가 성공적으로 비워졌습니다."));
     }
 
     @DisplayName("리프레시 토큰으로 접근 토큰을 쿠키로 재발행한다.")
@@ -137,9 +142,11 @@ class UserAccountControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(cookie().value("accessToken", "fakeAccessToken"))
                 .andExpect(cookie().httpOnly("accessToken", true))
+                .andExpect(cookie().maxAge("accessToken", 25920000))
                 .andExpect(cookie().value("refreshToken", "fakeRefreshToken"))
                 .andExpect(cookie().httpOnly("refreshToken", true))
-                .andExpect(content().string("토큰이 성공적으로 재발행되었습니다."));
+                .andExpect(cookie().maxAge("refreshToken", 25920000))
+                .andExpect(jsonPath("$.message").value("토큰이 성공적으로 재발행되었습니다."));
 
         then(userAccountJwtAuthenticationService).should()
                 .createNewAccessTokenWithRefreshToken(anyString());
@@ -153,7 +160,7 @@ class UserAccountControllerTest {
                         .cookie(new Cookie("accessToken", "faketoken"),
                                 new Cookie("refreshToken", "faketoken")))
                 .andExpect(status().isOk())
-                .andExpect(content().string("인증 정보가 존재합니다."));
+                .andExpect(jsonPath("$.message").value("인증 정보가 존재합니다."));
     }
 
     @DisplayName("인증 정보가 없는 클라이언트에게 로그인 상태 확인 요청을 받으면, 인등 정보가 없다고 응답한다.")
@@ -162,6 +169,6 @@ class UserAccountControllerTest {
         mockMvc.perform(
                         get("/api/users/status"))
                 .andExpect(status().isForbidden())
-                .andExpect(content().string("인증 정보가 존재하지 않습니다."));
+                .andExpect(jsonPath("$.message").value("인증 정보가 존재하지 않습니다."));
     }
 }
