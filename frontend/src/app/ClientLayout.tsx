@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 export default function ClientLayout({
   children,
@@ -11,6 +12,8 @@ export default function ClientLayout({
   fontVariable: string;
   fontClassName: string;
 }>) {
+  const { isAuthenticated, logout } = useAuth();
+
   return (
     <html lang="ko" className={`${fontVariable}`}>
       <body className={`min-h-[100dvh] flex flex-col ${fontClassName}`}>
@@ -30,13 +33,27 @@ export default function ClientLayout({
             </nav>
           </div>
 
+          {/* 로그인 상태에 따라 버튼 표시 */}
           <nav className="flex gap-4">
-            <Link href="/login" className="hover:text-gray-300">
-              로그인
-            </Link>
-            <Link href="/signup" className="hover:text-gray-300">
-              회원 가입
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link href="/my" className="hover:text-gray-300">
+                  내 정보
+                </Link>
+                <button onClick={logout} className="hover:text-gray-300">
+                  로그아웃
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="hover:text-gray-300">
+                  로그인
+                </Link>
+                <Link href="/signup" className="hover:text-gray-300">
+                  회원 가입
+                </Link>
+              </>
+            )}
           </nav>
         </header>
 
