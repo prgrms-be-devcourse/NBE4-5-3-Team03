@@ -143,22 +143,14 @@ public class ReviewService {
     // 공통 평점 업데이트 메서드
     private void updateRatingAndCount(Movie movie, Series series, int ratingChange, boolean isAddOrDelete) {
         if (movie != null) {
-            // 영화가 null인 경우 예외 처리 추가
-            if (series == null) {
-                return; // 또는 예외를 던지거나, 로깅하는 등 적절한 처리
-            }
-
             int newRatingCount = isAddOrDelete ? movie.getRatingCount() + (ratingChange > 0 ? 1 : -1) : movie.getRatingCount();
             double newAverageRating = (newRatingCount == 0) ? 0.0
                     : (movie.getAverageRating() * movie.getRatingCount() + ratingChange) / newRatingCount;
             movie.setRatingCount(newRatingCount);
             movie.setAverageRating(newAverageRating);
-        } else {
-            // 드라마가 null인 경우 예외 처리 추가
-            if (movie == null) {
-                return; // 또는 예외를 던지거나, 로깅하는 등 적절한 처리
-            }
+        }
 
+        if (series != null) {
             int newRatingCount = isAddOrDelete ? series.getRatingCount() + (ratingChange > 0 ? 1 : -1) : series.getRatingCount();
             double newAverageRating = (newRatingCount == 0) ? 0.0
                     : (series.getAverageRating() * series.getRatingCount() + ratingChange) / newRatingCount;
