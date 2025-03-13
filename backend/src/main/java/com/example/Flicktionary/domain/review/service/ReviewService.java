@@ -155,7 +155,7 @@ public class ReviewService {
             movie.setAverageRating(newAverageRating);
         } else {
             // 드라마가 null인 경우 예외 처리 추가
-            if (series == null) {
+            if (movie == null) {
                 return; // 또는 예외를 던지거나, 로깅하는 등 적절한 처리
             }
 

@@ -101,8 +101,10 @@ export default function ReviewForm({
     // textarea 높이 자동 조절 함수
     if (textareaRef.current) {
       // textareaRef.current 가 null 이 아닌지 확인
-      textareaRef.current.style.height = "auto"; // 높이를 auto 로 설정하여 내용에 맞게 자동 조절
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`; // scrollHeight 를 이용하여 실제 필요한 높이로 설정
+      // 높이를 auto 로 설정하여 내용에 맞게 자동 조절
+      textareaRef.current.style.height = "auto";
+      // scrollHeight 를 이용하여 실제 필요한 높이로 설정
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   };
 

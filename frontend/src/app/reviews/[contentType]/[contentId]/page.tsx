@@ -35,7 +35,8 @@ export default async function Page({ params }: PageProps) {
 
   const response = await client.GET(apiUrl as any, {});
 
-  console.log("page.tsx - 서버 컴포넌트 API 응답:", response); // 👈 **[추가]** 서버 컴포넌트 API 응답 데이터 로그 출력
+  // 서버 컴포넌트 API 응답 데이터 로그 출력
+  console.log("page.tsx - 서버 컴포넌트 API 응답:", response);
 
   if (response.error) {
     console.error("리뷰 가져오기 실패:", response.error);
