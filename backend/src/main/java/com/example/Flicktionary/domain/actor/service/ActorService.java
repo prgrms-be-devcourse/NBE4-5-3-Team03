@@ -34,7 +34,7 @@ public class ActorService {
         return movieCasts.stream()
                 .map(MovieCast::getMovie)
                 .distinct() // 같은 영화가 중복될 경우 제거
-                .sorted(Comparator.comparing(Movie::getTmdbId).reversed()) // tmdbId 기준으로 정렬, 최신 순 정렬
+                .sorted(Comparator.comparing(Movie::getReleaseDate).reversed()) // tmdbId 기준으로 정렬, 최신 순 정렬
                 .collect(Collectors.toList());
     }
 
@@ -44,7 +44,7 @@ public class ActorService {
         return seriesCasts.stream()
                 .map(SeriesCast::getSeries)
                 .distinct()
-                .sorted(Comparator.comparing(Series::getTmdbId).reversed()) // tmdbId 기준으로 정렬, 최신 순 정렬
+                .sorted(Comparator.comparing(Series::getReleaseStartDate).reversed()) // tmdbId 기준으로 정렬, 최신 순 정렬
                 .collect(Collectors.toList());
     }
 }
