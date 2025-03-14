@@ -13,9 +13,10 @@ import com.example.Flicktionary.domain.series.repository.SeriesRepository;
 import com.example.Flicktionary.domain.tmdb.dto.TmdbPopularSeriesResponse;
 import com.example.Flicktionary.domain.tmdb.dto.TmdbSeriesDetailResponse;
 import com.example.Flicktionary.domain.tmdb.dto.TmdbSeriesPopularIdResponse;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -55,7 +56,7 @@ public class SeriesService {
     private final String baseImageUrl = "https://image.tmdb.org/t/p";
 
     // 인기도 순으로 DB에 저장(페이지당 20개)
-    @PostConstruct
+    @EventListener(ContextRefreshedEvent.class)
     public void fetchPopularSeries() {
 
         if (seriesRepository.count() > 0) {
@@ -134,51 +135,52 @@ public class SeriesService {
                     )
                     .collect(Collectors.toList());
 
-            // Director 엔티티 생성
+            // Director 엔티티 생성 및 시리즈 추가
             Director director = response.getBody().getTmdbCredits().crew().stream()
+                    .filter(crew -> "Director".equals(crew.job())) // 감독 필터링
                     .findFirst()
-                    .map(directorDto ->
-                            directorRepository.findById(directorDto.id())
-                                    .orElseGet(() -> {
-                                        // profilePath가 없으면 null을 넣도록 처리
-                                        String profileUrl = (directorDto.profilePath() != null) ? baseImageUrl + "/w185" + directorDto.profilePath() : null;
-                                        Director newDirector = new Director(directorDto.id(), directorDto.name(), profileUrl);
-                                        directorRepository.save(newDirector);
-                                        return newDirector;
-                                    })
-                    )
+                    .map(directorDto -> {
+                        Director existingDirector = directorRepository.findById(directorDto.id())
+                                .orElseGet(() -> {
+                                    String profileUrl = (directorDto.profilePath() != null) ? baseImageUrl + "/w185" + directorDto.profilePath() : null;
+                                    Director newDirector = new Director(directorDto.id(), directorDto.name(), profileUrl);
+                                    return directorRepository.save(newDirector);
+                                });
+
+                        return existingDirector;
+                    })
                     .orElse(null); // 감독이 없으면 null 반환
 
-            seriesRepository.findByTmdbId(response.getBody().getTmdbId()).ifPresentOrElse(
-                    series -> {},
-                    () -> {
-                        Series series = TmdbSeriesDetailResponse.toEntity(response, genres, director, baseImageUrl);
-                        // SeriesCast 엔티티 생성 및 Actor 생성
-                        List<SeriesCast> casts = response.getBody().getTmdbCredits().cast().stream()
-                                .limit(5)
-                                .map(actorDto -> {
-                                    // profilePath가 없으면 null을 넣도록 처리
-                                    String actorProfileUrl = (actorDto.profilePath() != null) ? baseImageUrl + "/w185" + actorDto.profilePath() : null;
-                                    // Actor 엔티티 바로 생성
-                                    Actor actor = new Actor(actorDto.id(), actorDto.name(), actorProfileUrl);
-                                    actorRepository.save(actor);  // 바로 DB에 저장
+            // 새로운 시리즈 엔티티 생성 및 저장
+            Series series = TmdbSeriesDetailResponse.toEntity(response, genres, director, baseImageUrl);
 
-                                    // SeriesCast 엔티티 생성
-                                    SeriesCast seriesCast = new SeriesCast();
+            // 감독이 존재하면 시리즈 리스트에 추가
+            if (director != null) {
+                if (!director.getSeries().contains(series)) { // 중복 추가 방지
+                    director.getSeries().add(series);
+                }
+                series.setDirector(director);
+            }
 
-                                    // 연결
-                                    seriesCast.setActor(actor);
-                                    seriesCast.setCharacterName(actorDto.character());
-                                    seriesCast.setSeries(series);
-                                    series.getCasts().add(seriesCast);
-                                    return seriesCast;
-                                })
-                                .collect(Collectors.toList());
-                        seriesRepository.save(series);
-                    }
-            );
+            // 배우 및 SeriesCast 엔티티 생성
+            List<SeriesCast> casts = response.getBody().getTmdbCredits().cast().stream()
+                    .limit(5) // 상위 5명만 저장
+                    .map(actorDto -> {
+                        String actorProfileUrl = (actorDto.profilePath() != null) ? baseImageUrl + "/w185" + actorDto.profilePath() : null;
+                        Actor actor = actorRepository.findById(actorDto.id())
+                                .orElseGet(() -> actorRepository.save(new Actor(actorDto.id(), actorDto.name(), actorProfileUrl)));
 
+                        SeriesCast seriesCast = new SeriesCast();
+                        seriesCast.setActor(actor);
+                        seriesCast.setCharacterName(actorDto.character());
+                        seriesCast.setSeries(series);
+                        series.getCasts().add(seriesCast);
+                        return seriesCast;
+                    })
+                    .collect(Collectors.toList());
 
+            // 시리즈 저장
+            seriesRepository.save(series);
         } catch (Exception e) {
             throw new RuntimeException("TMDB API 요청 실패2: " + e.getMessage());
         }
@@ -229,7 +231,7 @@ public class SeriesService {
                 .orElseThrow(() -> new RuntimeException("id에 해당하는 Series가 존재하지 않습니다."));
 
         //등록 or 수정된지 7일이 지났다면 업데이트
-        if(ChronoUnit.DAYS.between(series.getFetchDate(), LocalDate.now()) >= 7){
+        if (ChronoUnit.DAYS.between(series.getFetchDate(), LocalDate.now()) >= 7) {
             fetchAndSaveSeriesDetails(series.getTmdbId());
         }
 
