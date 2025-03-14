@@ -18,20 +18,42 @@ export const useAuth = () => {
       if (response.ok) {
         setIsAuthenticated(true);
       } else {
-        setIsAuthenticated(false);
+        if (isAuthenticated) {
+          // 기존에 로그인된 경우에만 인증 만료 처리
+          setIsAuthenticated(false);
+          alert("인증이 만료되었습니다. 다시 로그인해주세요.");
+          router.push("/");
+        } else {
+          setIsAuthenticated(false);
+        }
       }
     } catch (error) {
       console.error("인증 상태 확인 실패:", error);
-      setIsAuthenticated(false);
+      if (isAuthenticated) {
+        setIsAuthenticated(false);
+        alert("인증이 만료되었습니다. 다시 로그인해주세요.");
+        router.push("/");
+      } else {
+        setIsAuthenticated(false);
+      }
     }
   };
 
-  // 일정 간격으로 인증 상태 확인 (5초마다)
   useEffect(() => {
-    checkAuthStatus(); // 첫 실행
-    const interval = setInterval(checkAuthStatus, 5000); // 5초마다 실행
-    return () => clearInterval(interval); // 컴포넌트 언마운트 시 정리
-  }, []);
+    let interval: NodeJS.Timeout;
+
+    // 첫 실행 시 한 번만 확인
+    checkAuthStatus().then(() => {
+      // 로그인된 경우에만 일정 간격으로 상태 체크
+      if (isAuthenticated) {
+        interval = setInterval(checkAuthStatus, 5000);
+      }
+    });
+
+    return () => {
+      if (interval) clearInterval(interval); // 언마운트 시 정리
+    };
+  }, [isAuthenticated]); // isAuthenticated 변경될 때만 재실행
 
   // 로그아웃 함수
   const logout = async () => {
@@ -41,7 +63,6 @@ export const useAuth = () => {
     });
 
     setIsAuthenticated(false); // UI 즉시 변경
-    await checkAuthStatus(); // 강제 인증 상태 확인 후 이동
     router.push("/"); // 로그아웃 후 메인 페이지로 이동
   };
 
