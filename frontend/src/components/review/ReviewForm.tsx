@@ -141,7 +141,7 @@ export default function ReviewForm({
       setLoading(false);
       setIsEditing(false);
 
-      // router.push(`/${contentType}/${contentId}`);
+      router.push(`/${contentType}/${contentId}`);
     } catch (error) {
       console.error("네트워크 오류:", error);
       alert("리뷰 작성/수정 중 오류가 발생했습니다.");
@@ -173,6 +173,7 @@ export default function ReviewForm({
           setRating(null);
           // 부모 컴포넌트에게 리뷰가 삭제되었음을 알립니다.
           onReviewAdded(null);
+          router.push(`/${contentType}/${contentId}`);
         } else {
           const errorData = await response.json();
           console.error("리뷰 삭제 실패:", errorData);

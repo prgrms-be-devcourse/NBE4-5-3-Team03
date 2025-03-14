@@ -115,7 +115,7 @@ public class ReviewControllerTest {
     @Test
     @DisplayName("리뷰 생성")
     void createReview() throws Exception {
-        given(reviewService.createReview(any(ReviewDto.class), 10000L)).willReturn(reviewDto1);
+        given(reviewService.createReview(any(ReviewDto.class))).willReturn(reviewDto1);
 
         // mockMvc로 post 요청 후 Content-Type 설정과 요청 본문 설정
         mockMvc.perform(post("/api/reviews")
@@ -125,23 +125,45 @@ public class ReviewControllerTest {
                 .andExpect(jsonPath("$.data.content") // JSON 응답 검증
                         .value("테스트용 리뷰 내용 (영화)"));
 
-        then(reviewService).should().createReview(any(ReviewDto.class), 10000L);
+        then(reviewService).should().createReview(any(ReviewDto.class));
     }
 
     @Test
     @DisplayName("모든 리뷰 조회")
     void getAllReviews() throws Exception {
-        given(reviewService.findAllReviews()).willReturn(List.of(reviewDto1, reviewDto2));
+
+        // 변수 설정
+        int page = 0;
+        int size = 10;
+        List<ReviewDto> reviewList = List.of(reviewDto1, reviewDto2);
+        int totalItems = reviewList.size();
+        int totalPages = 1; // size가 10이고 아이템이 2개이므로 1페이지
+        int curPageNo = page + 1;
+        String sortBy = "id: ASC"; // 예시로 정렬 기준 설정
+
+        PageDto<ReviewDto> reviewsPageDto = new PageDto<>(
+                reviewList,
+                totalPages,
+                totalItems,
+                curPageNo,
+                size,
+                sortBy
+        );
+
+        given(reviewService.findAllReviews(page, size)).willReturn(reviewsPageDto);
 
         // mockMvc로 get 요청 후 검증
-        mockMvc.perform(get("/api/reviews"))
+        mockMvc.perform(get("/api/reviews")
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].content")
+                .andExpect(jsonPath("$.data.items[0].content")
                         .value("테스트용 리뷰 내용 (영화)"))
-                .andExpect(jsonPath("$.data[1].content")
+                .andExpect(jsonPath("$.data.items[1].content")
                         .value("테스트용 리뷰 내용 (드라마)"));
 
-        then(reviewService).should().findAllReviews();
+        then(reviewService).should().findAllReviews(page, size);
     }
 
     @Test
@@ -158,7 +180,7 @@ public class ReviewControllerTest {
                 .rating(4)
                 .content("수정된 테스트용 리뷰")
                 .build();
-        given(reviewService.updateReview(longCaptor.capture(), reviewDtoCaptor.capture(), 10000L))
+        given(reviewService.updateReview(longCaptor.capture(), reviewDtoCaptor.capture()))
                 .willReturn(modifyReview);
 
         // mockMvc로 put 요청 후 검증
@@ -175,14 +197,14 @@ public class ReviewControllerTest {
         assertEquals(modifyReview.getId(), captured.getId());
         assertEquals(modifyReview.getContent(), captured.getContent());
         assertEquals(modifyReview.getRating(), captured.getRating());
-        then(reviewService).should().updateReview(any(Long.class), any(ReviewDto.class), 10000L);
+        then(reviewService).should().updateReview(any(Long.class), any(ReviewDto.class));
     }
 
     @Test
     @DisplayName("리뷰 삭제")
     void deleteReview() throws Exception {
         ArgumentCaptor<Long> captor = ArgumentCaptor.forClass(Long.class);
-        doNothing().when(reviewService).deleteReview(captor.capture(), 10000L);
+        doNothing().when(reviewService).deleteReview(captor.capture());
 
         // mockMvc로 delete 요청 후 검증
         mockMvc.perform(delete("/api/reviews/" + reviewDto1.getId()))
@@ -190,7 +212,7 @@ public class ReviewControllerTest {
         Long captured = captor.getValue();
 
         assertEquals(reviewDto1.getId(), captured);
-        then(reviewService).should().deleteReview(reviewDto1.getId(), 10000L);
+        then(reviewService).should().deleteReview(reviewDto1.getId());
     }
 
     @Test

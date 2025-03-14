@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -244,12 +245,24 @@ public class ReviewServiceTest {
     @Test
     @DisplayName("모든 리뷰 조회")
     void printAllReviews() {
-        given(reviewRepository.findAll())
-                .willReturn(List.of(reviewDto1.toEntity(testUser, testMovie, null),
-                        reviewDto2.toEntity(testUser, null, testSeries)));
 
-        // 모든 리뷰 List 변수에 저장
-        List<ReviewDto> reviews = reviewService.findAllReviews();
+        // 변수 입력
+        int page = 0;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Page 객체 생성 리스트, pageable 객체, 전체 아이템 수를 넘김
+        List<Review> reviewEntities = List.of(
+                reviewDto1.toEntity(testUser, testMovie, null),
+                reviewDto2.toEntity(testUser, null, testSeries)
+        );
+        Page<Review> reviewPage = new PageImpl<>(reviewEntities, pageable, reviewEntities.size());
+
+        given(reviewRepository.findAll(pageable)).willReturn(reviewPage);
+
+        // 반환 타입 변경
+        PageDto<ReviewDto> reviewsPageDto = reviewService.findAllReviews(page, size);
+        List<ReviewDto> reviews = reviewsPageDto.getItems();
 
         /// 검증 ///
         assertThat(reviews).isNotEmpty().hasSize(2);
@@ -257,7 +270,12 @@ public class ReviewServiceTest {
                 .contains(reviewDto1.getContent(), reviewDto2.getContent());
         assertThat(reviews).flatExtracting(ReviewDto::getMovieId).contains(reviewDto1.getMovieId());
         assertThat(reviews).flatExtracting(ReviewDto::getSeriesId).contains(reviewDto2.getSeriesId());
-        then(reviewRepository).should().findAll();
+
+        // PageDto에 대한 추가적인 검증 (예: totalItems, totalPages 등)이 필요할 수 있습니다.
+        assertThat(reviewsPageDto.getTotalItems()).isEqualTo(2);
+        assertThat(reviewsPageDto.getTotalPages()).isEqualTo(1); // 2개의 아이템, 페이지 사이즈 10이므로 1페이지
+
+        then(reviewRepository).should().findAll(pageable);
     }
 
     @Test
