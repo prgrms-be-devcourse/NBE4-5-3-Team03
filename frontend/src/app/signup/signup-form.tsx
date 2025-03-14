@@ -12,11 +12,14 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/lib/hooks/useAuth"; // useAuth 훅 추가
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const { clearAuthCookies } = useAuth(); // 회원가입 후 쿠키 제거 함수 사용
+
   async function register(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
@@ -36,7 +39,11 @@ export function SignupForm({
       return;
     }
     // show success message and redirect to login page
-    alert(response.data.data);
+    // 회원가입 성공 시 인증 쿠키 제거
+    await clearAuthCookies();
+
+    // 성공 메시지 표시 후 로그인 페이지로 이동
+    alert("회원가입이 완료되었습니다. 로그인 후 이용해주세요.");
     window.location.href = "/login";
   }
 
