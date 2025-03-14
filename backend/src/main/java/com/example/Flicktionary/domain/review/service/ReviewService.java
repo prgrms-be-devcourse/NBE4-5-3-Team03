@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,8 +87,9 @@ public class ReviewService {
     public PageDto<ReviewDto> findAllReviews(int page, int size) {
 
         // 모든 리뷰를 찾아 리턴
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ReviewDto> reviewDtoPage = reviewRepository.findAll(pageable).map(ReviewDto::fromEntity);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<ReviewDto> reviewDtoPage = reviewRepository.findAll(pageable)
+                .map(ReviewDto::fromEntity);
         return new PageDto<>(reviewDtoPage);
     }
 

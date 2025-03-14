@@ -33,6 +33,7 @@ export default function AdminReviewPage() {
         query: {
           page: page - 1, // 백엔드는 페이지를 0부터 시작하므로 -1 처리
           size: pageSize,
+          sort: "-createdAt",
         },
       },
     });
@@ -61,6 +62,7 @@ export default function AdminReviewPage() {
           keyword: searchKeyword,
           page: page - 1,
           size: pageSize,
+          sort: "-createdAt",
         },
       },
     });
