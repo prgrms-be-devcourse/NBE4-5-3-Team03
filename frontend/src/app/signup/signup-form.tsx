@@ -35,7 +35,7 @@ export function SignupForm({
       credentials: "include",
     });
     if (response.error) {
-      alert(response["error"]["msg"]);
+      alert("중복된 ID 및 이메일 입니다.");
       return;
     }
     // show success message and redirect to login page
