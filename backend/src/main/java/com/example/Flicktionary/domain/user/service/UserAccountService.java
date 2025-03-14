@@ -50,6 +50,34 @@ public class UserAccountService {
     }
 
     /**
+     * 주어진 고유 ID에 해당하는 회원의 닉네임을 변경한다.
+     *
+     * @param id             정보를 변경할 회원의 고유 ID
+     * @param userAccountDto 새로 변경될 닉네임 정보
+     * @return 변경된 회원에 해당하는 DTO
+     */
+    public UserAccountDto modifyNickname(Long id, UserAccountDto userAccountDto) {
+        UserAccount userAccount = userAccountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+        userAccount.setNickname(userAccountDto.nickname());
+        return UserAccountDto.from(userAccountRepository.save(userAccount));
+    }
+
+    /**
+     * 주어진 고유 ID에 해당하는 회원의 비밀번호를 변경한다.
+     *
+     * @param id             정보를 변경할 회원의 고유 ID
+     * @param userAccountDto 새로 변경될 비밀번호 정보
+     * @return 변경된 회원에 해당하는 DTO
+     */
+    public UserAccountDto modifyPassword(Long id, UserAccountDto userAccountDto) {
+        UserAccount userAccount = userAccountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+        userAccount.setPassword(passwordEncoder.encode("{bcrypt}" + userAccountDto.password()));
+        return UserAccountDto.from(userAccountRepository.save(userAccount));
+    }
+
+    /**
      * 주어진 고유 ID에 해당하는 회원을 반환한다.
      * @param id 조회할 회원의 고유 ID
      * @return 조회된 회원에 해당하는 DTO
