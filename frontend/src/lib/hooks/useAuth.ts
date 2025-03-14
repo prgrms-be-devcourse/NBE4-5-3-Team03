@@ -83,7 +83,7 @@ export const useAuth = () => {
 
     checkAuthStatus().then(() => {
       if (isAuthenticated) {
-        interval = setInterval(checkAuthStatus, 5000);
+        interval = setInterval(checkAuthStatus, 30000);
       }
     });
 
@@ -99,7 +99,7 @@ export const useAuth = () => {
 
     setIsAuthenticated(false);
     setWasAuthenticated(false);
-    router.push("/");
+    window.location.href = "/";
   };
 
   // 회원가입 후 인증 초기화 (자동 로그인 방지)
