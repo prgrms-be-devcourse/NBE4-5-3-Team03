@@ -21,9 +21,8 @@ public class ReviewController {
     // 리뷰 생성
     @PostMapping
     public ResponseEntity<ResponseDto<ReviewDto>> createReview(
-            @RequestBody ReviewDto reviewDto,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        ReviewDto review = reviewService.createReview(reviewDto, userDetails.getId());
+            @RequestBody ReviewDto reviewDto) {
+        ReviewDto review = reviewService.createReview(reviewDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseDto.of(HttpStatus.CREATED.value() + "", HttpStatus.CREATED.getReasonPhrase(), review));
     }
@@ -101,18 +100,16 @@ public class ReviewController {
     @PutMapping("/{id}")
     public ResponseEntity<ResponseDto<ReviewDto>> updateReview(
             @PathVariable Long id,
-            @RequestBody ReviewDto reviewDto,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        ReviewDto review = reviewService.updateReview(id, reviewDto, userDetails.getId());
+            @RequestBody ReviewDto reviewDto) {
+        ReviewDto review = reviewService.updateReview(id, reviewDto);
         return ResponseEntity.ok(ResponseDto.ok(review));
     }
 
     // 리뷰 삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseDto<?>> deleteReview(
-            @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        reviewService.deleteReview(id, userDetails.getId());
+            @PathVariable Long id) {
+        reviewService.deleteReview(id);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .body(ResponseDto.of(HttpStatus.NO_CONTENT.value() + "", HttpStatus.NO_CONTENT.getReasonPhrase()));

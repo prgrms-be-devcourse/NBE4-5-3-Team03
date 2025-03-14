@@ -8,17 +8,12 @@ import com.example.Flicktionary.domain.review.repository.ReviewRepository;
 import com.example.Flicktionary.domain.series.entity.Series;
 import com.example.Flicktionary.domain.series.repository.SeriesRepository;
 import com.example.Flicktionary.domain.user.entity.UserAccount;
-import com.example.Flicktionary.domain.user.entity.UserAccountType;
 import com.example.Flicktionary.domain.user.repository.UserAccountRepository;
 import com.example.Flicktionary.global.dto.PageDto;
-import com.example.Flicktionary.global.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,25 +30,18 @@ public class ReviewService {
     private final SeriesRepository seriesRepository;
 
     // 리뷰 생성
-    public ReviewDto createReview(ReviewDto reviewDto, Long userId) {
-
-        // 임시 코드: CustomUserDetails 객체 임시 생성 및 SecurityContextHolder에 설정
-        // TODO: 로그인 구현되면 지울것
-        UserAccount tempUserAccount = new UserAccount(1L, "test", "test", "test@example.com", "test", UserAccountType.USER);
-        CustomUserDetails userDetails = new CustomUserDetails(tempUserAccount);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // 사용자 권한 검사. 먼저 user를 찾아 id 저장 없을 경우 오류 호출
-        UserAccount userAccount = userAccountRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("리뷰 생성 권한이 없습니다."));
+    public ReviewDto createReview(ReviewDto reviewDto) {
 
         // 중복 리뷰 검사
-        if (reviewRepository.existsByUserAccount_IdAndMovie_IdAndSeries_Id(
-                userId, reviewDto.getMovieId(), reviewDto.getSeriesId()
-        )) {
-            throw new RuntimeException("이미 리뷰를 작성하셨습니다.");
-        }
+//        if (reviewRepository.existsByUserAccount_IdAndMovie_IdAndSeries_Id(
+//                userId, reviewDto.getMovieId(), reviewDto.getSeriesId()
+//        )) {
+//            throw new RuntimeException("이미 리뷰를 작성하셨습니다.");
+//        }
+
+        // 먼저 user를 찾아 id 저장. 없을 경우 오류 호출
+        UserAccount userAccount = userAccountRepository.findById(reviewDto.getUserAccountId())
+                .orElseThrow(() -> new IllegalArgumentException("찾으시려는 유저 id가 없습니다."));
 
         // 리뷰 내용이 null이거나 비어있을 경우
         if (reviewDto.getContent() == null || reviewDto.getContent().isBlank()) {
@@ -120,16 +108,11 @@ public class ReviewService {
     }
 
     // 리뷰 수정
-    public ReviewDto updateReview(Long id, ReviewDto reviewDto, Long userId) {
+    public ReviewDto updateReview(Long id, ReviewDto reviewDto) {
 
         // id로 리뷰를 찾을 수 없을 경우
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 리뷰를 찾을 수 없습니다."));
-
-        // 사용자 권한 검사
-        if (!userId.equals(review.getUserAccount().getId())) {
-            throw new RuntimeException("리뷰 수정 권한이 없습니다.");
-        }
 
         // 평점을 수정한다면 영화와 시리즈 정보 업데이트
         if (reviewDto.getRating() != 0 && reviewDto.getRating() != review.getRating()) {
@@ -151,15 +134,10 @@ public class ReviewService {
     }
 
     // 리뷰 삭제
-    public void deleteReview(Long id, Long userId) {
+    public void deleteReview(Long id) {
         // id로 리뷰를 찾을 수 없을 경우
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("해당 리뷰를 찾을 수 없습니다."));
-
-        // 사용자 권한 검사
-        if (!userId.equals(review.getUserAccount().getId())) {
-            throw new RuntimeException("리뷰 삭제 권한이 없습니다.");
-        }
 
         // 영화, 시리즈 정보 업데이트
         updateRatingAndCount(review.getMovie(), review.getSeries(), -review.getRating(), true);

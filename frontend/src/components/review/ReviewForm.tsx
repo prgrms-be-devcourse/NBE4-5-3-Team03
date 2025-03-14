@@ -23,31 +23,12 @@ export default function ReviewForm({
   const [hoverRating, setHoverRating] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userAccountId, setUserAccountId] = useState<number | null>(null);
 
-  useEffect(() => {
-    // localStorage에서 토큰과 userId를 가져와 로그인 상태 및 사용자 ID 설정
-    // const token = localStorage.getItem("token");
-    // const userId = localStorage.getItem("userId");
-    // setIsLoggedIn(!!token);
-    // setUserAccountId(userId ? Number(userId) : null);
-
-    /* 로그인 가능하게 해주는 코드입니다. 로그인 구현이 다 되면 삭제할 예정입니다. */
-    {
-      localStorage.setItem("token", "tQwy99BxCwjceyZTzmhEew==");
-      localStorage.setItem("userId", "1");
-
-      setIsLoggedIn(true);
-      setUserAccountId(1);
-    }
-  }, []);
+  useEffect(() => {}, []);
 
   const handleSubmit = async () => {
     if (!content.trim()) return alert("리뷰를 입력해주세요.");
     if (rating === null) return alert("평점을 선택해주세요.");
-    if (!isLoggedIn || userAccountId === null)
-      return alert("로그인이 필요합니다.");
 
     setLoading(true);
 
@@ -62,7 +43,7 @@ export default function ReviewForm({
     }
 
     const reviewData = {
-      userAccountId: userAccountId,
+      userAccountId: 1, // 임시로 1로 수정
       movieId: movieId,
       seriesId: seriesId,
       contentType: contentType,
@@ -75,16 +56,6 @@ export default function ReviewForm({
 
     try {
       const apiUrl = "http://localhost:8080/api/reviews";
-      const token = localStorage.getItem("token"); // localStorage에서 토큰 가져오기
-
-      if (!token) {
-        // 토큰이 없는 경우 에러 처리 또는 빈 문자열 사용
-        console.error("토큰이 존재하지 않습니다.");
-        return; // 또는 encodedToken = "";
-      }
-
-      // 토큰 인코딩
-      const encodedToken = encodeURIComponent(token);
 
       // 요청 URL 로그
       console.log("리뷰 작성 요청 URL:", apiUrl);
@@ -93,7 +64,6 @@ export default function ReviewForm({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${encodedToken}`, // Authorization 헤더에 토큰 추가
         },
         body: JSON.stringify(reviewData),
       });
@@ -141,16 +111,6 @@ export default function ReviewForm({
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   };
-
-  // 로그인되지 않은 경우 로그인 안내 메시지 표시
-  if (!isLoggedIn) {
-    return (
-      <div className="mb-6">
-        <p>리뷰를 작성하려면 로그인이 필요합니다.</p>
-        <Button onClick={() => router.push("/login")}>로그인</Button>
-      </div>
-    );
-  }
 
   return (
     <div className="mb-6">
