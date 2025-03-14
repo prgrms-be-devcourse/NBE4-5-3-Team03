@@ -28,6 +28,7 @@ export default function ReviewForm({
   const [loading, setLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [existingReview, setExistingReview] = useState<any | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const userAccountId = 1; // 임시로 1로 설정
 
   useEffect(() => {
@@ -138,13 +139,53 @@ export default function ReviewForm({
       setContent("");
       setRating(null);
       setLoading(false);
+      setIsEditing(false);
 
-      router.push(`/${contentType}/${contentId}`);
+      // router.push(`/${contentType}/${contentId}`);
     } catch (error) {
       console.error("네트워크 오류:", error);
       alert("리뷰 작성/수정 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteReview = async () => {
+    if (!existingReview?.id) {
+      alert("삭제할 리뷰 정보가 없습니다.");
+      return;
+    }
+
+    if (window.confirm("정말로 리뷰를 삭제하시겠습니까?")) {
+      setLoading(true);
+      try {
+        const apiUrl = `http://localhost:8080/api/reviews/${existingReview.id}`;
+        const response = await fetch(apiUrl, {
+          method: "DELETE",
+        });
+
+        console.log("서버 응답 상태 (삭제):", response.status);
+
+        if (response.ok) {
+          alert("리뷰가 삭제되었습니다.");
+          setExistingReview(null);
+          setContent("");
+          setRating(null);
+          // 부모 컴포넌트에게 리뷰가 삭제되었음을 알립니다.
+          onReviewAdded(null);
+        } else {
+          const errorData = await response.json();
+          console.error("리뷰 삭제 실패:", errorData);
+          alert(
+            `리뷰 삭제 실패: ${errorData.message || "서버 오류가 발생했습니다."}`
+          );
+        }
+      } catch (error) {
+        console.error("네트워크 오류 (삭제):", error);
+        alert("리뷰 삭제 중 오류가 발생했습니다.");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -161,19 +202,13 @@ export default function ReviewForm({
 
   return (
     <div className="mb-6">
-      {existingReview ? (
+      {existingReview && !isEditing ? (
         <Card
           key={existingReview?.id}
           className="border border-gray-200 rounded-md mb-2"
         >
-          {" "}
-          {/* mb-4 -> mb-2 */}
           <CardContent className="p-4">
-            {" "}
-            {/* p-6 -> p-4 */}
             <div className="flex items-center justify-between mb-1">
-              {" "}
-              {/* mb-2 -> mb-1 */}
               <p className="font-semibold">나의 리뷰</p>
               <div className="flex">
                 {Array.from({ length: existingReview?.rating || 0 }, (_, i) => (
@@ -184,11 +219,21 @@ export default function ReviewForm({
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <p className="mb-2">{existingReview?.content}</p>{" "}
-              {/* mb-4 -> mb-2 */}
-              <Button onClick={() => setExistingReview(null)} variant="outline">
-                리뷰 수정
-              </Button>
+              <p className="mb-2">{existingReview?.content}</p>
+              <div className="flex justify-end">
+                {" "}
+                {/* 여기에 justify-end 추가 */}
+                <Button
+                  variant="outline"
+                  onClick={() => setIsEditing(true)}
+                  className="mr-2"
+                >
+                  리뷰 수정
+                </Button>
+                <Button variant="destructive" onClick={handleDeleteReview}>
+                  삭제
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -235,7 +280,11 @@ export default function ReviewForm({
               }}
             />
             <Button onClick={handleSubmit} disabled={loading} className="h-10">
-              {loading ? "등록 중..." : "리뷰 작성"}
+              {loading
+                ? "등록 중..."
+                : existingReview && isEditing
+                  ? "리뷰 수정"
+                  : "리뷰 작성"}
             </Button>
           </div>
         </>
