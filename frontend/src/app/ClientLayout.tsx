@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useEffect, useState } from "react";
 
 export default function ClientLayout({
   children,
@@ -13,6 +14,12 @@ export default function ClientLayout({
   fontClassName: string;
 }>) {
   const { isAuthenticated, logout } = useAuth();
+  const [authState, setAuthState] = useState(isAuthenticated);
+
+  // 인증 상태 변경 감지하여 UI 강제 업데이트
+  useEffect(() => {
+    setAuthState(isAuthenticated);
+  }, [isAuthenticated]);
 
   return (
     <html lang="ko" className={`${fontVariable}`}>
@@ -35,9 +42,12 @@ export default function ClientLayout({
 
           {/* 로그인 상태에 따라 버튼 표시 */}
           <nav className="flex gap-4">
-            {isAuthenticated ? (
+            {authState ? (
               <>
-                <Link href="/my" className="hover:text-gray-300">
+                <Link href="/my/favorites" className="hover:text-gray-300">
+                  즐겨찾기
+                </Link>
+                <Link href="/my/profile" className="hover:text-gray-300">
                   내 정보
                 </Link>
                 <button onClick={logout} className="hover:text-gray-300">
