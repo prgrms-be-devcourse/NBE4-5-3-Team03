@@ -32,16 +32,23 @@ public class ReviewService {
     // 리뷰 생성
     public ReviewDto createReview(ReviewDto reviewDto) {
 
-        // 중복 리뷰 검사
-//        if (reviewRepository.existsByUserAccount_IdAndMovie_IdAndSeries_Id(
-//                userId, reviewDto.getMovieId(), reviewDto.getSeriesId()
-//        )) {
-//            throw new RuntimeException("이미 리뷰를 작성하셨습니다.");
-//        }
+        Long userAccountId = reviewDto.getUserAccountId();
+        Long movieId = reviewDto.getMovieId();
+        Long seriesId = reviewDto.getSeriesId();
 
-        // 먼저 user를 찾아 id 저장. 없을 경우 오류 호출
+        /// TODO: 먼저 user를 찾아 id 저장. 없을 경우 오류 호출. 추후 유저 연동하면서 수정 해야 함
         UserAccount userAccount = userAccountRepository.findById(reviewDto.getUserAccountId())
                 .orElseThrow(() -> new IllegalArgumentException("찾으시려는 유저 id가 없습니다."));
+
+        // 특정 영화에 이미 리뷰를 작성했는지 확인
+        if (movieId != null && reviewRepository.existsByUserAccount_IdAndMovie_Id(userAccountId, movieId)) {
+            throw new IllegalStateException("이미 해당 영화에 대한 리뷰를 작성하셨습니다.");
+        }
+
+        // 특정 드라마에 이미 리뷰를 작성했는지 확인
+        if (seriesId != null && reviewRepository.existsByUserAccount_IdAndSeries_Id(userAccountId, seriesId)) {
+            throw new IllegalStateException("이미 해당 드라마에 대한 리뷰를 작성하셨습니다.");
+        }
 
         // 리뷰 내용이 null이거나 비어있을 경우
         if (reviewDto.getContent() == null || reviewDto.getContent().isBlank()) {
@@ -83,16 +90,6 @@ public class ReviewService {
         Page<ReviewDto> reviewDtoPage = reviewRepository.findAll(pageable).map(ReviewDto::fromEntity);
         return new PageDto<>(reviewDtoPage);
     }
-
-    // 특정 영화의 평균 평점 조회
-//    public Double getMovieAverageRating(Long movieId) {
-//        return reviewRepository.findAverageRatingByMovie_Id(movieId);
-//    }
-
-    // 특정 드라마의 평균 평점 조회
-//    public Double getSeriesAverageRating(Long seriesId) {
-//        return reviewRepository.findAverageRatingBySeries_Id(seriesId);
-//    }
 
     // 리뷰 닉네임과 내용으로 검색
     public PageDto<ReviewDto> searchReviews(String keyword, int page, int size) {
@@ -189,14 +186,4 @@ public class ReviewService {
 
         return new PageDto<>(reviewDtoPage);
     }
-
-    // 특정 영화의 총 리뷰 개수 조회
-//    public long getMovieTotalCount(Long movieId) {
-//        return reviewRepository.countByMovie_Id(movieId);
-//    }
-
-    // 특정 드라마의 총 리뷰 개수 조회
-//    public long getSeriesTotalCount(Long seriesId) {
-//        return reviewRepository.countBySeries_Id(seriesId);
-//    }
 }

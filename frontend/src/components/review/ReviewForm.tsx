@@ -3,17 +3,21 @@
 import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { components } from "@/lib/backend/apiV1/schema";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface ReviewFormProps {
   contentType: string;
   contentId: string;
   onReviewAdded: (review: any) => void;
+  allReviews: components["schemas"]["ReviewDto"][];
 }
 
 export default function ReviewForm({
   contentType,
   contentId,
   onReviewAdded,
+  allReviews,
 }: ReviewFormProps) {
   const router = useRouter();
   const [content, setContent] = useState("");
@@ -23,8 +27,30 @@ export default function ReviewForm({
   const [hoverRating, setHoverRating] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [existingReview, setExistingReview] = useState<any | null>(null);
+  const userAccountId = 1; // 임시로 1로 설정
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (allReviews && allReviews.length > 0) {
+      const userReview = allReviews.find(
+        (review: components["schemas"]["ReviewDto"]) =>
+          review.userAccountId === userAccountId
+      );
+      if (userReview) {
+        setExistingReview(userReview);
+        setContent(userReview.content ?? "");
+        setRating(userReview.rating ?? null);
+      } else {
+        setExistingReview(null);
+        setContent("");
+        setRating(null);
+      }
+    } else {
+      setExistingReview(null);
+      setContent("");
+      setRating(null);
+    }
+  }, [allReviews, userAccountId]);
 
   const handleSubmit = async () => {
     if (!content.trim()) return alert("리뷰를 입력해주세요.");
@@ -43,7 +69,7 @@ export default function ReviewForm({
     }
 
     const reviewData = {
-      userAccountId: 1, // 임시로 1로 수정
+      userAccountId: userAccountId, // 임시로 1로 설정
       movieId: movieId,
       seriesId: seriesId,
       contentType: contentType,
@@ -56,12 +82,21 @@ export default function ReviewForm({
 
     try {
       const apiUrl = "http://localhost:8080/api/reviews";
+      // 기존 리뷰가 있으면 수정 (PUT), 없으면 작성 (POST)
+      let method = "POST";
+      // 수정 시에는 리뷰 ID 포함
+      let urlForSubmit = apiUrl;
+
+      if (existingReview) {
+        method = "PUT";
+        urlForSubmit = `${apiUrl}/${existingReview.id}`;
+      }
 
       // 요청 URL 로그
-      console.log("리뷰 작성 요청 URL:", apiUrl);
+      console.log("리뷰 작성 요청 URL:", urlForSubmit);
 
-      const response = await fetch(apiUrl, {
-        method: "POST",
+      const response = await fetch(urlForSubmit, {
+        method: method,
         headers: {
           "Content-Type": "application/json",
         },
@@ -73,12 +108,23 @@ export default function ReviewForm({
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("리뷰 작성 실패:", errorData);
-        alert(
-          errorData.message
-            ? `리뷰 작성 실패: ${errorData.message}`
-            : "서버 오류로 인해 리뷰 작성을 실패했습니다."
-        );
+        console.error("리뷰 작성/수정 실패:", errorData);
+        let alertMessage = "서버 오류로 인해 리뷰 작성/수정을 실패했습니다.";
+        if (errorData.message) {
+          if (
+            errorData.message.includes(
+              "이미 해당 영화에 대한 리뷰를 작성하셨습니다."
+            ) ||
+            errorData.message.includes(
+              "이미 해당 드라마에 대한 리뷰를 작성하셨습니다."
+            )
+          ) {
+            alertMessage = errorData.message;
+          } else {
+            alertMessage = `리뷰 작성/수정 실패: ${errorData.message}`;
+          }
+        }
+        alert(alertMessage);
         setLoading(false);
         return;
       }
@@ -88,6 +134,7 @@ export default function ReviewForm({
       console.log("작성된 리뷰:", newReview);
       // 최신 리뷰 추가
       onReviewAdded(newReview);
+      setExistingReview(newReview);
       setContent("");
       setRating(null);
       setLoading(false);
@@ -95,7 +142,7 @@ export default function ReviewForm({
       router.push(`/${contentType}/${contentId}`);
     } catch (error) {
       console.error("네트워크 오류:", error);
-      alert("리뷰 작성 중 오류가 발생했습니다.");
+      alert("리뷰 작성/수정 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
@@ -114,54 +161,85 @@ export default function ReviewForm({
 
   return (
     <div className="mb-6">
-      {/* 별점 선택 UI*/}
-      <div className="flex items-center mb-2">
-        <p className="mr-2 font-semibold">평점:</p>
-        {[1, 2, 3, 4, 5].map((starRating) => (
-          <span
-            key={starRating}
-            className="text-2xl cursor-pointer"
-            style={{
-              color:
-                starRating <= (hoverRating || rating || 0)
-                  ? "gold"
-                  : "lightgray",
-            }} // 조건부 색상 변경: 선택/호버 시 "까만색", 아니면 "lightgray"
-            onClick={() => setRating(starRating)}
-            onMouseEnter={() => setHoverRating(starRating)}
-            onMouseLeave={() => setHoverRating(null)}
-          >
-            ★
-          </span>
-        ))}
-      </div>
+      {existingReview ? (
+        <Card
+          key={existingReview?.id}
+          className="border border-gray-200 rounded-md mb-2"
+        >
+          {" "}
+          {/* mb-4 -> mb-2 */}
+          <CardContent className="p-4">
+            {" "}
+            {/* p-6 -> p-4 */}
+            <div className="flex items-center justify-between mb-1">
+              {" "}
+              {/* mb-2 -> mb-1 */}
+              <p className="font-semibold">나의 리뷰</p>
+              <div className="flex">
+                {Array.from({ length: existingReview?.rating || 0 }, (_, i) => (
+                  <span key={i} className="text-xl text-gold-500">
+                    ⭐
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="flex justify-between items-center">
+              <p className="mb-2">{existingReview?.content}</p>{" "}
+              {/* mb-4 -> mb-2 */}
+              <Button onClick={() => setExistingReview(null)} variant="outline">
+                리뷰 수정
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          {/* 별점 선택 UI*/}
+          <div className="flex items-center mb-2">
+            <p className="mr-2 font-semibold">평점:</p>
+            {[1, 2, 3, 4, 5].map((starRating) => (
+              <span
+                key={starRating}
+                className="text-2xl cursor-pointer"
+                style={{
+                  color:
+                    starRating <= (hoverRating || rating || 0)
+                      ? "gold"
+                      : "lightgray",
+                }}
+                onClick={() => setRating(starRating)}
+                onMouseEnter={() => setHoverRating(starRating)}
+                onMouseLeave={() => setHoverRating(null)}
+              >
+                ★
+              </span>
+            ))}
+          </div>
 
-      {/* --- [리뷰 입력 칸 & 버튼 UI] --- */}
-      <div className="flex">
-        <textarea
-          ref={textareaRef}
-          placeholder="리뷰를 입력하세요"
-          value={content}
-          onChange={(e) => {
-            setContent(e.target.value);
-            // 내용 변경 시 textarea 높이 자동 조절
-            handleResizeTextarea();
-          }}
-          className="mr-2 border p-2 rounded-md resize-none overflow-hidden focus:ring-blue-500 focus:border-blue-500 block w-full text-gray-900 placeholder-gray-500 flex-1 min-w-0"
-          onKeyDown={(e) => {
-            // 엔터 키 감지 및 로딩 상태 확인
-            if (e.key === "Enter" && !loading) {
-              // handleSubmit 함수 호출
-              handleSubmit();
-              // 기본 엔터 키 동작 (새 줄 추가) 방지
-              e.preventDefault;
-            }
-          }}
-        />
-        <Button onClick={handleSubmit} disabled={loading} className="h-10">
-          {loading ? "등록 중..." : "리뷰 작성"}
-        </Button>
-      </div>
+          {/* --- [리뷰 입력 칸 & 버튼 UI] --- */}
+          <div className="flex">
+            <textarea
+              ref={textareaRef}
+              placeholder="리뷰를 입력하세요"
+              value={content}
+              onChange={(e) => {
+                setContent(e.target.value);
+                handleResizeTextarea();
+              }}
+              className="mr-2 border p-2 rounded-md resize-none overflow-hidden focus:ring-blue-500 focus:border-blue-500 block w-full text-gray-900 placeholder-gray-500 flex-1 min-w-0"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !loading) {
+                  handleSubmit();
+                  e.preventDefault;
+                }
+              }}
+            />
+            <Button onClick={handleSubmit} disabled={loading} className="h-10">
+              {loading ? "등록 중..." : "리뷰 작성"}
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -44,8 +44,6 @@ export default function ClientPage({
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [pageGroupStart, setPageGroupStart] = useState(0);
-  // const [averageRating, setAverageRating] = useState<number>(0);
-  // const [totalReviewsCount, setTotalReviewsCount] = useState<number>(0);
 
   useEffect(() => {
     fetchReviews(currentPage);
@@ -105,8 +103,6 @@ export default function ClientPage({
       setReviews([]);
     }
   };
-
-  // 평균 평점을 가져오는 함수
   // const fetchAverageRating = async () => {
   //   try {
   //     const baseUrl = "http://localhost:8080/api/reviews";
@@ -216,6 +212,7 @@ export default function ClientPage({
         contentType={contentType}
         contentId={contentId}
         onReviewAdded={handleReviewAdded}
+        allReviews={reviews}
       />
 
       {/* --- [평균 평점 표시 UI] --- */}
