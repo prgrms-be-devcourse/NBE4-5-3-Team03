@@ -1,37 +1,40 @@
-'use client';
+"use client";
 
 import client from "@/lib/backend/client";
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-
   async function login(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const form = e.target as HTMLFormElement
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
     const data = {
       username: form.username.value,
-      password: form.password.value
-    }
-    const response = await client.POST("/api/users/login", {body: data, credentials: "include"})
+      password: form.password.value,
+    };
+    const response = await client.POST("/api/users/login", {
+      body: data,
+      credentials: "include",
+    });
     if (response.error) {
-      alert('[' + response['error']['status'] + '] ' + response['error']['message'])
-      return
+      alert("아이디 또는 비밀번호가 일치하지 않습니다.");
+      return;
     }
     // show success message and redirect to main page
-    alert(response.data)
+    // alert(response.data)
+    // alert(`${response.data.username}`+"님 환영합니다.")
     window.location.href = "/";
   }
 
@@ -41,7 +44,7 @@ export function LoginForm({
         <CardHeader>
           <CardTitle>로그인</CardTitle>
           <CardDescription>
-          로그인을 위해 ID와 비밀번호를 입력해주세요.
+            로그인을 위해 ID와 비밀번호를 입력해주세요.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -60,7 +63,12 @@ export function LoginForm({
                 <div className="flex items-center">
                   <Label htmlFor="password">비밀번호</Label>
                 </div>
-                <Input id="password" type="password" placeholder="비밀번호" required />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="비밀번호"
+                  required
+                />
               </div>
               <div className="flex flex-col gap-3">
                 <Button type="submit" className="w-full">
@@ -78,5 +86,5 @@ export function LoginForm({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

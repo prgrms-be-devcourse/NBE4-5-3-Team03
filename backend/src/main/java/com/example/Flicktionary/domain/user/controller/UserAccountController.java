@@ -139,6 +139,31 @@ public class UserAccountController {
     }
 
     /**
+     * 회원 닉네임 수정. 특정 회원의 닉네임만 변경할 수 있다.
+     *
+     * @param id             수정할 회원의 고유 ID
+     * @param userAccountDto 새로운 닉네임 정보를 담은 DTO
+     * @return 수정된 회원의 닉네임 정보를 포함한 DTO
+     */
+
+    @PatchMapping("/{id}/nickname")
+    public ResponseEntity<ResponseDto<UserAccountDto>> updateNickname(@PathVariable Long id, @RequestBody UserAccountDto userAccountDto) {
+        return ResponseEntity.ok(ResponseDto.ok(userAccountService.modifyNickname(id, userAccountDto)));
+    }
+
+    /**
+     * 회원 비밀번호 수정. 특정 회원의 비밀번호만 변경할 수 있다.
+     *
+     * @param id             수정할 회원의 고유 ID
+     * @param userAccountDto 새로운 비밀번호 정보를 담은 DTO
+     * @return 수정된 회원의 정보를 포함한 DTO
+     */
+    @PatchMapping("/{id}/password")
+    public ResponseEntity<ResponseDto<UserAccountDto>> updatePassword(@PathVariable Long id, @RequestBody UserAccountDto userAccountDto) {
+        return ResponseEntity.ok(ResponseDto.ok(userAccountService.modifyPassword(id, userAccountDto)));
+    }
+
+    /**
      * 회원정보 조회. 조회할 회원의 고유 ID를 받아 해당 회원의 정보를 반환한다.
      *
      * @param id 조회할 회원의 고유 ID

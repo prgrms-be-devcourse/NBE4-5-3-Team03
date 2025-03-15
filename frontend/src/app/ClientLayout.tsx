@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useAuth } from "@/lib/hooks/useAuth";
+import { useEffect, useState } from "react";
 
 export default function ClientLayout({
   children,
@@ -18,6 +19,14 @@ export default function ClientLayout({
   const handleLinkClick = () => {
     setIsDropdownOpen(false);
   };
+
+  const { isAuthenticated, logout } = useAuth();
+  const [authState, setAuthState] = useState(isAuthenticated);
+
+  // 인증 상태 변경 감지하여 UI 강제 업데이트
+  useEffect(() => {
+    setAuthState(isAuthenticated);
+  }, [isAuthenticated]);
 
   return (
     <html lang="ko" className={`${fontVariable}`}>
@@ -65,13 +74,30 @@ export default function ClientLayout({
             </nav>
           </div>
 
+          {/* 로그인 상태에 따라 버튼 표시 */}
           <nav className="flex gap-4">
-            <Link href="/login" className="hover:text-gray-300">
-              로그인
-            </Link>
-            <Link href="/signup" className="hover:text-gray-300">
-              회원 가입
-            </Link>
+            {authState ? (
+              <>
+                <Link href="/my/favorites" className="hover:text-gray-300">
+                  즐겨찾기
+                </Link>
+                <Link href="/my/profile" className="hover:text-gray-300">
+                  내 정보
+                </Link>
+                <button onClick={logout} className="hover:text-gray-300">
+                  로그아웃
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="hover:text-gray-300">
+                  로그인
+                </Link>
+                <Link href="/signup" className="hover:text-gray-300">
+                  회원 가입
+                </Link>
+              </>
+            )}
           </nav>
         </header>
 
