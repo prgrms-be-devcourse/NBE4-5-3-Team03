@@ -14,12 +14,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -33,6 +32,25 @@ public class ReviewService {
 
     // 리뷰 생성
     public ReviewDto createReview(ReviewDto reviewDto) {
+
+        Long userAccountId = reviewDto.getUserAccountId();
+        Long movieId = reviewDto.getMovieId();
+        Long seriesId = reviewDto.getSeriesId();
+
+        /// TODO: 먼저 user를 찾아 id 저장. 없을 경우 오류 호출. 추후 유저 연동하면서 수정 해야 함
+        UserAccount userAccount = userAccountRepository.findById(reviewDto.getUserAccountId())
+                .orElseThrow(() -> new IllegalArgumentException("찾으시려는 유저 id가 없습니다."));
+
+        // 특정 영화에 이미 리뷰를 작성했는지 확인
+        if (movieId != null && reviewRepository.existsByUserAccount_IdAndMovie_Id(userAccountId, movieId)) {
+            throw new IllegalStateException("이미 해당 영화에 대한 리뷰를 작성하셨습니다.");
+        }
+
+        // 특정 드라마에 이미 리뷰를 작성했는지 확인
+        if (seriesId != null && reviewRepository.existsByUserAccount_IdAndSeries_Id(userAccountId, seriesId)) {
+            throw new IllegalStateException("이미 해당 드라마에 대한 리뷰를 작성하셨습니다.");
+        }
+
         // 리뷰 내용이 null이거나 비어있을 경우
         if (reviewDto.getContent() == null || reviewDto.getContent().isBlank()) {
             throw new IllegalArgumentException("리뷰 내용을 입력해주세요.");
@@ -42,10 +60,6 @@ public class ReviewService {
         if (reviewDto.getRating() == 0) {
             throw new IllegalArgumentException("평점을 매겨주세요.");
         }
-
-        // 먼저 user를 찾아 id 저장. 없을 경우 오류 호출
-        UserAccount userAccount = userAccountRepository.findById(reviewDto.getUserAccountId())
-                .orElseThrow(() -> new IllegalArgumentException("찾으시려는 유저 id가 없습니다."));
 
         // 영화를 찾아 저장. 없을 경우 null
         Movie movie = Optional.ofNullable(reviewDto.getMovieId())
@@ -70,23 +84,14 @@ public class ReviewService {
     }
 
     // 모든 리뷰 조회
-    public List<ReviewDto> findAllReviews() {
+    public PageDto<ReviewDto> findAllReviews(int page, int size) {
 
         // 모든 리뷰를 찾아 리턴
-        return reviewRepository.findAll().stream()
-                .map(ReviewDto::fromEntity)
-                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<ReviewDto> reviewDtoPage = reviewRepository.findAll(pageable)
+                .map(ReviewDto::fromEntity);
+        return new PageDto<>(reviewDtoPage);
     }
-
-    // 특정 영화의 평균 평점 조회
-//    public Double getMovieAverageRating(Long movieId) {
-//        return reviewRepository.findAverageRatingByMovie_Id(movieId);
-//    }
-
-    // 특정 드라마의 평균 평점 조회
-//    public Double getSeriesAverageRating(Long seriesId) {
-//        return reviewRepository.findAverageRatingBySeries_Id(seriesId);
-//    }
 
     // 리뷰 닉네임과 내용으로 검색
     public PageDto<ReviewDto> searchReviews(String keyword, int page, int size) {
@@ -129,7 +134,6 @@ public class ReviewService {
 
     // 리뷰 삭제
     public void deleteReview(Long id) {
-
         // id로 리뷰를 찾을 수 없을 경우
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("해당 리뷰를 찾을 수 없습니다."));
@@ -184,14 +188,4 @@ public class ReviewService {
 
         return new PageDto<>(reviewDtoPage);
     }
-
-    // 특정 영화의 총 리뷰 개수 조회
-//    public long getMovieTotalCount(Long movieId) {
-//        return reviewRepository.countByMovie_Id(movieId);
-//    }
-
-    // 특정 드라마의 총 리뷰 개수 조회
-//    public long getSeriesTotalCount(Long seriesId) {
-//        return reviewRepository.countBySeries_Id(seriesId);
-//    }
 }

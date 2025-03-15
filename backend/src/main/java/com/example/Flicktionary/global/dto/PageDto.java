@@ -25,7 +25,7 @@ public class PageDto<T> {
 
     @NonNull
     private int pageSize;
-    
+
     @NonNull
     private String sortBy;
 
