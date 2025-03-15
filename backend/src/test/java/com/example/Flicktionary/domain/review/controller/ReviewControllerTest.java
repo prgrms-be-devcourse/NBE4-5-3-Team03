@@ -27,7 +27,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -63,7 +62,7 @@ public class ReviewControllerTest {
 
     // 변수 설정
     private UserAccount testUser = new UserAccount(
-            null, "테스트용 유저", "test12345", "test@email.com", "테스트 유저", UserAccountType.USER
+            10000L, "테스트용 유저", "test12345", "test@email.com", "테스트 유저", UserAccountType.USER
     );
 
     private Movie testMovie = Movie.builder()
@@ -132,17 +131,39 @@ public class ReviewControllerTest {
     @Test
     @DisplayName("모든 리뷰 조회")
     void getAllReviews() throws Exception {
-        given(reviewService.findAllReviews()).willReturn(List.of(reviewDto1, reviewDto2));
+
+        // 변수 설정
+        int page = 0;
+        int size = 10;
+        List<ReviewDto> reviewList = List.of(reviewDto1, reviewDto2);
+        int totalItems = reviewList.size();
+        int totalPages = 1; // size가 10이고 아이템이 2개이므로 1페이지
+        int curPageNo = page + 1;
+        String sortBy = "id: ASC"; // 예시로 정렬 기준 설정
+
+        PageDto<ReviewDto> reviewsPageDto = new PageDto<>(
+                reviewList,
+                totalPages,
+                totalItems,
+                curPageNo,
+                size,
+                sortBy
+        );
+
+        given(reviewService.findAllReviews(page, size)).willReturn(reviewsPageDto);
 
         // mockMvc로 get 요청 후 검증
-        mockMvc.perform(get("/api/reviews"))
+        mockMvc.perform(get("/api/reviews")
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].content")
+                .andExpect(jsonPath("$.data.items[0].content")
                         .value("테스트용 리뷰 내용 (영화)"))
-                .andExpect(jsonPath("$.data[1].content")
+                .andExpect(jsonPath("$.data.items[1].content")
                         .value("테스트용 리뷰 내용 (드라마)"));
 
-        then(reviewService).should().findAllReviews();
+        then(reviewService).should().findAllReviews(page, size);
     }
 
     @Test
