@@ -14,6 +14,7 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
+import { fetchUserProfileClient } from "@/lib/api/user";
 
 export default function AdminReviewPage() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function AdminReviewPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1); // 총 페이지 수 상태
   const [pageSize, setPageSize] = useState(10);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
   // 리뷰 목록 가져오기
   const fetchAllReviews = async () => {
@@ -118,6 +120,30 @@ export default function AdminReviewPage() {
       setPage(page - 1);
     }
   };
+
+  // 관리자 권한 확인
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const user = await fetchUserProfileClient();
+      if (user?.role === "ADMIN") {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+        alert("관리자 권한이 없습니다.");
+        router.push("/"); // 또는 다른 페이지로 리다이렉트
+      }
+    };
+
+    checkAdmin();
+  }, [router]);
+
+  if (isAdmin === null) {
+    return <p>권한 확인 중...</p>;
+  }
+
+  if (!isAdmin) {
+    return <p>관리자 권한이 없습니다.</p>; // 권한 없을 때 보여줄 메시지
+  }
 
   return (
     <div className="max-w-5xl mx-auto p-6">
