@@ -18,10 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -165,6 +162,11 @@ public class ReviewServiceTest {
                 .content(null)
                 .build();
 
+        // userAccountRepository.findById()가 호출될 때 testUser를 반환하도록 스텁 처리
+        given(userAccountRepository.findById(testUser.getId())).willReturn(Optional.of(testUser));
+        // userAccountRepository.findById()가 호출될 때 testUser를 반환하도록 스텁 처리
+        given(userAccountRepository.findById(testUser.getId())).willReturn(Optional.of(testUser));
+
         Throwable thrownOnEmpty = catchThrowable(() -> reviewService.createReview(reviewEmpty));
         Throwable thrownOnNull = catchThrowable(() -> reviewService.createReview(reviewNull));
 
@@ -188,6 +190,9 @@ public class ReviewServiceTest {
                 .rating(0)
                 .content("테스트용 리뷰 내용")
                 .build();
+
+        // userAccountRepository.findById()가 호출될 때 testUser를 반환하도록 스텁 처리
+        given(userAccountRepository.findById(testUser.getId())).willReturn(Optional.of(testUser));
 
         Throwable thrown = catchThrowable(() -> reviewService.createReview(reviewNoRating));
 
@@ -249,7 +254,7 @@ public class ReviewServiceTest {
         // 변수 입력
         int page = 0;
         int size = 10;
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
         // Page 객체 생성 리스트, pageable 객체, 전체 아이템 수를 넘김
         List<Review> reviewEntities = List.of(

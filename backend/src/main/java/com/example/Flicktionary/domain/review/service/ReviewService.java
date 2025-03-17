@@ -37,7 +37,7 @@ public class ReviewService {
         Long movieId = reviewDto.getMovieId();
         Long seriesId = reviewDto.getSeriesId();
 
-        /// TODO: 먼저 user를 찾아 id 저장. 없을 경우 오류 호출. 추후 유저 연동하면서 수정 해야 함
+        // 유저 id를 찾음
         UserAccount userAccount = userAccountRepository.findById(reviewDto.getUserAccountId())
                 .orElseThrow(() -> new IllegalArgumentException("찾으시려는 유저 id가 없습니다."));
 
