@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -187,5 +188,16 @@ public class ReviewService {
                 .map(ReviewDto::fromEntity);
 
         return new PageDto<>(reviewDtoPage);
+    }
+
+    // 특정 유저의 모든 리뷰에서 userAccount를 null로 설정하는 메서드
+    public void disassociateReviewsFromUser(UserAccount userAccount) {
+        List<Review> reviewsToUpdate = reviewRepository.findByUserAccount(userAccount);
+
+        for (Review review : reviewsToUpdate) {
+            review.setUserAccount(null);
+        }
+
+        reviewRepository.saveAll(reviewsToUpdate);
     }
 }

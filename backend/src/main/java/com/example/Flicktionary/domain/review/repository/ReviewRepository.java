@@ -1,9 +1,12 @@
 package com.example.Flicktionary.domain.review.repository;
 
 import com.example.Flicktionary.domain.review.entity.Review;
+import com.example.Flicktionary.domain.user.entity.UserAccount;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
@@ -27,4 +30,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     // 모든 리뷰를 페이징하여 가져오는 기능 추가
     Page<Review> findAll(Pageable pageable);
+
+    // 유저 계정을 찾는 기능
+    List<Review> findByUserAccount(UserAccount userAccount);
 }
