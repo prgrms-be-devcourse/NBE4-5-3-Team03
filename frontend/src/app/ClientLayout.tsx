@@ -20,7 +20,7 @@ export default function ClientLayout({
     setIsDropdownOpen(false);
   };
 
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const [authState, setAuthState] = useState(isAuthenticated);
 
   // 인증 상태 변경 감지하여 UI 강제 업데이트
@@ -78,9 +78,24 @@ export default function ClientLayout({
           <nav className="flex gap-4">
             {authState ? (
               <>
-                <Link href="/my/favorites" className="hover:text-gray-300">
-                  즐겨찾기
-                </Link>
+                {/* 닉네임 및 역할 표시 */}
+                {user?.role === "USER" && (
+                  <span>{user.username}님</span> // 일반 유저는 닉네임만
+                )}
+                {user?.role === "ADMIN" && (
+                  <span>{user.username}님 / ADMIN</span> // 관리자는 닉네임 + ADMIN
+                )}
+
+                {user?.role === "USER" && (
+                  <Link href="/my/favorites" className="hover:text-gray-300">
+                    즐겨찾기
+                  </Link>
+                )}
+                {user?.role === "ADMIN" && (
+                  <Link href="/admin/reviews" className="hover:text-gray-300">
+                    리뷰 관리
+                  </Link>
+                )}
                 <Link href="/my/profile" className="hover:text-gray-300">
                   내 정보
                 </Link>
