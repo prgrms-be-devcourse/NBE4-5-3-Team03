@@ -1,5 +1,6 @@
 package com.example.Flicktionary.domain.user.service;
 
+import com.example.Flicktionary.domain.review.service.ReviewService;
 import com.example.Flicktionary.domain.user.dto.UserAccountDto;
 import com.example.Flicktionary.domain.user.entity.UserAccount;
 import com.example.Flicktionary.domain.user.entity.UserAccountType;
@@ -20,6 +21,7 @@ public class UserAccountService {
     private final UserAccountRepository userAccountRepository;
 
     private final PasswordEncoder passwordEncoder;
+    private final ReviewService reviewService;
 
     /**
      * 새 회원을 생성한 뒤 영속한다.
@@ -95,6 +97,10 @@ public class UserAccountService {
     public String deleteUserById(Long id) {
         UserAccount userAccount = userAccountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        // ReviewService를 통해 리뷰의 userAccount를 null로 설정
+        reviewService.disassociateReviewsFromUser(userAccount);
+
         userAccountRepository.delete(userAccount);
         return userAccount.getUsername();
     }

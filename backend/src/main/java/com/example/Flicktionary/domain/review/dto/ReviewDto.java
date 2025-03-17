@@ -28,8 +28,8 @@ public class ReviewDto {
 
         return ReviewDto.builder()
                 .id(review.getId())
-                .userAccountId(review.getUserAccount().getId())
-                .nickname(review.getUserAccount().getNickname())
+                .userAccountId(review.getUserAccount() != null ? review.getUserAccount().getId() : null)
+                .nickname(review.getUserAccount() != null ? review.getUserAccount().getNickname() : "탈퇴한 회원")
                 .movieId(review.getMovie() != null ? review.getMovie().getId() : null)
                 .seriesId(review.getSeries() != null ? review.getSeries().getId() : null)
                 .rating(review.getRating())
