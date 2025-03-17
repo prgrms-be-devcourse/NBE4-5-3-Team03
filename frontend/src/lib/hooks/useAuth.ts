@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { fetchUserProfileClient } from "@/lib/api/user"; // 유저 정보 가져오기
 
 const API_BASE_URL = "http://localhost:8080"; // Spring Boot 서버 주소
 
 export const useAuth = () => {
+  const [user, setUser] = useState<{ username: string; role: string } | null>(
+    null,
+  ); // 사용자 정보 추가
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [wasAuthenticated, setWasAuthenticated] = useState(false); // 한 번이라도 로그인한 적 있는지 추적
   const router = useRouter();
@@ -13,6 +17,14 @@ export const useAuth = () => {
     if (response.ok) {
       setIsAuthenticated(true);
       setWasAuthenticated(true); // 로그인한 적 있음
+
+      // 유저 정보 가져오기
+      const userData = await fetchUserProfileClient();
+      if (userData) {
+        setUser(userData); // role 설정
+      } else {
+        setUser(null);
+      }
       return;
     }
 
@@ -74,6 +86,7 @@ export const useAuth = () => {
   const handleAuthExpired = () => {
     setIsAuthenticated(false);
     alert("인증이 만료되었습니다. 다시 로그인해주세요.");
+    setUser(null);
     router.push("/");
   };
 
@@ -99,6 +112,7 @@ export const useAuth = () => {
 
     setIsAuthenticated(false);
     setWasAuthenticated(false);
+    setUser(null);
     window.location.href = "/";
   };
 
@@ -118,5 +132,6 @@ export const useAuth = () => {
     checkAuthStatus,
     clearAuthCookies,
     setWasAuthenticated,
+    user, // 사용자 정보 반환
   };
 };
