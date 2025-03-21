@@ -5,7 +5,9 @@ import com.example.Flicktionary.domain.user.dto.UserAccountDto;
 import com.example.Flicktionary.domain.user.entity.UserAccount;
 import com.example.Flicktionary.domain.user.entity.UserAccountType;
 import com.example.Flicktionary.domain.user.repository.UserAccountRepository;
+import com.example.Flicktionary.global.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +46,7 @@ public class UserAccountService {
      */
     public UserAccountDto modifyUser(Long id, UserAccountDto userAccountDto) {
         UserAccount userAccount = userAccountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND.value(), "%d번 유저를 찾을 수 없습니다.".formatted(id)));
         userAccount.setUsername(userAccountDto.username());
         userAccount.setPassword(passwordEncoder.encode("{bcrypt}" + userAccountDto.password()));
         userAccount.setEmail(userAccountDto.email());
@@ -62,7 +64,7 @@ public class UserAccountService {
      */
     public UserAccountDto modifyNickname(Long id, UserAccountDto userAccountDto) {
         UserAccount userAccount = userAccountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND.value(), "%d번 유저를 찾을 수 없습니다.".formatted(id)));
         userAccount.setNickname(userAccountDto.nickname());
         return UserAccountDto.from(userAccountRepository.save(userAccount));
     }
@@ -76,7 +78,7 @@ public class UserAccountService {
      */
     public UserAccountDto modifyPassword(Long id, UserAccountDto userAccountDto) {
         UserAccount userAccount = userAccountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND.value(), "%d번 유저를 찾을 수 없습니다.".formatted(id)));
         userAccount.setPassword(passwordEncoder.encode("{bcrypt}" + userAccountDto.password()));
         return UserAccountDto.from(userAccountRepository.save(userAccount));
     }
@@ -89,7 +91,7 @@ public class UserAccountService {
      */
     public UserAccountDto getUserById(Long id) {
         return UserAccountDto.from(userAccountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다.")));
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND.value(), "%d번 유저를 찾을 수 없습니다.".formatted(id))));
     }
 
     /**
@@ -100,7 +102,7 @@ public class UserAccountService {
      */
     public String deleteUserById(Long id) {
         UserAccount userAccount = userAccountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND.value(), "%d번 유저를 찾을 수 없습니다.".formatted(id)));
 
         // ReviewService를 통해 리뷰의 userAccount를 null로 설정
         reviewService.disassociateReviewsFromUser(userAccount);
@@ -117,6 +119,6 @@ public class UserAccountService {
      */
     public UserAccount getUserByUsername(String username) {
         return userAccountRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND.value(), "유저를 찾을 수 없습니다."));
     }
 }
