@@ -25,6 +25,7 @@ public class UserAccountService {
 
     /**
      * 새 회원을 생성한 뒤 영속한다.
+     *
      * @param userAccountDto 새로 생성할 회원의 정보가 담긴 DTO
      * @return 영속된 회원에 해당하는 DTO
      */
@@ -36,7 +37,8 @@ public class UserAccountService {
 
     /**
      * 주어진 고유 ID에 해당하는 회원의 정보를 변경한다.
-     * @param id 정보를 변경할 회원의 고유 ID
+     *
+     * @param id             정보를 변경할 회원의 고유 ID
      * @param userAccountDto 새로 변경될 회원정보
      * @return 변경된 회원에 해당하는 DTO
      */
@@ -81,6 +83,7 @@ public class UserAccountService {
 
     /**
      * 주어진 고유 ID에 해당하는 회원을 반환한다.
+     *
      * @param id 조회할 회원의 고유 ID
      * @return 조회된 회원에 해당하는 DTO
      */
@@ -91,6 +94,7 @@ public class UserAccountService {
 
     /**
      * 주어진 고유 ID에 해당하는 회원을 삭제한다.
+     *
      * @param id 삭제할 회원의 고유 ID
      * @return 삭제된 회원의 유저 ID
      */
@@ -107,6 +111,7 @@ public class UserAccountService {
 
     /**
      * 주어진 유저 ID에 해당하는 회원을 반환한다.
+     *
      * @param username 조회할 회원의 유저 ID
      * @return 조회된 회원 오브젝트
      */
