@@ -21,6 +21,10 @@ public class PostResponseDto {
     private boolean isSpoiler;
 
     public static PostResponseDto fromEntity(Post post) {
+
+        // 유저가 탈퇴할 경우 "탈퇴한 회원"으로 처리
+        String nickname = (post.getUserAccount() != null) ? post.getUserAccount().getNickname() : "탈퇴한 회원";
+
         return PostResponseDto.builder()
                 .id(post.getId())
                 // 유저가 탈퇴할 경우 null처리
@@ -30,8 +34,7 @@ public class PostResponseDto {
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .isSpoiler(post.isSpoiler())
-                // 유저가 탈퇴할 경우 "탈퇴한 회원"으로 처리
-                .nickname(post.getUserAccount() != null ? post.getUserAccount().getNickname() : "탈퇴한 회원")
+                .nickname(nickname)
                 .build();
     }
 }
