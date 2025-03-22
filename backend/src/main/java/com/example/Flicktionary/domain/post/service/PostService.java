@@ -8,12 +8,13 @@ import com.example.Flicktionary.domain.post.repository.PostRepository;
 import com.example.Flicktionary.domain.user.entity.UserAccount;
 import com.example.Flicktionary.domain.user.repository.UserAccountRepository;
 import com.example.Flicktionary.global.dto.PageDto;
-import jakarta.persistence.EntityNotFoundException;
+import com.example.Flicktionary.global.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +33,7 @@ public class PostService {
 
         // 유저 정보 조회
         UserAccount userAccount = userAccountRepository.findById(postDto.getUserAccountId())
-                .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND.value(), "%d번 유저를 찾을 수 없습니다.".formatted(postDto.getUserAccountId())));
 
         // postDto를 엔티티로 반환
         Post post = postDto.toEntity(userAccount);
@@ -47,7 +48,7 @@ public class PostService {
     // 게시글 id로 찾기
     public PostResponseDto findById(Long id) {
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 ID의 게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND.value(), "해당 ID의 게시글을 찾을 수 없습니다."));
 
         return PostResponseDto.fromEntity(post);
     }
@@ -119,7 +120,7 @@ public class PostService {
 
         // 게시글 Id로 해당 게시글 찾기
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND.value(), "해당 게시글을 찾을 수 없습니다."));
 
         // 게시글 제목 수정
         if (postDto.getTitle() != null && !postDto.getTitle().isBlank()) {
@@ -149,7 +150,7 @@ public class PostService {
 
         // 게시글 Id로 해당 게시글 찾기
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND.value(), "해당 게시글을 찾을 수 없습니다."));
 
         postRepository.delete(post);
     }

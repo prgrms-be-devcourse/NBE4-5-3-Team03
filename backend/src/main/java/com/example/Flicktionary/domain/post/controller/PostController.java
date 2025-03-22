@@ -32,8 +32,7 @@ public class PostController {
     public ResponseEntity<ResponseDto<PostResponseDto>> getPostById(
             @PathVariable Long id) {
         PostResponseDto post = postService.findById(id);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ResponseDto.of(HttpStatus.NOT_FOUND.value() + "", HttpStatus.NOT_FOUND.getReasonPhrase(), post));
+        return ResponseEntity.ok(ResponseDto.ok(post));
     }
 
     // 게시글 목록 조회
