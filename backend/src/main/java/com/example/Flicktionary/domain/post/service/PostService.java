@@ -53,7 +53,7 @@ public class PostService {
     public PageDto<PostResponseDto> getPostList(int page, int size) {
 
         // Pageable 객체 생성
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "id"));
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // 페이징된 게시글 목록을 Page<Post> 형태로 조회한 뒤 PostResponseDto로 변환
         Page<PostResponseDto> postDtoPage = postRepository.findAll(pageable)
@@ -64,6 +64,21 @@ public class PostService {
     }
 
     // 제목으로 게시글 검색
+    public PageDto<PostResponseDto> searchPostsByTitle(String title, int page, int size) {
+
+        // Pageable 객체 생성
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        // PostRepository에서 제목에 키워드를 포함하는 게시글을 페이징하여 조회
+        Page<Post> posts = postRepository.findByTitleContaining(title, pageable);
+
+        // PageDto<PostResponseDto>로 변환
+        Page<PostResponseDto> postDtoPage = posts.map(PostResponseDto::fromEntity);
+
+        // PageDto 반환
+        return new PageDto<>(postDtoPage);
+    }
+
 
     // 작성 유저의 닉네임으로 게시글 검색
 
