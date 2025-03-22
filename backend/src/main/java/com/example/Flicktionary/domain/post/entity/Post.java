@@ -45,5 +45,5 @@ public class Post {
 
     // 게시글 스포일러 여부 토글
     @Column(columnDefinition = "boolean default false")
-    private boolean isSpoiler;
+    private Boolean isSpoiler;
 }

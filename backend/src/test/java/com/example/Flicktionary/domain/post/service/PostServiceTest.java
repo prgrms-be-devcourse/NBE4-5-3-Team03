@@ -2,6 +2,7 @@ package com.example.Flicktionary.domain.post.service;
 
 import com.example.Flicktionary.domain.post.dto.PostCreateRequestDto;
 import com.example.Flicktionary.domain.post.dto.PostResponseDto;
+import com.example.Flicktionary.domain.post.dto.PostUpdateRequestDto;
 import com.example.Flicktionary.domain.post.entity.Post;
 import com.example.Flicktionary.domain.post.repository.PostRepository;
 import com.example.Flicktionary.domain.user.entity.UserAccount;
@@ -94,7 +95,7 @@ public class PostServiceTest {
         assertEquals(testPostDto.getNickname(), expectedPost.getNickname());
         assertEquals(testPostDto.getTitle(), expectedPost.getTitle());
         assertEquals(testPostDto.getContent(), expectedPost.getContent());
-        assertEquals(testPostDto.isSpoiler(), expectedPost.isSpoiler());
+        assertEquals(testPostDto.getIsSpoiler(), expectedPost.getIsSpoiler());
 
         // PostRepository의 save 메서드가 한 번 호출되었는지 검증
         verify(postRepository).save(any(Post.class));
@@ -117,7 +118,7 @@ public class PostServiceTest {
         assertEquals(testPostDto.getNickname(), expectedPost.getNickname());
         assertEquals(testPostDto.getTitle(), expectedPost.getTitle());
         assertEquals(testPostDto.getContent(), expectedPost.getContent());
-        assertEquals(testPostDto.isSpoiler(), expectedPost.isSpoiler());
+        assertEquals(testPostDto.getIsSpoiler(), expectedPost.getIsSpoiler());
 
         // PostRepository의 findById 메서드가 호출되었는지 검증
         verify(postRepository).findById(postId);
@@ -185,7 +186,7 @@ public class PostServiceTest {
             System.out.println("제목: " + post.getTitle());
             System.out.println("내용: " + post.getContent());
             System.out.println("생성 시간: " + post.getCreatedAt());
-            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.isSpoiler());
+            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.getIsSpoiler());
             System.out.println(" =================================== ");
         }
 
@@ -265,7 +266,7 @@ public class PostServiceTest {
             System.out.println("제목: " + post.getTitle());
             System.out.println("내용: " + post.getContent());
             System.out.println("생성 시간: " + post.getCreatedAt());
-            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.isSpoiler());
+            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.getIsSpoiler());
             System.out.println(" =================================== ");
         }
 
@@ -282,5 +283,249 @@ public class PostServiceTest {
 
         // findByTitleContaining 메서드가 호출되었는지 검증
         verify(postRepository).findByTitleContaining(eq(title), any(Pageable.class));
+    }
+
+    @Test
+    @DisplayName("내용으로 게시글 검색")
+    void searchPostsByContent() {
+
+        // 테스트용 키워드, 요청할 페이지 번호와 페이지당 게시글 수
+        String content = "찾을 게시글";
+        int page = 1;
+        int size = 10;
+
+        // 테스트용 게시글 목록 생성
+        List<Post> posts = List.of(
+                Post.builder()
+                        .id(2L)
+                        .userAccount(testUser)
+                        .title("테스트용 게시글2")
+                        .content("테스트용 게시글 내용2")
+                        .isSpoiler(false)
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
+                        .build(),
+                Post.builder()
+                        .id(1L)
+                        .userAccount(testUser)
+                        .title("테스트용 게시글1")
+                        .content("테스트용 게시글 내용1")
+                        .isSpoiler(true)
+                        .createdAt(LocalDateTime.now().minusDays(1))
+                        .updatedAt(LocalDateTime.now().minusDays(1))
+                        .build(),
+                Post.builder()
+                        .id(3L)
+                        .userAccount(testUser)
+                        .title("게시글3")
+                        .content("찾을 게시글 내용3")
+                        .isSpoiler(false)
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
+                        .build()
+        );
+
+        // 검색할 제목 키워드를 포함하는 게시글만 필터링 후 변수에 저장
+        List<Post> resultPosts = posts.stream()
+                .filter(post -> post.getContent().contains(content))
+                .toList();
+
+        // Page 객체 생성
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Post> postPage = new PageImpl<>(resultPosts, pageable, resultPosts.size());
+
+        // findByTitleContaining 메서드가 호출될 때 postPage를 반환하도록 설정
+        when(postRepository.findByContentContaining(eq(content), any(Pageable.class))).thenReturn(postPage);
+
+        // 메서드 호출 후 변수에 저장
+        PageDto<PostResponseDto> testPages = postService.searchPostsByContent(content, page, size);
+
+        /// 검증
+        // 로그 확인
+        System.out.println(" ========= 게시글 목록 조회 ========= ");
+        for (PostResponseDto post : testPages.getItems()) {
+            System.out.println("작성자 닉네임: " + post.getNickname());
+            System.out.println("제목: " + post.getTitle());
+            System.out.println("내용: " + post.getContent());
+            System.out.println("생성 시간: " + post.getCreatedAt());
+            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.getIsSpoiler());
+            System.out.println(" =================================== ");
+        }
+
+        assertEquals(testPages.getItems().size(), resultPosts.size());
+        assertEquals(testPages.getTotalPages(), postPage.getTotalPages());
+        assertEquals(page, testPages.getCurPageNo());
+        assertEquals(size, testPages.getPageSize());
+        assertEquals(testPages.getSortBy(), postPage.getSort().toString());
+
+        // items 리스트의 내용 검증 (검색 키워드가 제목에 포함되어 있는지 확인)
+        for (PostResponseDto post : testPages.getItems()) {
+            assertTrue(post.getContent().contains(content));
+        }
+
+        // findByTitleContaining 메서드가 호출되었는지 검증
+        verify(postRepository).findByContentContaining(eq(content), any(Pageable.class));
+    }
+
+    @Test
+    @DisplayName("유저 닉네임으로 게시글 검색")
+    void searchPostsByNickname() {
+
+        // 테스트용 키워드, 요청할 페이지 번호와 페이지당 게시글 수
+        String nickname = "찾을 유저";
+        int page = 1;
+        int size = 10;
+
+        // 테스트용 유저 한명 더 생성
+        UserAccount testUser2 = new UserAccount(
+                2L,
+                "테스트용 찾을 유저",
+                "test12345",
+                "test2@email.com",
+                "테스트 찾을 유저",
+                UserAccountType.USER);
+
+        // 테스트용 게시글 목록 생성
+        List<Post> posts = List.of(
+                Post.builder()
+                        .id(2L)
+                        .userAccount(testUser2)
+                        .title("테스트용 게시글2")
+                        .content("테스트용 게시글 내용2")
+                        .isSpoiler(false)
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
+                        .build(),
+                Post.builder()
+                        .id(1L)
+                        .userAccount(testUser)
+                        .title("테스트용 게시글1")
+                        .content("테스트용 게시글 내용1")
+                        .isSpoiler(true)
+                        .createdAt(LocalDateTime.now().minusDays(1))
+                        .updatedAt(LocalDateTime.now().minusDays(1))
+                        .build(),
+                Post.builder()
+                        .id(3L)
+                        .userAccount(testUser)
+                        .title("게시글3")
+                        .content("게시글 내용3")
+                        .isSpoiler(false)
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
+                        .build()
+        );
+
+        // 검색할 제목 키워드를 포함하는 게시글만 필터링 후 변수에 저장
+        List<Post> resultPosts = posts.stream()
+                .filter(post -> post.getUserAccount().getNickname().contains(nickname))
+                .toList();
+
+        // Page 객체 생성
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Post> postPage = new PageImpl<>(resultPosts, pageable, resultPosts.size());
+
+        // findByUserAccount_NicknameContaining 메서드가 호출될 때 postPage를 반환하도록 설정
+        when(postRepository.findByUserAccount_NicknameContaining(eq(nickname), any(Pageable.class))).thenReturn(postPage);
+
+        // 메서드 호출 후 변수에 저장
+        PageDto<PostResponseDto> testPages = postService.searchPostsByNickname(nickname, page, size);
+
+        /// 검증
+        // 로그 확인
+        System.out.println(" ========= 게시글 목록 조회 ========= ");
+        for (PostResponseDto post : testPages.getItems()) {
+            System.out.println("작성자 닉네임: " + post.getNickname());
+            System.out.println("제목: " + post.getTitle());
+            System.out.println("내용: " + post.getContent());
+            System.out.println("생성 시간: " + post.getCreatedAt());
+            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.getIsSpoiler());
+            System.out.println(" =================================== ");
+        }
+
+        assertEquals(testPages.getItems().size(), resultPosts.size());
+        assertEquals(testPages.getTotalPages(), postPage.getTotalPages());
+        assertEquals(page, testPages.getCurPageNo());
+        assertEquals(size, testPages.getPageSize());
+        assertEquals(testPages.getSortBy(), postPage.getSort().toString());
+
+        // items 리스트의 내용 검증 (검색 키워드가 제목에 포함되어 있는지 확인)
+        for (PostResponseDto post : testPages.getItems()) {
+            assertTrue(post.getNickname().contains(nickname));
+        }
+
+        // findByTitleContaining 메서드가 호출되었는지 검증
+        verify(postRepository).findByUserAccount_NicknameContaining(eq(nickname), any(Pageable.class));
+    }
+
+    @Test
+    @DisplayName("게시글 수정")
+    void updatePost() {
+
+        // 테스트용 수정할 내용 Dto 생성
+        PostUpdateRequestDto updateRequestDto = PostUpdateRequestDto.builder()
+                .title("수정된 제목")
+                .content("수정된 내용")
+                .isSpoiler(false)
+                .build();
+
+        // 확인용 엔티티 생성
+        Post checkPost = Post.builder()
+                .id(savedPost.getId())
+                .userAccount(testUser)
+                .title("수정된 제목")
+                .content("수정된 내용")
+                .isSpoiler(false)
+                .createdAt(savedPost.getCreatedAt())
+                // LocalDateTime.now()의 정밀도로 인해 50초 더하기
+                .updatedAt(LocalDateTime.now().plusSeconds(50))
+                .build();
+
+        // 저장된 게시글의 id로 특정 게시글을 찾아 기존 게시글을 반환되도록 설정
+        when(postRepository.findById(savedPost.getId())).thenReturn(Optional.of(savedPost));
+        when(postRepository.save(any(Post.class))).thenReturn(checkPost);
+
+        // 수정 메서드 실행 후 변수에 담기
+        PostResponseDto testPage = postService.update(savedPost.getId(), updateRequestDto);
+
+        /// 검증
+        // 로그
+        System.out.println(" ========= 게시글 수정 결과 ========= ");
+        System.out.println("작성자 닉네임: " + testPage.getNickname());
+        System.out.println("제목: " + testPage.getTitle());
+        System.out.println("내용: " + testPage.getContent());
+        System.out.println("생성 시간: " + testPage.getCreatedAt());
+        System.out.println("수정 시간: " + testPage.getUpdatedAt());
+        System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + testPage.getIsSpoiler());
+        System.out.println(" =================================== ");
+
+        assertEquals(testPage.getTitle(), checkPost.getTitle());
+        assertEquals(testPage.getContent(), checkPost.getContent());
+        assertEquals(testPage.getIsSpoiler(), checkPost.getIsSpoiler());
+        assertTrue(testPage.getUpdatedAt().isAfter(savedPost.getUpdatedAt()));
+
+        // PostRepository의 findById 메서드가 호출되었는지 검증
+        verify(postRepository).findById(savedPost.getId());
+
+        // PostRepository의 save 메서드가 한 번 호출되었는지 검증
+        verify(postRepository).save(any(Post.class));
+    }
+
+    @Test
+    @DisplayName("게시글 삭제")
+    void deletePost() {
+
+        // 테스트용 게시글 생성
+        Long postId = 1000L;
+        Post existingPost = Post.builder().id(postId).build();
+
+        // 저장된 게시글의 id로 특정 게시글을 찾아 기존 게시글을 반환되도록 설정
+        when(postRepository.findById(postId)).thenReturn(Optional.of(existingPost));
+
+        // 삭제 메서드 실행
+        postService.delete(postId);
+
+        /// 검증
+        verify(postRepository).delete(existingPost);
     }
 }

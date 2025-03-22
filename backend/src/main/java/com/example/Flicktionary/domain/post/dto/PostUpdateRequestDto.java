@@ -11,5 +11,5 @@ public class PostUpdateRequestDto {
     private Long id;
     private String title;
     private String content;
-    private boolean isSpoiler;
+    private Boolean isSpoiler;
 }

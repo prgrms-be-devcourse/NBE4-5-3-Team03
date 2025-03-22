@@ -18,7 +18,7 @@ public class PostResponseDto {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private boolean isSpoiler;
+    private Boolean isSpoiler;
 
     public static PostResponseDto fromEntity(Post post) {
 
@@ -33,7 +33,7 @@ public class PostResponseDto {
                 .content(post.getContent())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
-                .isSpoiler(post.isSpoiler())
+                .isSpoiler(post.getIsSpoiler())
                 .nickname(nickname)
                 .build();
     }

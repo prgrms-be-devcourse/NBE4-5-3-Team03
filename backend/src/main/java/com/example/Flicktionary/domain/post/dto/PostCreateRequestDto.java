@@ -13,7 +13,7 @@ public class PostCreateRequestDto {
     private Long userAccountId;
     private String title;
     private String content;
-    private boolean isSpoiler;
+    private Boolean isSpoiler;
 
     public Post toEntity(UserAccount userAccount) {
         return Post.builder()

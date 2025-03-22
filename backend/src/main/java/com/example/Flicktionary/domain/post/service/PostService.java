@@ -2,6 +2,7 @@ package com.example.Flicktionary.domain.post.service;
 
 import com.example.Flicktionary.domain.post.dto.PostCreateRequestDto;
 import com.example.Flicktionary.domain.post.dto.PostResponseDto;
+import com.example.Flicktionary.domain.post.dto.PostUpdateRequestDto;
 import com.example.Flicktionary.domain.post.entity.Post;
 import com.example.Flicktionary.domain.post.repository.PostRepository;
 import com.example.Flicktionary.domain.user.entity.UserAccount;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @Transactional
@@ -79,13 +82,76 @@ public class PostService {
         return new PageDto<>(postDtoPage);
     }
 
+    // 게시글 내용으로 게시글 검색
+    public PageDto<PostResponseDto> searchPostsByContent(String content, int page, int size) {
+
+        // Pageable 객체 생성
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        // PostRepository에서 제목에 키워드를 포함하는 게시글을 페이징하여 조회
+        Page<Post> posts = postRepository.findByContentContaining(content, pageable);
+
+        // PageDto<PostResponseDto>로 변환
+        Page<PostResponseDto> postDtoPage = posts.map(PostResponseDto::fromEntity);
+
+        // PageDto 반환
+        return new PageDto<>(postDtoPage);
+    }
 
     // 작성 유저의 닉네임으로 게시글 검색
+    public PageDto<PostResponseDto> searchPostsByNickname(String nickname, int page, int size) {
 
-    // 게시글 내용으로 게시글 검색
+        // Pageable 객체 생성
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        // PostRepository에서 제목에 키워드를 포함하는 게시글을 페이징하여 조회
+        Page<Post> posts = postRepository.findByUserAccount_NicknameContaining(nickname, pageable);
+
+        // PageDto<PostResponseDto>로 변환
+        Page<PostResponseDto> postDtoPage = posts.map(PostResponseDto::fromEntity);
+
+        // PageDto 반환
+        return new PageDto<>(postDtoPage);
+    }
 
     // 게시글 수정
+    public PostResponseDto update(Long id, PostUpdateRequestDto postDto) {
+
+        // 게시글 Id로 해당 게시글 찾기
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다."));
+
+        // 게시글 제목 수정
+        if (postDto.getTitle() != null && !postDto.getTitle().isBlank()) {
+            post.setTitle(postDto.getTitle());
+        }
+
+        // 게시글 내용 수정
+        if (postDto.getContent() != null && !postDto.getContent().isBlank()) {
+            post.setContent(postDto.getContent());
+        }
+
+        // 게시글 스포일러 여부 수정
+        if (postDto.getIsSpoiler() != null) {
+            post.setIsSpoiler(postDto.getIsSpoiler());
+        }
+
+        // 수정 시간 업데이트
+        post.setUpdatedAt(LocalDateTime.now());
+
+        Post updatedPost = postRepository.save(post);
+
+        return PostResponseDto.fromEntity(updatedPost);
+    }
 
     // 게시글 삭제
+    public void delete(Long id) {
+
+        // 게시글 Id로 해당 게시글 찾기
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다."));
+
+        postRepository.delete(post);
+    }
 
 }
