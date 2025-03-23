@@ -9,7 +9,7 @@ import com.example.Flicktionary.domain.user.entity.UserAccount;
 import com.example.Flicktionary.domain.user.entity.UserAccountType;
 import com.example.Flicktionary.domain.user.repository.UserAccountRepository;
 import com.example.Flicktionary.global.dto.PageDto;
-import jakarta.persistence.EntityNotFoundException;
+import com.example.Flicktionary.global.exception.ServiceException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -134,7 +134,7 @@ public class PostServiceTest {
 
         /// 검증
         // findPostById 메서드를 호출했을 때 EntityNotFoundException이 발생하는지 확인
-        assertThrows(EntityNotFoundException.class, () -> postService.findById(postId));
+        assertThrows(ServiceException.class, () -> postService.findById(postId));
 
         // PostRepository의 findById 메서드가 호출되었는지 검증
         verify(postRepository).findById(postId);
