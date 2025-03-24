@@ -39,8 +39,8 @@ public class PostController {
     @GetMapping
     public ResponseEntity<ResponseDto<PageDto<PostResponseDto>>> getPostList(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        PageDto<PostResponseDto> postList = postService.getPostList(page, size);
+            @RequestParam(defaultValue = "10") int pageSize) {
+        PageDto<PostResponseDto> postList = postService.getPostList(page, pageSize);
         return ResponseEntity.ok(ResponseDto.ok(postList));
     }
 
@@ -49,8 +49,8 @@ public class PostController {
     public ResponseEntity<ResponseDto<PageDto<PostResponseDto>>> searchPostsByTitle(
             @RequestParam String title,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        PageDto<PostResponseDto> searchPosts = postService.searchPostsByTitle(title, page, size);
+            @RequestParam(defaultValue = "10") int pageSize) {
+        PageDto<PostResponseDto> searchPosts = postService.searchPostsByTitle(title, page, pageSize);
         return ResponseEntity.ok(ResponseDto.ok(searchPosts));
     }
 
@@ -59,8 +59,8 @@ public class PostController {
     public ResponseEntity<ResponseDto<PageDto<PostResponseDto>>> searchPostsByContent(
             @RequestParam String content,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        PageDto<PostResponseDto> searchPosts = postService.searchPostsByContent(content, page, size);
+            @RequestParam(defaultValue = "10") int pageSize) {
+        PageDto<PostResponseDto> searchPosts = postService.searchPostsByContent(content, page, pageSize);
         return ResponseEntity.ok(ResponseDto.ok(searchPosts));
     }
 
@@ -69,8 +69,8 @@ public class PostController {
     public ResponseEntity<ResponseDto<PageDto<PostResponseDto>>> searchPostsByNickname(
             @RequestParam String nickname,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        PageDto<PostResponseDto> searchPosts = postService.searchPostsByNickname(nickname, page, size);
+            @RequestParam(defaultValue = "10") int pageSize) {
+        PageDto<PostResponseDto> searchPosts = postService.searchPostsByNickname(nickname, page, pageSize);
         return ResponseEntity.ok(ResponseDto.ok(searchPosts));
     }
 
