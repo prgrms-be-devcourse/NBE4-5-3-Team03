@@ -29,7 +29,7 @@ public class SeriesDetailResponse {
 
     private int ratingCount;
 
-    private int episode;
+    private Integer episode;
 
     private String plot;
 

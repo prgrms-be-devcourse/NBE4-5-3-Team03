@@ -4,7 +4,6 @@ import com.example.Flicktionary.domain.movie.dto.MovieResponse;
 import com.example.Flicktionary.domain.movie.dto.MovieResponseWithDetail;
 import com.example.Flicktionary.domain.movie.entity.Movie;
 import com.example.Flicktionary.domain.movie.repository.MovieRepository;
-import com.example.Flicktionary.domain.tmdb.dto.TmdbMovieResponseWithDetail;
 import com.example.Flicktionary.domain.tmdb.service.TmdbService;
 import com.example.Flicktionary.global.dto.PageDto;
 import com.example.Flicktionary.global.exception.ServiceException;
@@ -20,7 +19,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -198,7 +196,6 @@ class MovieServiceTest {
                 .averageRating(1.23)
                 .ratingCount(12)
                 .status("Released")
-                .fetchDate(LocalDate.now())
                 .build();
         given(movieRepository.findByIdWithCastsAndDirector(testMovie.getId()))
                 .willReturn(Optional.of(testMovie));
@@ -211,48 +208,6 @@ class MovieServiceTest {
         assertEquals(testMovie.getAverageRating(), result.getAverageRating());
         assertEquals(testMovie.getRatingCount(), result.getRatingCount());
         then(movieRepository).should().findByIdWithCastsAndDirector(testMovie.getId());
-    }
-
-    @Test
-    @DisplayName("영화 상세 조회 - 성공 - 오래된 데이터는 새로 받아와 저장")
-    void getMovie2() {
-        Movie testMovie = Movie.builder()
-                .id(123L)
-                .tmdbId(124L)
-                .title("testTitle")
-                .overview("testOverview")
-                .averageRating(1.23)
-                .ratingCount(12)
-                .fetchDate(LocalDate.now().minusDays(10))
-                .status("Planned")
-                .build();
-        TmdbMovieResponseWithDetail response = new TmdbMovieResponseWithDetail(
-                testMovie.getTmdbId(),
-                testMovie.getTitle(),
-                testMovie.getOverview(),
-                "",
-                "testStatus",
-                "testPath",
-                135,
-                List.of(),
-                List.of(),
-                List.of(),
-                new TmdbMovieResponseWithDetail.TmdbCredits(List.of(), List.of())
-        );
-        given(movieRepository.findByIdWithCastsAndDirector(testMovie.getId()))
-                .willReturn(Optional.of(testMovie));
-        given(tmdbService.fetchMovie(testMovie.getTmdbId())).willReturn(response);
-        given(movieRepository.save(any(Movie.class))).willReturn(testMovie);
-
-        MovieResponseWithDetail result = movieService.getMovie(testMovie.getId());
-
-        assertThat(result).isNotNull();
-        assertEquals(testMovie.getTmdbId(), result.getTmdbId());
-        assertEquals(testMovie.getTitle(), result.getTitle());
-        assertEquals(testMovie.getOverview(), result.getOverview());
-        then(movieRepository).should().findByIdWithCastsAndDirector(testMovie.getId());
-        then(tmdbService).should().fetchMovie(testMovie.getTmdbId());
-        then(movieRepository).should().save(any(Movie.class));
     }
 
     @Test

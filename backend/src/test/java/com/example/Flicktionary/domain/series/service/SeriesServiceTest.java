@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -160,8 +159,8 @@ public class SeriesServiceTest {
                 seriesService.getSeries(keyword, page, pageSize, sortBy));
 
         assertThat(thrown)
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("잘못된 정렬 방식입니다.");
+                .isInstanceOf(ServiceException.class)
+                .hasMessage("잘못된 정렬 기준입니다.");
     }
 
     // TODO: 서비스 메소드 시그니처 변경에 따라 테스트 수정
@@ -173,7 +172,6 @@ public class SeriesServiceTest {
         given(seriesRepository.findById(seriesId))
                 .willReturn(Optional.of(Series.builder()
                         .id(seriesId)
-                        .fetchDate(LocalDate.now())
                         .tmdbId(124L)
                         .title("testTitle")
                         .build()));
