@@ -27,7 +27,7 @@ public class FavoriteContentDto {
     public static FavoriteContentDto fromSeries(Series series) {
         return FavoriteContentDto.builder()
                 .title(series.getTitle())
-                .imageUrl(series.getImageUrl())
+                .imageUrl(series.getPosterPath())
                 .averageRating(series.getAverageRating())
                 .ratingCount(series.getRatingCount())
                 .build();

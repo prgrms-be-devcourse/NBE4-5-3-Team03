@@ -59,7 +59,7 @@ public class ActorController {
 
     public record SeriesDTO(Long id, String title, String posterPath, String releaseStartDate, String releaseEndDate) {
         public SeriesDTO(Series series) {
-            this(series.getId(), series.getTitle(), series.getImageUrl(),
+            this(series.getId(), series.getTitle(), series.getPosterPath(),
                     series.getReleaseStartDate() != null ? series.getReleaseStartDate().toString() : null,
                     series.getReleaseEndDate() != null ? series.getReleaseEndDate().toString() : null);
         }

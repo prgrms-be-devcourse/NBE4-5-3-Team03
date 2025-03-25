@@ -11,8 +11,6 @@ public class MovieResponse {
     @NonNull
     private final Long id;
     @NonNull
-    private final Long tmdbId;
-    @NonNull
     private final String title;
     private final String posterPath;
     @NonNull
@@ -21,6 +19,6 @@ public class MovieResponse {
     private final int ratingCount;
 
     public MovieResponse(Movie movie) {
-        this(movie.getId(), movie.getTmdbId(), movie.getTitle(), movie.getPosterPath(), movie.getAverageRating(), movie.getRatingCount());
+        this(movie.getId(), movie.getTitle(), movie.getPosterPath(), movie.getAverageRating(), movie.getRatingCount());
     }
 }

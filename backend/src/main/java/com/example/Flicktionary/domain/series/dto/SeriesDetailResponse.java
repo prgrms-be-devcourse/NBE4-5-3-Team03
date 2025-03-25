@@ -1,6 +1,5 @@
 package com.example.Flicktionary.domain.series.dto;
 
-import com.example.Flicktionary.domain.actor.dto.ActorDto;
 import com.example.Flicktionary.domain.director.dto.DirectorDto;
 import com.example.Flicktionary.domain.genre.dto.GenreDto;
 import com.example.Flicktionary.domain.series.entity.Series;
@@ -46,7 +45,7 @@ public class SeriesDetailResponse {
 
     private List<GenreDto> genres;
 
-    private List <SeriesCastDto> casts;
+    private List<SeriesCastDto> casts;
 
     private DirectorDto director;
 
@@ -54,13 +53,13 @@ public class SeriesDetailResponse {
         this.id = series.getId();
         this.tmdbId = series.getTmdbId();
         this.title = series.getTitle();
-        this.posterPath = series.getImageUrl();
+        this.posterPath = series.getPosterPath();
         this.averageRating = series.getAverageRating();
         this.ratingCount = series.getRatingCount();
-        this.episode = series.getEpisode();
-        this.plot = series.getPlot();
-        this.company = series.getCompany();
-        this.nation = series.getNation();
+        this.episode = series.getEpisodeNumber();
+        this.plot = series.getOverview();
+        this.company = series.getProductionCompany();
+        this.nation = series.getProductionCountry();
         this.releaseStartDate = series.getReleaseStartDate();
         this.releaseEndDate = series.getReleaseEndDate();
         this.status = series.getStatus();

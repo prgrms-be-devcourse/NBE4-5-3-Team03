@@ -5,6 +5,6 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class TmdbPopularSeriesResponse {
-    private List<TmdbSeriesPopularIdResponse> results;
+public class TmdbSeriesResponse {
+    private List<TmdbSeriesIdResponse> results;
 }
