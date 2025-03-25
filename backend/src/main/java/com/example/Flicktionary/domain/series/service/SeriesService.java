@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -68,12 +68,21 @@ public class SeriesService {
 
     @Transactional
     public void fetchAndSaveSeries(int pages) {
+        List<Series> seriesToSave = new ArrayList<>();
+        Map<Long, Genre> genreCache = new HashMap<>();
+        Map<Long, Actor> actorCache = new HashMap<>();
+        Map<Long, Director> directorCache = new HashMap<>();
+
         for (int i = 1; i <= pages; i++) {
             List<TmdbSeriesResponseWithDetail> seriesDtos = tmdbService.fetchSeries(i);
 
+            // 기존 시리즈 ID를 미리 조회하여 중복 방지
+            Set<Long> existingSeriesIds = seriesRepository.findAllTmdbIds();
+
             for (TmdbSeriesResponseWithDetail seriesDto : seriesDtos) {
-                if (seriesRepository.findByTmdbId(seriesDto.tmdbId()).isPresent()) {
-                    continue;
+                if (existingSeriesIds.contains(seriesDto.tmdbId()) ||
+                        seriesToSave.stream().anyMatch(s -> s.getTmdbId().equals(seriesDto.tmdbId()))) {
+                    continue; // 이미 존재하는 시리즈면 스킵
                 }
 
                 Series series = Series.builder()
@@ -85,27 +94,26 @@ public class SeriesService {
                         .releaseEndDate(seriesDto.releaseEndDate() == null || seriesDto.releaseEndDate().isEmpty()
                                 ? null : LocalDate.parse(seriesDto.releaseEndDate()))
                         .status(seriesDto.status())
-                        .posterPath(seriesDto.posterPath() == null ?
-                                null : BASE_IMAGE_URL + "/w342" + seriesDto.posterPath())
+                        .posterPath(seriesDto.posterPath() == null ? null : BASE_IMAGE_URL + "/w342" + seriesDto.posterPath())
                         .episodeNumber(seriesDto.numberOfEpisodes())
-                        .productionCountry(seriesDto.productionCountries().isEmpty() ?
-                                null : seriesDto.productionCountries().get(0).name())
-                        .productionCompany(seriesDto.productionCompanies().isEmpty() ?
-                                null : seriesDto.productionCompanies().get(0).name())
+                        .productionCountry(seriesDto.productionCountries().isEmpty() ? null : seriesDto.productionCountries().get(0).name())
+                        .productionCompany(seriesDto.productionCompanies().isEmpty() ? null : seriesDto.productionCompanies().get(0).name())
                         .build();
 
-                // 장르 저장
+                // 장르 저장 (캐싱 활용)
                 for (TmdbSeriesResponseWithDetail.TmdbGenre tmdbGenre : seriesDto.genres()) {
-                    Genre genre = genreRepository.findById(tmdbGenre.id())
-                            .orElseGet(() -> genreRepository.save(new Genre(tmdbGenre.id(), tmdbGenre.name())));
+                    Genre genre = genreCache.computeIfAbsent(tmdbGenre.id(), id ->
+                            genreRepository.findById(id)
+                                    .orElseGet(() -> genreRepository.save(new Genre(id, tmdbGenre.name()))));
                     series.getGenres().add(genre);
                 }
 
-                // 배우 저장
+                // 배우 저장 (캐싱 활용)
                 for (TmdbSeriesResponseWithDetail.TmdbActor tmdbActor : seriesDto.credits().cast().stream().limit(5).toList()) {
-                    Actor actor = actorRepository.findById(tmdbActor.id())
-                            .orElseGet(() -> actorRepository.save(new Actor(tmdbActor.id(), tmdbActor.name(),
-                                    tmdbActor.profilePath() == null ? null : BASE_IMAGE_URL + "/w185" + tmdbActor.profilePath())));
+                    Actor actor = actorCache.computeIfAbsent(tmdbActor.id(), id ->
+                            actorRepository.findById(id)
+                                    .orElseGet(() -> actorRepository.save(new Actor(id, tmdbActor.name(),
+                                            tmdbActor.profilePath() == null ? null : BASE_IMAGE_URL + "/w185" + tmdbActor.profilePath()))));
 
                     SeriesCast seriesCast = SeriesCast.builder()
                             .series(series)
@@ -115,23 +123,27 @@ public class SeriesService {
                     series.getCasts().add(seriesCast);
                 }
 
-                // 감독 저장
+                // 감독 저장 (캐싱 활용)
                 for (TmdbSeriesResponseWithDetail.TmdbCrew crew : seriesDto.credits().crew()) {
                     if (crew.job().equalsIgnoreCase("Director")) {
-                        Director director = directorRepository.findById(crew.id())
-                                .orElseGet(() -> directorRepository.save(new Director(crew.id(), crew.name(),
-                                        crew.profilePath() == null ? null : BASE_IMAGE_URL + "/w185" + crew.profilePath())));
+                        Director director = directorCache.computeIfAbsent(crew.id(), id ->
+                                directorRepository.findById(id)
+                                        .orElseGet(() -> directorRepository.save(new Director(id, crew.name(),
+                                                crew.profilePath() == null ? null : BASE_IMAGE_URL + "/w185" + crew.profilePath()))));
                         series.setDirector(director);
 
-                        if (!director.getSeries().contains(series)) {  // 중복 추가 방지
+                        if (!director.getSeries().contains(series)) {
                             director.getSeries().add(series);
                         }
-                        series.setDirector(director);
                     }
                 }
 
-                seriesRepository.save(series);
+                seriesToSave.add(series);
             }
+        }
+
+        if (!seriesToSave.isEmpty()) {
+            seriesRepository.saveAll(seriesToSave);
         }
     }
 }

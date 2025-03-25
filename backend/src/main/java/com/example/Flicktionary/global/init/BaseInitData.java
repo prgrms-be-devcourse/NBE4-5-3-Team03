@@ -38,6 +38,4 @@ public class BaseInitData {
             seriesService.fetchAndSaveSeries(5);
         };
     }
-
-
 }

@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -71,12 +71,21 @@ public class MovieService {
     // tmdb api를 이용해서 영화 정보를 받아와 저장합니다.
     @Transactional
     public void fetchAndSaveMovies(int pages) {
+        List<Movie> moviesToSave = new ArrayList<>();
+        Map<Long, Genre> genreCache = new HashMap<>();
+        Map<Long, Actor> actorCache = new HashMap<>();
+        Map<Long, Director> directorCache = new HashMap<>();
+
         for (int i = 1; i <= pages; i++) {
             List<TmdbMovieResponseWithDetail> movieDtos = tmdbService.fetchMovies(i);
 
+            // 먼저 중복을 방지하기 위해 저장된 영화 ID를 조회
+            Set<Long> existingMovieIds = movieRepository.findAllTmdbIds();
+
             for (TmdbMovieResponseWithDetail movieDto : movieDtos) {
-                if (movieRepository.findByTmdbId(movieDto.tmdbId()).isPresent()) {
-                    continue;
+                if (existingMovieIds.contains(movieDto.tmdbId()) ||
+                        moviesToSave.stream().anyMatch(s -> s.getTmdbId().equals(movieDto.tmdbId()))) {
+                    continue; // 이미 존재하는 영화면 스킵
                 }
 
                 Movie movie = Movie.builder()
@@ -86,27 +95,26 @@ public class MovieService {
                         .releaseDate(movieDto.releaseDate() == null || movieDto.releaseDate().isEmpty()
                                 ? null : LocalDate.parse(movieDto.releaseDate()))
                         .status(movieDto.status())
-                        .posterPath(movieDto.posterPath() == null ?
-                                null : BASE_IMAGE_URL + "/w342" + movieDto.posterPath())
+                        .posterPath(movieDto.posterPath() == null ? null : BASE_IMAGE_URL + "/w342" + movieDto.posterPath())
                         .runtime(movieDto.runtime())
-                        .productionCountry(movieDto.productionCountries().isEmpty() ?
-                                null : movieDto.productionCountries().get(0).name())
-                        .productionCompany(movieDto.productionCompanies().isEmpty() ?
-                                null : movieDto.productionCompanies().get(0).name())
+                        .productionCountry(movieDto.productionCountries().isEmpty() ? null : movieDto.productionCountries().get(0).name())
+                        .productionCompany(movieDto.productionCompanies().isEmpty() ? null : movieDto.productionCompanies().get(0).name())
                         .build();
 
-                // 장르 저장
+                // 장르 저장 (캐싱 활용)
                 for (TmdbMovieResponseWithDetail.TmdbGenre tmdbGenre : movieDto.genres()) {
-                    Genre genre = genreRepository.findById(tmdbGenre.id())
-                            .orElseGet(() -> genreRepository.save(new Genre(tmdbGenre.id(), tmdbGenre.name())));
+                    Genre genre = genreCache.computeIfAbsent(tmdbGenre.id(), id ->
+                            genreRepository.findById(id)
+                                    .orElseGet(() -> genreRepository.save(new Genre(id, tmdbGenre.name()))));
                     movie.getGenres().add(genre);
                 }
 
-                // 배우 저장
+                // 배우 저장 (캐싱 활용)
                 for (TmdbMovieResponseWithDetail.TmdbActor tmdbActor : movieDto.credits().cast().stream().limit(5).toList()) {
-                    Actor actor = actorRepository.findById(tmdbActor.id())
-                            .orElseGet(() -> actorRepository.save(new Actor(tmdbActor.id(), tmdbActor.name(),
-                                    tmdbActor.profilePath() == null ? null : BASE_IMAGE_URL + "/w185" + tmdbActor.profilePath())));
+                    Actor actor = actorCache.computeIfAbsent(tmdbActor.id(), id ->
+                            actorRepository.findById(id)
+                                    .orElseGet(() -> actorRepository.save(new Actor(id, tmdbActor.name(),
+                                            tmdbActor.profilePath() == null ? null : BASE_IMAGE_URL + "/w185" + tmdbActor.profilePath()))));
 
                     MovieCast movieCast = MovieCast.builder()
                             .movie(movie)
@@ -116,23 +124,27 @@ public class MovieService {
                     movie.getCasts().add(movieCast);
                 }
 
-                // 감독 저장
+                // 감독 저장 (캐싱 활용)
                 for (TmdbMovieResponseWithDetail.TmdbCrew crew : movieDto.credits().crew()) {
                     if (crew.job().equalsIgnoreCase("Director")) {
-                        Director director = directorRepository.findById(crew.id())
-                                .orElseGet(() -> directorRepository.save(new Director(crew.id(), crew.name(),
-                                        crew.profilePath() == null ? null : BASE_IMAGE_URL + "/w185" + crew.profilePath())));
+                        Director director = directorCache.computeIfAbsent(crew.id(), id ->
+                                directorRepository.findById(id)
+                                        .orElseGet(() -> directorRepository.save(new Director(id, crew.name(),
+                                                crew.profilePath() == null ? null : BASE_IMAGE_URL + "/w185" + crew.profilePath()))));
                         movie.setDirector(director);
 
-                        if (!director.getMovies().contains(movie)) {  // 중복 추가 방지
+                        if (!director.getMovies().contains(movie)) {
                             director.getMovies().add(movie);
                         }
-                        movie.setDirector(director);
                     }
                 }
 
-                movieRepository.save(movie);
+                moviesToSave.add(movie);
             }
+        }
+
+        if (!moviesToSave.isEmpty()) {
+            movieRepository.saveAll(moviesToSave);
         }
     }
 }

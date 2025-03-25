@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface SeriesRepository extends JpaRepository<Series, Long> {
@@ -24,4 +25,7 @@ public interface SeriesRepository extends JpaRepository<Series, Long> {
     Page<Series> findByTitleLike(@Param("keyword") String keyword, Pageable pageable);
 
     List<Series> findByDirectorId(Long directorId);
+
+    @Query("SELECT s.tmdbId FROM Series s")
+    Set<Long> findAllTmdbIds();
 }
