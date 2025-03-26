@@ -136,17 +136,19 @@ public class PostControllerTest {
     }
 
     @Test
-    @DisplayName("게시글 목록 조회")
-    void getPostList() throws Exception {
+    @DisplayName("게시글 목록 조회 및 검색")
+    void getPostListAndSearch() throws Exception {
 
-        // 요청할 페이지 번호와 페이지당 게시글 수, 테스트용 게시글 저장
+        // 페이지 설정
         int page = 1;
-        int size = 10;
+        int pageSize = 10;
+
+        // 테스트용 게시글 목록 생성
         List<PostResponseDto> postList = List.of(
                 PostResponseDto.builder()
                         .id(2L)
                         .userAccountId(testUser.getId())
-                        .nickname("테스트 유저")
+                        .nickname(testUser.getNickname())
                         .title("테스트 제목2")
                         .content("테스트 내용2")
                         .isSpoiler(false)
@@ -154,7 +156,7 @@ public class PostControllerTest {
                 PostResponseDto.builder()
                         .id(3L)
                         .userAccountId(testUser.getId())
-                        .nickname("테스트 유저")
+                        .nickname(testUser.getNickname())
                         .title("테스트 제목3")
                         .content("테스트 내용3")
                         .isSpoiler(true)
@@ -162,7 +164,6 @@ public class PostControllerTest {
         );
 
         PageDto<PostResponseDto> pageDto = new PageDto<>(postList, 2, 1, 1, 2, "createdAt");
-        given(postService.getPostList(page, size)).willReturn(pageDto);
 
         // 로그 확인
         System.out.println(" ========= 게시글 목록 조회 ========= ");
@@ -175,203 +176,68 @@ public class PostControllerTest {
             System.out.println(" =================================== ");
         }
 
-        // mockMvc로 get 요청 후 검증
+        // 게시글 전체 조회
+        given(postService.getPostList(page, pageSize, null, null)).willReturn(pageDto);
         mockMvc.perform(get("/api/posts")
-                        .param("page", String.valueOf(page))
-                        .param("size", String.valueOf(size)))
+                .param("page", String.valueOf(page))
+                .param("pageSize", String.valueOf(pageSize)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.items").isArray())
                 .andExpect(jsonPath("$.data.items.length()").value(postList.size()))
-                .andExpect(jsonPath("$.data.items[0].id").value(postList.getFirst().getId()))
-                .andExpect(jsonPath("$.data.items[0].title").value(postList.getFirst().getTitle()))
-                .andExpect(jsonPath("$.data.items[0].content").value(postList.getFirst().getContent()))
-                .andExpect(jsonPath("$.data.items[1].id").value(postList.getLast().getId()))
-                .andExpect(jsonPath("$.data.items[1].title").value(postList.getLast().getTitle()))
-                .andExpect(jsonPath("$.data.items[1].content").value(postList.getLast().getContent()))
                 .andExpect(jsonPath("$.data.totalPages").value(pageDto.getTotalPages()))
                 .andExpect(jsonPath("$.data.totalItems").value(pageDto.getTotalItems()));
+        then(postService).should().getPostList(page, pageSize, null, null);
 
-        then(postService).should().getPostList(page, size);
-    }
-
-    @Test
-    @DisplayName("제목으로 게시글 검색")
-    void searchPostsByTitle() throws Exception {
-
-        // 검색어, 요청할 페이지 번호, 페이지당 게시글 수, 테스트용 게시글 저장
-        String keyword = "찾을 제목";
-        int page = 1;
-        int size = 10;
-        List<PostResponseDto> postList = List.of(
-                PostResponseDto.builder()
-                        .id(2L)
-                        .userAccountId(testUser.getId())
-                        .nickname("찾을 테스트 유저")
-                        .title("찾을 제목2")
-                        .content("찾을 내용2")
-                        .isSpoiler(false)
-                        .build(),
-                PostResponseDto.builder()
-                        .id(3L)
-                        .userAccountId(testUser.getId())
-                        .nickname("테스트 유저")
-                        .title("테스트 제목3")
-                        .content("테스트 내용3")
-                        .isSpoiler(true)
-                        .build()
-        );
-
-        List<PostResponseDto> searchPosts = List.of(postList.getFirst());
-
-        PageDto<PostResponseDto> pageDto = new PageDto<>(searchPosts, 1, 1, 1, 1, "createdAt");
-        given(postService.searchPostsByTitle(keyword, page, size)).willReturn(pageDto);
-
-        // 로그 확인
-        System.out.println(" ========= 게시글 목록 조회 ========= ");
-        for (PostResponseDto post : pageDto.getItems()) {
-            System.out.println("작성자 닉네임: " + post.getNickname());
-            System.out.println("제목: " + post.getTitle());
-            System.out.println("내용: " + post.getContent());
-            System.out.println("생성 시간: " + post.getCreatedAt());
-            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.getIsSpoiler());
-            System.out.println(" =================================== ");
-        }
-
-        // mockMvc로 get 요청 후 검증
-        mockMvc.perform(get("/api/posts/search/title")
-                        .param("title", keyword)
+        // 제목으로 검색
+        String searchTitle = "찾을 제목";
+        List<PostResponseDto> titleSearchResult = List.of(postList.getFirst());
+        PageDto<PostResponseDto> titleSearchPageDto = new PageDto<>(titleSearchResult, 1, 1, 1, 1, "createdAt");
+        given(postService.getPostList(page, pageSize, searchTitle, "title")).willReturn(titleSearchPageDto);
+        mockMvc.perform(get("/api/posts")
                         .param("page", String.valueOf(page))
-                        .param("size", String.valueOf(size)))
+                        .param("pageSize", String.valueOf(pageSize))
+                        .param("keyword", searchTitle)
+                        .param("keywordType", "title"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.items").isArray())
-                .andExpect(jsonPath("$.data.items.length()").value(1))
-                .andExpect(jsonPath("$.data.items[0].id").value(postList.getFirst().getId()))
-                .andExpect(jsonPath("$.data.items[0].title").value(postList.getFirst().getTitle()))
-                .andExpect(jsonPath("$.data.items[0].content").value(postList.getFirst().getContent()))
-                .andExpect(jsonPath("$.data.totalPages").value(pageDto.getTotalPages()))
-                .andExpect(jsonPath("$.data.totalItems").value(pageDto.getTotalItems()));
+                .andExpect(jsonPath("$.data.items.length()").value(titleSearchResult.size()))
+                .andExpect(jsonPath("$.data.totalPages").value(titleSearchPageDto.getTotalPages()))
+                .andExpect(jsonPath("$.data.totalItems").value(titleSearchPageDto.getTotalItems()));
+        then(postService).should().getPostList(page, pageSize, searchTitle, "title");
 
-        then(postService).should().searchPostsByTitle(keyword, page, size);
-    }
-
-    @Test
-    @DisplayName("내용으로 게시글 검색")
-    void searchPostsByContent() throws Exception {
-
-        // 검색어, 요청할 페이지 번호, 페이지당 게시글 수, 테스트용 게시글 저장
-        String keyword = "찾을 내용";
-        int page = 1;
-        int size = 10;
-        List<PostResponseDto> postList = List.of(
-                PostResponseDto.builder()
-                        .id(2L)
-                        .userAccountId(testUser.getId())
-                        .nickname("찾을 테스트 유저")
-                        .title("찾을 제목2")
-                        .content("찾을 내용2")
-                        .isSpoiler(false)
-                        .build(),
-                PostResponseDto.builder()
-                        .id(3L)
-                        .userAccountId(testUser.getId())
-                        .nickname("테스트 유저")
-                        .title("테스트 제목3")
-                        .content("테스트 내용3")
-                        .isSpoiler(true)
-                        .build()
-        );
-
-        List<PostResponseDto> searchPosts = List.of(postList.getFirst());
-
-        PageDto<PostResponseDto> pageDto = new PageDto<>(searchPosts, 1, 1, 1, 1, "createdAt");
-        given(postService.searchPostsByContent(keyword, page, size)).willReturn(pageDto);
-
-        // 로그 확인
-        System.out.println(" ========= 게시글 목록 조회 ========= ");
-        for (PostResponseDto post : pageDto.getItems()) {
-            System.out.println("작성자 닉네임: " + post.getNickname());
-            System.out.println("제목: " + post.getTitle());
-            System.out.println("내용: " + post.getContent());
-            System.out.println("생성 시간: " + post.getCreatedAt());
-            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.getIsSpoiler());
-            System.out.println(" =================================== ");
-        }
-
-        // mockMvc로 get 요청 후 검증
-        mockMvc.perform(get("/api/posts/search/content")
-                        .param("content", keyword)
+        // 내용으로 검색
+        String searchContent = "찾을 내용";
+        List<PostResponseDto> contentSearchResult = List.of(postList.getFirst());
+        PageDto<PostResponseDto> contentSearchPageDto = new PageDto<>(contentSearchResult, 1, 1, 1, 1, "createdAt");
+        given(postService.getPostList(page, pageSize, searchContent, "content")).willReturn(contentSearchPageDto);
+        mockMvc.perform(get("/api/posts")
                         .param("page", String.valueOf(page))
-                        .param("size", String.valueOf(size)))
+                        .param("pageSize", String.valueOf(pageSize))
+                        .param("keyword", searchContent)
+                        .param("keywordType", "content"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.items").isArray())
-                .andExpect(jsonPath("$.data.items.length()").value(1))
-                .andExpect(jsonPath("$.data.items[0].id").value(postList.getFirst().getId()))
-                .andExpect(jsonPath("$.data.items[0].title").value(postList.getFirst().getTitle()))
-                .andExpect(jsonPath("$.data.items[0].content").value(postList.getFirst().getContent()))
-                .andExpect(jsonPath("$.data.totalPages").value(pageDto.getTotalPages()))
-                .andExpect(jsonPath("$.data.totalItems").value(pageDto.getTotalItems()));
+                .andExpect(jsonPath("$.data.items.length()").value(contentSearchResult.size()))
+                .andExpect(jsonPath("$.data.totalPages").value(contentSearchPageDto.getTotalPages()))
+                .andExpect(jsonPath("$.data.totalItems").value(contentSearchPageDto.getTotalItems()));
+        then(postService).should().getPostList(page, pageSize, searchContent, "content");
 
-        then(postService).should().searchPostsByContent(keyword, page, size);
-    }
-
-    @Test
-    @DisplayName("유저 닉네임으로 게시글 검색")
-    void searchPostsByNickname() throws Exception {
-
-        // 검색어, 요청할 페이지 번호, 페이지당 게시글 수, 테스트용 게시글 저장
-        String keyword = "찾을 유저";
-        int page = 1;
-        int size = 10;
-        List<PostResponseDto> postList = List.of(
-                PostResponseDto.builder()
-                        .id(2L)
-                        .userAccountId(testUser.getId())
-                        .nickname("찾을 유저")
-                        .title("찾을 제목2")
-                        .content("찾을 내용2")
-                        .isSpoiler(false)
-                        .build(),
-                PostResponseDto.builder()
-                        .id(3L)
-                        .userAccountId(testUser.getId())
-                        .nickname("테스트 유저")
-                        .title("테스트 제목3")
-                        .content("테스트 내용3")
-                        .isSpoiler(true)
-                        .build()
-        );
-
-        List<PostResponseDto> searchPosts = List.of(postList.getFirst());
-
-        PageDto<PostResponseDto> pageDto = new PageDto<>(searchPosts, 1, 1, 1, 1, "createdAt");
-        given(postService.searchPostsByNickname(keyword, page, size)).willReturn(pageDto);
-
-        // 로그 확인
-        System.out.println(" ========= 게시글 목록 조회 ========= ");
-        for (PostResponseDto post : pageDto.getItems()) {
-            System.out.println("작성자 닉네임: " + post.getNickname());
-            System.out.println("제목: " + post.getTitle());
-            System.out.println("내용: " + post.getContent());
-            System.out.println("생성 시간: " + post.getCreatedAt());
-            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.getIsSpoiler());
-            System.out.println(" =================================== ");
-        }
-
-        // mockMvc로 get 요청 후 검증
-        mockMvc.perform(get("/api/posts/search/nickname")
-                        .param("nickname", keyword)
+        // 유저 닉네임으로 검색
+        String searchNickname = "찾을 유저";
+        List<PostResponseDto> nicknameSearchResult = List.of(postList.getFirst());
+        PageDto<PostResponseDto> nicknameSearchPageDto = new PageDto<>(nicknameSearchResult, 1, 1, 1, 1, "createdAt");
+        given(postService.getPostList(page, pageSize, searchNickname, "nickname")).willReturn(nicknameSearchPageDto);
+        mockMvc.perform(get("/api/posts")
                         .param("page", String.valueOf(page))
-                        .param("size", String.valueOf(size)))
+                        .param("pageSize", String.valueOf(pageSize))
+                        .param("keyword", searchNickname)
+                        .param("keywordType", "nickname"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.items").isArray())
-                .andExpect(jsonPath("$.data.items.length()").value(1))
-                .andExpect(jsonPath("$.data.items[0].id").value(postList.getFirst().getId()))
-                .andExpect(jsonPath("$.data.items[0].title").value(postList.getFirst().getTitle()))
-                .andExpect(jsonPath("$.data.items[0].content").value(postList.getFirst().getContent()))
-                .andExpect(jsonPath("$.data.totalPages").value(pageDto.getTotalPages()))
-                .andExpect(jsonPath("$.data.totalItems").value(pageDto.getTotalItems()));
-
-        then(postService).should().searchPostsByNickname(keyword, page, size);
+                .andExpect(jsonPath("$.data.items.length()").value(nicknameSearchResult.size()))
+                .andExpect(jsonPath("$.data.totalPages").value(nicknameSearchPageDto.getTotalPages()))
+                .andExpect(jsonPath("$.data.totalItems").value(nicknameSearchPageDto.getTotalItems()));
+        then(postService).should().getPostList(page, pageSize, searchNickname, "nickname");
     }
 
     @Test

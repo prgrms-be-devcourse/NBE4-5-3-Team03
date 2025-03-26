@@ -35,43 +35,15 @@ public class PostController {
         return ResponseEntity.ok(ResponseDto.ok(post));
     }
 
-    // 게시글 목록 조회
+    // 게시글 목록 조회 및 게시글 검색
     @GetMapping
     public ResponseEntity<ResponseDto<PageDto<PostResponseDto>>> getPostList(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int pageSize) {
-        PageDto<PostResponseDto> postList = postService.getPostList(page, pageSize);
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String keywordType) {
+        PageDto<PostResponseDto> postList = postService.getPostList(page, pageSize, keyword, keywordType);
         return ResponseEntity.ok(ResponseDto.ok(postList));
-    }
-
-    // 제목으로 게시글 검색
-    @GetMapping("/search/title")
-    public ResponseEntity<ResponseDto<PageDto<PostResponseDto>>> searchPostsByTitle(
-            @RequestParam String title,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int pageSize) {
-        PageDto<PostResponseDto> searchPosts = postService.searchPostsByTitle(title, page, pageSize);
-        return ResponseEntity.ok(ResponseDto.ok(searchPosts));
-    }
-
-    // 내용으로 게시글 검색
-    @GetMapping("/search/content")
-    public ResponseEntity<ResponseDto<PageDto<PostResponseDto>>> searchPostsByContent(
-            @RequestParam String content,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int pageSize) {
-        PageDto<PostResponseDto> searchPosts = postService.searchPostsByContent(content, page, pageSize);
-        return ResponseEntity.ok(ResponseDto.ok(searchPosts));
-    }
-
-    // 유저 닉네임으로 게시글 검색
-    @GetMapping("/search/nickname")
-    public ResponseEntity<ResponseDto<PageDto<PostResponseDto>>> searchPostsByNickname(
-            @RequestParam String nickname,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int pageSize) {
-        PageDto<PostResponseDto> searchPosts = postService.searchPostsByNickname(nickname, page, pageSize);
-        return ResponseEntity.ok(ResponseDto.ok(searchPosts));
     }
 
     // 게시글 수정

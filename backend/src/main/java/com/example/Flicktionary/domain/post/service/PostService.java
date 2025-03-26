@@ -53,60 +53,31 @@ public class PostService {
         return PostResponseDto.fromEntity(post);
     }
 
-    // PageDto로 게시글 목록 조회
-    public PageDto<PostResponseDto> getPostList(int page, int size) {
+    // 게시글 목록 조회 및 게시글 검색
+    public PageDto<PostResponseDto> getPostList(int page, int pageSize, String keyword, String keywordType) {
 
         // Pageable 객체 생성
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Post> posts;
 
-        // 페이징된 게시글 목록을 Page<Post> 형태로 조회한 뒤 PostResponseDto로 변환
-        Page<PostResponseDto> postDtoPage = postRepository.findAll(pageable)
-                .map(PostResponseDto::fromEntity);
-
-        // PageDto 반환
-        return new PageDto<>(postDtoPage);
-    }
-
-    // 제목으로 게시글 검색
-    public PageDto<PostResponseDto> searchPostsByTitle(String title, int page, int size) {
-
-        // Pageable 객체 생성
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        // PostRepository에서 제목에 키워드를 포함하는 게시글을 페이징하여 조회
-        Page<Post> posts = postRepository.findByTitleContaining(title, pageable);
-
-        // PageDto<PostResponseDto>로 변환
-        Page<PostResponseDto> postDtoPage = posts.map(PostResponseDto::fromEntity);
-
-        // PageDto 반환
-        return new PageDto<>(postDtoPage);
-    }
-
-    // 게시글 내용으로 게시글 검색
-    public PageDto<PostResponseDto> searchPostsByContent(String content, int page, int size) {
-
-        // Pageable 객체 생성
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        // PostRepository에서 제목에 키워드를 포함하는 게시글을 페이징하여 조회
-        Page<Post> posts = postRepository.findByContentContaining(content, pageable);
-
-        // PageDto<PostResponseDto>로 변환
-        Page<PostResponseDto> postDtoPage = posts.map(PostResponseDto::fromEntity);
-
-        // PageDto 반환
-        return new PageDto<>(postDtoPage);
-    }
-
-    // 작성 유저의 닉네임으로 게시글 검색
-    public PageDto<PostResponseDto> searchPostsByNickname(String nickname, int page, int size) {
-
-        // Pageable 객체 생성
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        // PostRepository에서 제목에 키워드를 포함하는 게시글을 페이징하여 조회
-        Page<Post> posts = postRepository.findByUserAccount_NicknameContaining(nickname, pageable);
+        // 키워드 타입에 따라 게시글 검색. 없으면 모든 게시글 출력
+        if (keyword != null && !keyword.trim().isEmpty() && keywordType != null && !keywordType.trim().isEmpty()) {
+            switch (keywordType.toLowerCase()) {
+                case "title":
+                    posts = postRepository.findByTitleContaining(keyword, pageable);
+                    break;
+                case "content":
+                    posts = postRepository.findByContentContaining(keyword, pageable);
+                    break;
+                case "nickname":
+                    posts = postRepository.findByUserAccount_NicknameContaining(keyword, pageable);
+                    break;
+                default:
+                    throw new ServiceException(HttpStatus.BAD_REQUEST.value(), "지원하지 않는 검색 타입입니다: " + keywordType);
+            }
+        } else {
+            posts = postRepository.findAll(pageable);
+        }
 
         // PageDto<PostResponseDto>로 변환
         Page<PostResponseDto> postDtoPage = posts.map(PostResponseDto::fromEntity);
