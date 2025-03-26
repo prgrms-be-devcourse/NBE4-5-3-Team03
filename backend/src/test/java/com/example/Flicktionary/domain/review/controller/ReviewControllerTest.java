@@ -82,16 +82,16 @@ public class ReviewControllerTest {
             .id(321L)
             .tmdbId(10000000000L)
             .title("테스트용 드라마 제목")
-            .plot("테스트용 드라마 줄거리")
-            .episode(12)
+            .overview("테스트용 드라마 줄거리")
+            .episodeNumber(12)
             .status("상영중")
-            .imageUrl("테스트용 이미지")
+            .posterPath("테스트용 이미지")
             .averageRating(4.5)
             .ratingCount(10)
             .releaseStartDate(LocalDate.of(2024, 1, 1))
             .releaseEndDate(LocalDate.of(2200, 1, 2))
-            .nation("KR")
-            .company("테스트용 제작사")
+            .productionCountry("KR")
+            .productionCompany("테스트용 제작사")
             .build();
 
     private ReviewDto reviewDto1 = ReviewDto.builder()
@@ -185,8 +185,8 @@ public class ReviewControllerTest {
 
         // mockMvc로 put 요청 후 검증
         mockMvc.perform(put("/api/reviews/" + reviewDto1.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(modifyReview)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(modifyReview)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content")
                         .value("수정된 테스트용 리뷰"))
@@ -232,8 +232,8 @@ public class ReviewControllerTest {
 
         // mockMvc로 get 요청 후 검증
         mockMvc.perform(get("/api/reviews/movies/" + reviewDto1.getMovieId())
-                .param("page", "0")
-                .param("size", "5"))
+                        .param("page", "0")
+                        .param("size", "5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.items[0].content")
                         .value("테스트용 리뷰 내용 (영화)"));

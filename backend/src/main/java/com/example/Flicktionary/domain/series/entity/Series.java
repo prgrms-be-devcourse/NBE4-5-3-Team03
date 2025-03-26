@@ -1,6 +1,5 @@
 package com.example.Flicktionary.domain.series.entity;
 
-import com.example.Flicktionary.domain.actor.entity.Actor;
 import com.example.Flicktionary.domain.director.entity.Director;
 import com.example.Flicktionary.domain.genre.entity.Genre;
 import jakarta.persistence.*;
@@ -17,12 +16,11 @@ import java.util.List;
 @Getter
 @Setter
 public class Series {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private Long tmdbId;
 
     @Column(nullable = false)
@@ -30,29 +28,25 @@ public class Series {
 
     @Lob
     @Column(columnDefinition = "TEXT")
-    private String plot;
+    private String overview;
 
-    private int episode;
+    private Integer episodeNumber;
 
     private String status;
 
-    private String imageUrl;
+    private String posterPath;
 
     private LocalDate releaseStartDate;
 
     private LocalDate releaseEndDate;
 
-    private LocalDate fetchDate;
+    private String productionCountry;
 
-    private String nation;
+    private String productionCompany;
 
-    private String company;
+    private double averageRating;
 
-    @Builder.Default
-    private double averageRating = 0.0;
-
-    @Builder.Default
-    private int ratingCount = 0;
+    private int ratingCount;
 
     @Builder.Default
     @ManyToMany

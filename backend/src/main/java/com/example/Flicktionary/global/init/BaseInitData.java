@@ -2,37 +2,40 @@ package com.example.Flicktionary.global.init;
 
 import com.example.Flicktionary.domain.movie.repository.MovieRepository;
 import com.example.Flicktionary.domain.movie.service.MovieService;
+import com.example.Flicktionary.domain.series.repository.SeriesRepository;
+import com.example.Flicktionary.domain.series.service.SeriesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @RequiredArgsConstructor
 public class BaseInitData {
     private final MovieService movieService;
     private final MovieRepository movieRepository;
+    private final SeriesService seriesService;
+    private final SeriesRepository seriesRepository;
 
     @Bean
-    public ApplicationRunner applicationRunner() {
+    public ApplicationRunner applicationRunner1() {
         return args -> {
             if (movieRepository.count() > 0) {
                 return;
             }
 
-            movieService.fetchAndSaveMovies(50);
-            // 영화 데이터 초기 저장하면서 세부 정보 초기화
-            // 필요 시 주석 해제하고 사용하세요
-            // 초기 로드 시 10분 걸림!!!
-//            movieService.fetchMovieDetail();
+            movieService.fetchAndSaveMovies(5);
         };
     }
 
-
     @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
+    public ApplicationRunner applicationRunner2() {
+        return args -> {
+            if (seriesRepository.count() > 0) {
+                return;
+            }
 
+            seriesService.fetchAndSaveSeries(5);
+        };
+    }
 }

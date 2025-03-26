@@ -26,7 +26,7 @@ public class SeriesSummaryResponse {
         this.id = series.getId();
         this.tmdbId = series.getTmdbId();
         this.title = series.getTitle();
-        this.posterPath = series.getImageUrl();
+        this.posterPath = series.getPosterPath();
         this.averageRating = series.getAverageRating();
         this.ratingCount = series.getRatingCount();
     }

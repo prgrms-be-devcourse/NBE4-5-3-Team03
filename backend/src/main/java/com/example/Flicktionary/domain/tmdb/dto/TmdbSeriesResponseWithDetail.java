@@ -4,14 +4,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public record TmdbMovieResponseWithDetail(
+public record TmdbSeriesResponseWithDetail(
         @JsonProperty("id") Long tmdbId,
+        @JsonProperty("name")
         String title,
         String overview,
-        @JsonProperty("release_date") String releaseDate,
+        @JsonProperty("first_air_date") String releaseStartDate,
+        @JsonProperty("last_air_date") String releaseEndDate,
         String status,
         @JsonProperty("poster_path") String posterPath,
         Integer runtime,
+        @JsonProperty("number_of_episodes") Integer numberOfEpisodes,
         @JsonProperty("production_countries") List<TmdbProductionCountry> productionCountries,
         @JsonProperty("production_companies") List<TmdbProductionCompany> productionCompanies,
         List<TmdbGenre> genres,

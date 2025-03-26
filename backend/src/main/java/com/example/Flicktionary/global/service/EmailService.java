@@ -13,7 +13,7 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
 
     @Value("${custom.mail.sender}")
-    private final String emailSenderAddress;
+    private String emailSenderAddress;
 
     public void sendSimpleEmail(String to, String subject, String content) {
         SimpleMailMessage message = new SimpleMailMessage();

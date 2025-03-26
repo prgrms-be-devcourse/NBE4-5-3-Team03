@@ -20,7 +20,7 @@ public class Movie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "tmdb_id", nullable = false, unique = true)
+    @Column(unique = true)
     private Long tmdbId;
 
     @Column(nullable = false)
@@ -30,8 +30,6 @@ public class Movie {
     private String overview;
 
     private LocalDate releaseDate;
-
-    private LocalDate fetchDate;
 
     private String status;
 

@@ -61,7 +61,7 @@ class DirectorServiceTest {
                 .id(1L)
                 .tmdbId(1L)
                 .title("series")
-                .imageUrl("series.png")
+                .posterPath("series.png")
                 .releaseStartDate(LocalDate.of(2022, 1, 1))
                 .releaseEndDate(LocalDate.of(2023, 1, 1))
                 .director(director)

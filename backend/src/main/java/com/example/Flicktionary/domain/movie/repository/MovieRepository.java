@@ -8,10 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface MovieRepository extends JpaRepository<Movie, Long> {
-    Optional<Movie> findByTmdbId(long tmdbId);
-
     @Query("SELECT m FROM Movie m WHERE LOWER(REPLACE(m.title, ' ', '')) LIKE CONCAT('%', :keyword, '%')")
     Page<Movie> findByTitleLike(String keyword, Pageable pageable);
 
@@ -23,4 +22,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     Optional<Movie> findByIdWithCastsAndDirector(Long id);
 
     List<Movie> findByDirectorId(Long directorId);
+
+    @Query("SELECT m.tmdbId FROM Movie m")
+    Set<Long> findAllTmdbIds();
 }
