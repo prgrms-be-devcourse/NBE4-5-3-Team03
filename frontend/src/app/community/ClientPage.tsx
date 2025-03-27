@@ -80,22 +80,38 @@ export default function ClientPage({
             <tr>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                style={{ width: "10%" }}
+                className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                style={{
+                  width: "10%",
+                  borderRight: "1px solid #e5e7eb",
+                  borderLeft: "1px solid #e5e7eb",
+                  fontSize: "1.1rem",
+                  fontWeight: "bold",
+                }}
               >
                 유저
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                style={{ width: "70%" }}
+                className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                style={{
+                  width: "70%",
+                  borderRight: "1px solid #e5e7eb",
+                  fontSize: "1.1rem",
+                  fontWeight: "bold",
+                }}
               >
                 제목
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                style={{ width: "20%" }}
+                className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                style={{
+                  width: "15%",
+                  borderRight: "1px solid #e5e7eb",
+                  fontSize: "1.1rem",
+                  fontWeight: "bold",
+                }}
               >
                 작성일
               </th>
@@ -104,10 +120,23 @@ export default function ClientPage({
           <tbody className="bg-white divide-y divide-gray-200">
             {posts.map((post) => (
               <tr key={post.id} style={post.isSpoiler ? { opacity: 0.1 } : {}}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td
+                  className="px-6 py-3 whitespace-nowrap text-sm text-gray-500 text-center"
+                  style={{
+                    borderRight: "1px solid #e5e7eb",
+                    borderBottom: "1px solid #e5e7eb",
+                    borderLeft: "1px solid #e5e7eb",
+                  }}
+                >
                   {post.nickname || "알 수 없음"}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td
+                  className="px-6 py-3 whitespace-nowrap text-sm"
+                  style={{
+                    borderRight: "1px solid #e5e7eb",
+                    borderBottom: "1px solid #e5e7eb",
+                  }}
+                >
                   <Link
                     href={`/community/${post.id}`}
                     className="hover:underline"
@@ -115,7 +144,13 @@ export default function ClientPage({
                     {post.isSpoiler && "(스포)"} {post.title}
                   </Link>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td
+                  className="px-6 py-3 whitespace-nowrap text-sm text-gray-500"
+                  style={{
+                    borderRight: "1px solid #e5e7eb",
+                    borderBottom: "1px solid #e5e7eb",
+                  }}
+                >
                   {post.createdAt ? formatDate(post.createdAt) : "알 수 없음"}
                 </td>
               </tr>
@@ -145,6 +180,11 @@ export default function ClientPage({
           type="text"
           value={searchKeyword}
           onChange={(e) => setSearchKeyword(e.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              handleSearch();
+            }
+          }}
           placeholder="검색어를 입력하세요"
           className="border rounded px-2 py-1 mr-2"
         />
