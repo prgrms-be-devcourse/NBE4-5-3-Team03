@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,8 @@ import { components } from "@/lib/backend/apiV1/schema";
 
 export default function ClientPage({
   data,
-  keyword,
-  keywordType,
+  keyword: initialKeyword,
+  keywordType: initialKeywordType,
   page,
   pageSize,
 }: {
@@ -21,6 +21,9 @@ export default function ClientPage({
   pageSize: number;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [searchKeyword, setSearchKeyword] = useState(initialKeyword);
+  const [searchType, setSearchType] = useState(initialKeywordType || "title");
   const posts = data.items;
   const totalPages = data.totalPages;
 
@@ -38,13 +41,33 @@ export default function ClientPage({
   const isFirstGroup = startPage === 1;
   const isLastGroup = endPage >= totalPages;
 
+  // 게시글 작성 시간
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("ko-KR", {
+    const formatter = new Intl.DateTimeFormat("ko-KR", {
       year: "numeric",
-      month: "long",
+      month: "numeric",
       day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      hour12: true,
     });
+    let formattedDate = formatter.format(date);
+    // "오전 ", "오후 ", "밤 ", "새벽 " 등의 불필요한 접두사 제거
+    formattedDate = formattedDate
+      .replace("오전 ", "")
+      .replace("오후 ", "")
+      .replace("밤 ", "")
+      .replace("새벽 ", "");
+    return formattedDate;
+  };
+
+  // 검색 기능
+  const handleSearch = () => {
+    router.push(
+      `/community?page=1&pageSize=${pageSize}&keyword=${searchKeyword}&keywordType=${searchType}`
+    );
   };
 
   return (
@@ -58,18 +81,21 @@ export default function ClientPage({
               <th
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                style={{ width: "10%" }}
               >
                 유저
               </th>
               <th
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                style={{ width: "70%" }}
               >
                 제목
               </th>
               <th
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                style={{ width: "20%" }}
               >
                 작성일
               </th>
@@ -77,7 +103,7 @@ export default function ClientPage({
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {posts.map((post) => (
-              <tr key={post.id}>
+              <tr key={post.id} style={post.isSpoiler ? { opacity: 0.1 } : {}}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {post.nickname || "알 수 없음"}
                 </td>
@@ -86,7 +112,7 @@ export default function ClientPage({
                     href={`/community/${post.id}`}
                     className="hover:underline"
                   >
-                    {post.title}
+                    {post.isSpoiler && "(스포)"} {post.title}
                   </Link>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -104,12 +130,33 @@ export default function ClientPage({
         </p>
       )}
 
+      {/* 검색창 */}
+      <div className="flex justify-start items-center mt-4">
+        <select
+          value={searchType}
+          onChange={(e) => setSearchType(e.target.value)}
+          className="border rounded px-2 py-1 mr-2"
+        >
+          <option value="title">제목</option>
+          <option value="content">내용</option>
+          <option value="nickname">유저</option>
+        </select>
+        <input
+          type="text"
+          value={searchKeyword}
+          onChange={(e) => setSearchKeyword(e.target.value)}
+          placeholder="검색어를 입력하세요"
+          className="border rounded px-2 py-1 mr-2"
+        />
+        <Button onClick={handleSearch}>검색</Button>
+      </div>
+
       {/* 페이지네이션 */}
       {totalPages > 1 && (
         <div className="flex justify-center mt-8 space-x-2">
           {!isFirstGroup && (
             <Link
-              href={`/community?page=${prevPage}&pageSize=${pageSize}&keyword=${keyword}&keywordType=${keywordType}`}
+              href={`/community?page=${prevPage}&pageSize=${pageSize}&keyword=${searchKeyword}&keywordType=${searchType}`}
             >
               <Button variant="outline" className="cursor-pointer">
                 이전
@@ -123,7 +170,7 @@ export default function ClientPage({
           ).map((pageNo) => (
             <Link
               key={pageNo}
-              href={`/community?page=${pageNo}&pageSize=${pageSize}&keyword=${keyword}&keywordType=${keywordType}`}
+              href={`/community?page=${pageNo}&pageSize=${pageSize}&keyword=${searchKeyword}&keywordType=${searchType}`}
             >
               <Button
                 variant={pageNo === page ? "default" : "outline"}
@@ -140,7 +187,7 @@ export default function ClientPage({
 
           {!isLastGroup && (
             <Link
-              href={`/community?page=${nextPage}&pageSize=${pageSize}&keyword=${keyword}&keywordType=${keywordType}`}
+              href={`/community?page=${nextPage}&pageSize=${pageSize}&keyword=${searchKeyword}&keywordType=${searchType}`}
             >
               <Button variant="outline" className="cursor-pointer">
                 다음
@@ -152,7 +199,7 @@ export default function ClientPage({
       {/* 등록 버튼 */}
       <div className="fixed bottom-6 right-6">
         <Link href="/community/write">
-          <Button>등록</Button>
+          <Button>게시글 등록</Button>
         </Link>
       </div>
     </div>
