@@ -1,17 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { components } from "@/lib/backend/apiV1/schema";
+import { fetchUserProfileClient } from "@/lib/api/user";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function ClientPage({
   data,
   keyword: initialKeyword,
   keywordType: initialKeywordType,
   page,
-  pageSize,
+  pageSize: initialPageSize,
 }: {
   data: components["schemas"]["PageDtoPostResponseDto"];
   keyword: string;
@@ -25,6 +33,8 @@ export default function ClientPage({
   const [searchType, setSearchType] = useState(initialKeywordType || "title");
   const posts = data.items;
   const totalPages = data.totalPages;
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [pageSize, setPageSize] = useState(initialPageSize);
 
   // 페이지 그룹 계산 (10개씩 이동)
   const groupSize = 10;
@@ -69,9 +79,50 @@ export default function ClientPage({
     );
   };
 
+  // 페이지 크기 변경 시 첫 페이지로 이동하며 즉시 반영
+  const handlePageSizeChange = (value: string) => {
+    setPageSize(Number(value));
+    router.push(
+      `/community?page=1&pageSize=${value}&keyword=${searchKeyword}&keywordType=${searchType}`
+    );
+  };
+
+  // 로그인 상태 조회
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userData = await fetchUserProfileClient();
+      if (userData && userData.id) {
+        // 사용자 정보가 있으면 로그인 상태를 true로 설정
+        setIsLoggedIn(true);
+      } else {
+        // 사용자 정보가 없으면 로그인 상태를 false로 설정
+        setIsLoggedIn(false);
+      }
+    };
+    fetchUser();
+  }, []);
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-6 text-center">커뮤니티</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">💬 커뮤니티</h1>
+
+      {/* 페이지 크기 선택 */}
+      <div className="flex justify-end items-center mb-4">
+        <Select
+          onValueChange={handlePageSizeChange}
+          defaultValue={String(pageSize)}
+        >
+          <SelectTrigger className="w-24">
+            <SelectValue placeholder="개수" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="10">10개</SelectItem>
+            <SelectItem value="15">15개</SelectItem>
+            <SelectItem value="20">20개</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* 게시글 리스트 (테이블 형태) */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
@@ -236,11 +287,13 @@ export default function ClientPage({
         </div>
       )}
       {/* 등록 버튼 */}
-      <div className="fixed bottom-6 right-6">
-        <Link href="/community/write">
-          <Button>게시글 등록</Button>
-        </Link>
-      </div>
+      {isLoggedIn && (
+        <div className="fixed bottom-6 right-6">
+          <Link href="/community/write">
+            <Button>게시글 등록</Button>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
