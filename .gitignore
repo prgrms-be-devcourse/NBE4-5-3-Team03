@@ -37,3 +37,6 @@ out/
 .vscode/
 
 ### custom ###
+apiV1.json
+.env
+.DS_Store
