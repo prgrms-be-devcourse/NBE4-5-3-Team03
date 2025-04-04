@@ -71,6 +71,9 @@ export default function ClientLayout({
                   </div>
                 )}
               </div>
+              <Link href="/community" className="hover:text-gray-300">
+                커뮤니티
+              </Link>
             </nav>
           </div>
 

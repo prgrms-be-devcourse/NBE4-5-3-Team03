@@ -3,8 +3,6 @@ package com.example.Flicktionary.domain.post.entity;
 import com.example.Flicktionary.domain.user.entity.UserAccount;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
@@ -36,12 +34,7 @@ public class Post {
     private String content;
 
     // 게시글 생성 날짜
-    @CreatedDate
     private LocalDateTime createdAt;
-
-    // 게시글 수정 날짜
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
 
     // 게시글 스포일러 여부 토글
     @Column(columnDefinition = "boolean default false")

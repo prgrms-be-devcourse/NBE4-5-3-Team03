@@ -18,8 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -107,9 +105,6 @@ public class PostService {
         if (postDto.getIsSpoiler() != null) {
             post.setIsSpoiler(postDto.getIsSpoiler());
         }
-
-        // 수정 시간 업데이트
-        post.setUpdatedAt(LocalDateTime.now());
 
         Post updatedPost = postRepository.save(post);
 

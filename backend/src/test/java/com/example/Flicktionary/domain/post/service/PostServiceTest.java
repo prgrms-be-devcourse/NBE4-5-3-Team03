@@ -67,7 +67,6 @@ public class PostServiceTest {
             .content("테스트 내용")
             .isSpoiler(false)
             .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
             .build();
 
     // 검증용 게시글 응답 Dto
@@ -158,7 +157,6 @@ public class PostServiceTest {
                         .content("테스트용 게시글 내용1")
                         .isSpoiler(true)
                         .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
                         .build(),
                 Post.builder()
                         .id(2L)
@@ -167,7 +165,6 @@ public class PostServiceTest {
                         .content("테스트용 게시글 내용2")
                         .isSpoiler(false)
                         .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
                         .build(),
                 Post.builder()
                         .id(3L)
@@ -176,7 +173,6 @@ public class PostServiceTest {
                         .content("테스트용 게시글 내용3")
                         .isSpoiler(true)
                         .createdAt(LocalDateTime.now().minusDays(1))
-                        .updatedAt(LocalDateTime.now().minusDays(1))
                         .build(),
                 Post.builder()
                         .id(4L)
@@ -185,7 +181,6 @@ public class PostServiceTest {
                         .content("테스트용 게시글 내용4")
                         .isSpoiler(false)
                         .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
                         .build(),
                 Post.builder()
                         .id(5L)
@@ -194,7 +189,6 @@ public class PostServiceTest {
                         .content("테스트용 게시글 내용5")
                         .isSpoiler(true)
                         .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
                         .build()
         );
 
@@ -302,9 +296,8 @@ public class PostServiceTest {
                 .title("수정된 제목")
                 .content("수정된 내용")
                 .isSpoiler(false)
-                .createdAt(savedPost.getCreatedAt())
                 // LocalDateTime.now()의 정밀도로 인해 50초 더하기
-                .updatedAt(LocalDateTime.now().plusSeconds(50))
+                .createdAt(LocalDateTime.now().plusSeconds(50))
                 .build();
 
         // 저장된 게시글의 id로 특정 게시글을 찾아 기존 게시글을 반환되도록 설정
@@ -321,14 +314,12 @@ public class PostServiceTest {
         System.out.println("제목: " + testPage.getTitle());
         System.out.println("내용: " + testPage.getContent());
         System.out.println("생성 시간: " + testPage.getCreatedAt());
-        System.out.println("수정 시간: " + testPage.getUpdatedAt());
         System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + testPage.getIsSpoiler());
         System.out.println(" =================================== ");
 
         assertEquals(testPage.getTitle(), checkPost.getTitle());
         assertEquals(testPage.getContent(), checkPost.getContent());
         assertEquals(testPage.getIsSpoiler(), checkPost.getIsSpoiler());
-        assertTrue(testPage.getUpdatedAt().isAfter(savedPost.getUpdatedAt()));
 
         // PostRepository의 findById 메서드가 호출되었는지 검증
         verify(postRepository).findById(savedPost.getId());

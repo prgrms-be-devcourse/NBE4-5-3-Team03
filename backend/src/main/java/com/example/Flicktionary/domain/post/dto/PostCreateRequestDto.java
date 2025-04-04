@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Builder
@@ -21,6 +23,7 @@ public class PostCreateRequestDto {
                 .title(this.title)
                 .content(this.content)
                 .isSpoiler(this.isSpoiler)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 }
