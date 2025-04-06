@@ -107,7 +107,7 @@ class ReviewControllerTest {
             id = 123L,
             userAccountId = testUser.id,
             nickname = testUser.nickname,
-            movieId = testMovie!!.id,
+            movieId = testMovie.id,
             seriesId = null, // 영화 리뷰이므로 seriesId는 null
             rating = 5,
             content = "테스트용 리뷰 내용 (영화)"

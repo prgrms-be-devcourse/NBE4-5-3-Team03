@@ -108,7 +108,7 @@ class ReviewServiceTest {
             id = null,
             userAccountId = testUser.id,
             nickname = testUser.nickname,
-            movieId = testMovie!!.id,
+            movieId = testMovie.id,
             seriesId = null,
             rating = 5,
             content = "테스트용 리뷰 내용 (영화)",
