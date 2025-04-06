@@ -1,5 +1,8 @@
 package com.example.Flicktionary.domain.movie.service;
 
+import com.example.Flicktionary.domain.actor.repository.ActorRepository;
+import com.example.Flicktionary.domain.director.repository.DirectorRepository;
+import com.example.Flicktionary.domain.genre.repository.GenreRepository;
 import com.example.Flicktionary.domain.movie.dto.MovieResponse;
 import com.example.Flicktionary.domain.movie.dto.MovieResponseWithDetail;
 import com.example.Flicktionary.domain.movie.entity.Movie;
@@ -22,7 +25,6 @@ import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
@@ -37,6 +39,15 @@ class MovieServiceTest {
 
     @Mock
     private MovieRepository movieRepository;
+
+    @Mock
+    private GenreRepository genreRepository;
+
+    @Mock
+    private ActorRepository actorRepository;
+
+    @Mock
+    private DirectorRepository directorRepository;
 
     @Mock
     private TmdbService tmdbService;
@@ -188,7 +199,7 @@ class MovieServiceTest {
     @DisplayName("영화 상세 조회 - 성공 - 기본")
     void getMovie1() {
         given(movieRepository.findByIdWithCastsAndDirector(testMovie.getId()))
-                .willReturn(Optional.of(testMovie));
+                .willReturn(testMovie);
 
         MovieResponseWithDetail result = movieService.getMovie(testMovie.getId());
 
@@ -204,7 +215,7 @@ class MovieServiceTest {
     @DisplayName("영화 상세 조회 - 실패 - 없는 영화 조회")
     void getMovie3() {
         long id = 1000000000000000000L;
-        given(movieRepository.findByIdWithCastsAndDirector(id)).willReturn(Optional.empty());
+        given(movieRepository.findByIdWithCastsAndDirector(id)).willReturn(null);
 
         Throwable thrown = catchThrowable(() -> movieService.getMovie(id));
 
