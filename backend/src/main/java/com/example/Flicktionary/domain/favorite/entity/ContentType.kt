@@ -1,13 +1,12 @@
-package com.example.Flicktionary.domain.favorite.entity;
+package com.example.Flicktionary.domain.favorite.entity
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
-@Getter
-public enum ContentType {
+enum class ContentType(val type: String) {
     MOVIE("영화"),
     SERIES("시리즈");
 
-    private final String description;
+    private val description: String
+    get() = when (this) {
+        MOVIE -> "영화"
+        SERIES -> "시리즈"
+    }
 }
