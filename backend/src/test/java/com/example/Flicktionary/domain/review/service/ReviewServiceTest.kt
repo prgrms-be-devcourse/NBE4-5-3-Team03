@@ -59,7 +59,7 @@ class ReviewServiceTest {
         UserAccountType.USER
     )
 
-    private var testMovie: Movie? = null
+    private lateinit var testMovie: Movie
 
     private val testSeries = Series(
         id = 14L,
@@ -77,9 +77,9 @@ class ReviewServiceTest {
         productionCompany = "테스트용 제작사"
     )
 
-    private var reviewDto1: ReviewDto? = null
+    private lateinit var reviewDto1: ReviewDto
 
-    private var reviewDto2: ReviewDto? = null
+    private lateinit var reviewDto2: ReviewDto
 
     @BeforeEach
     fun initValues() {
