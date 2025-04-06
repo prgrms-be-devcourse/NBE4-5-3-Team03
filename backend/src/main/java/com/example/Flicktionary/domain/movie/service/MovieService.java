@@ -84,22 +84,20 @@ public class MovieService {
 
             for (TmdbMovieResponseWithDetail movieDto : movieDtos) {
                 if (existingMovieIds.contains(movieDto.tmdbId()) ||
-                        moviesToSave.stream().anyMatch(s -> s.getTmdbId().equals(movieDto.tmdbId()))) {
+                        moviesToSave.stream().anyMatch(s -> s.getTmdbId() == (movieDto.tmdbId()))) {
                     continue; // 이미 존재하는 영화면 스킵
                 }
 
-                Movie movie = Movie.builder()
-                        .tmdbId(movieDto.tmdbId())
-                        .title(movieDto.title())
-                        .overview(movieDto.overview())
-                        .releaseDate(movieDto.releaseDate() == null || movieDto.releaseDate().isEmpty()
-                                ? null : LocalDate.parse(movieDto.releaseDate()))
-                        .status(movieDto.status())
-                        .posterPath(movieDto.posterPath() == null ? null : BASE_IMAGE_URL + "/w342" + movieDto.posterPath())
-                        .runtime(movieDto.runtime())
-                        .productionCountry(movieDto.productionCountries().isEmpty() ? null : movieDto.productionCountries().get(0).name())
-                        .productionCompany(movieDto.productionCompanies().isEmpty() ? null : movieDto.productionCompanies().get(0).name())
-                        .build();
+                Movie movie = new Movie(movieDto.tmdbId(),
+                        movieDto.title(),
+                        movieDto.overview(),
+                        movieDto.releaseDate() == null || movieDto.releaseDate().isEmpty() ? null : LocalDate.parse(movieDto.releaseDate()),
+                        movieDto.status(),
+                        movieDto.posterPath() == null ? null : BASE_IMAGE_URL + "/w342" + movieDto.posterPath(),
+                        movieDto.runtime(),
+                        movieDto.productionCountries().isEmpty() ? null : movieDto.productionCountries().get(0).name(),
+                        movieDto.productionCompanies().isEmpty() ? null : movieDto.productionCompanies().get(0).name()
+                );
 
                 // 장르 저장 (캐싱 활용)
                 for (TmdbMovieResponseWithDetail.TmdbGenre tmdbGenre : movieDto.genres()) {
@@ -116,11 +114,7 @@ public class MovieService {
                                     .orElseGet(() -> actorRepository.save(new Actor(id, tmdbActor.name(),
                                             tmdbActor.profilePath() == null ? null : BASE_IMAGE_URL + "/w185" + tmdbActor.profilePath()))));
 
-                    MovieCast movieCast = MovieCast.builder()
-                            .movie(movie)
-                            .actor(actor)
-                            .characterName(tmdbActor.character())
-                            .build();
+                    MovieCast movieCast = new MovieCast(movie, actor, tmdbActor.character());
                     movie.getCasts().add(movieCast);
                 }
 

@@ -62,19 +62,7 @@ public class ReviewServiceTest {
             "테스트 유저",
             UserAccountType.USER);
 
-    private Movie testMovie = Movie.builder()
-            .id(13L)
-            .tmdbId(10000000000L)
-            .title("테스트용 영화 제목")
-            .overview("테스트용 영화 줄거리")
-            .releaseDate(LocalDate.of(2024, 1, 1))
-            .posterPath("테스트용 이미지")
-            .productionCountry("KR")
-            .productionCompany("테스트용 제작사")
-            .status("상영 중")
-            .averageRating(4)
-            .ratingCount(10)
-            .build();
+    private Movie testMovie;
 
     private Series testSeries = Series.builder()
             .id(14L)
@@ -92,28 +80,38 @@ public class ReviewServiceTest {
             .productionCompany("테스트용 제작사")
             .build();
 
-    private ReviewDto reviewDto1 = ReviewDto.builder()
-            .userAccountId(testUser.getId())
-            .nickname(testUser.getNickname())
-            .movieId(testMovie.getId())
-            .rating(5)
-            .content("테스트용 리뷰 내용 (영화)")
-            .build();
+    private ReviewDto reviewDto1;
 
-    private ReviewDto reviewDto2 = ReviewDto.builder()
-            .userAccountId(testUser.getId())
-            .nickname(testUser.getNickname())
-            .seriesId(testSeries.getId())
-            .rating(5)
-            .content("테스트용 리뷰 내용 (드라마)")
-            .build();
+    private ReviewDto reviewDto2;
 
     @BeforeEach
     void initValues() {
+        testMovie = new Movie(10000000000L, "테스트용 영화 제목", "테스트용 영화 줄거리",
+                LocalDate.of(2024, 1, 1), "상영 중",
+                "테스트용 이미지", 100, "KR", "테스트용 제작사");
+        testMovie.setId(13L);
         testMovie.setAverageRating(4);
         testMovie.setRatingCount(10);
+
         testSeries.setAverageRating(4.5);
         testSeries.setRatingCount(10);
+
+        reviewDto1 = ReviewDto.builder()
+                .userAccountId(testUser.getId())
+                .nickname(testUser.getNickname())
+                .movieId(testMovie.getId())
+                .rating(5)
+                .content("테스트용 리뷰 내용 (영화)")
+                .build();
+
+
+        reviewDto2 = ReviewDto.builder()
+                .userAccountId(testUser.getId())
+                .nickname(testUser.getNickname())
+                .seriesId(testSeries.getId())
+                .rating(5)
+                .content("테스트용 리뷰 내용 (드라마)")
+                .build();
     }
 
     @Test

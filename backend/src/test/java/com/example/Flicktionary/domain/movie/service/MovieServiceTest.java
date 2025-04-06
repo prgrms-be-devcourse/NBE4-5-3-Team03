@@ -7,6 +7,7 @@ import com.example.Flicktionary.domain.movie.repository.MovieRepository;
 import com.example.Flicktionary.domain.tmdb.service.TmdbService;
 import com.example.Flicktionary.global.dto.PageDto;
 import com.example.Flicktionary.global.exception.ServiceException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +44,18 @@ class MovieServiceTest {
     @InjectMocks
     private MovieService movieService;
 
+    private Movie testMovie;
+
+    @BeforeEach
+    void setUp() {
+        testMovie = new Movie(124L, "testTitle", "",
+                LocalDate.of(2022, 1, 1), "Released",
+                "movie.png", 100, "", "");
+        testMovie.setId(123L);
+        testMovie.setAverageRating(1.23);
+        testMovie.setRatingCount(12);
+    }
+
     @Test
     @DisplayName("영화 목록 조회 - 성공 - 기본")
     void getMovies1() {
@@ -52,11 +66,7 @@ class MovieServiceTest {
 
         given(movieRepository.findByTitleLike(any(String.class), captor.capture()))
                 .willReturn(new PageImpl<>(
-                        List.of(Movie.builder()
-                                .id(123L)
-                                .tmdbId(124L)
-                                .title("testTitle")
-                                .build()),
+                        List.of(testMovie),
                         PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.ASC, "id")),
                         10));
 
@@ -87,11 +97,7 @@ class MovieServiceTest {
 
         given(movieRepository.findByTitleLike(stringCaptor.capture(), pageableCaptor.capture()))
                 .willReturn(new PageImpl<>(
-                        List.of(Movie.builder()
-                                .id(123L)
-                                .tmdbId(124L)
-                                .title("testTitle")
-                                .build()),
+                        List.of(testMovie),
                         PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.ASC, "id")),
                         10));
 
@@ -120,11 +126,7 @@ class MovieServiceTest {
 
         given(movieRepository.findByTitleLike(any(String.class), captor.capture()))
                 .willReturn(new PageImpl<>(
-                        List.of(Movie.builder()
-                                .id(123L)
-                                .tmdbId(124L)
-                                .title("testTitle")
-                                .build()),
+                        List.of(testMovie),
                         PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "averageRating")),
                         10));
 
@@ -151,11 +153,7 @@ class MovieServiceTest {
 
         given(movieRepository.findByTitleLike(any(String.class), captor.capture()))
                 .willReturn(new PageImpl<>(
-                        List.of(Movie.builder()
-                                .id(123L)
-                                .tmdbId(124L)
-                                .title("testTitle")
-                                .build()),
+                        List.of(testMovie),
                         PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "ratingCount")),
                         10));
 
@@ -189,14 +187,6 @@ class MovieServiceTest {
     @Test
     @DisplayName("영화 상세 조회 - 성공 - 기본")
     void getMovie1() {
-        Movie testMovie = Movie.builder()
-                .id(123L)
-                .tmdbId(124L)
-                .title("testTitle")
-                .averageRating(1.23)
-                .ratingCount(12)
-                .status("Released")
-                .build();
         given(movieRepository.findByIdWithCastsAndDirector(testMovie.getId()))
                 .willReturn(Optional.of(testMovie));
 
