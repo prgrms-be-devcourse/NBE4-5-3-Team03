@@ -7,12 +7,10 @@ import com.example.Flicktionary.global.dto.PageDto
 import com.example.Flicktionary.global.dto.ResponseDto
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import lombok.RequiredArgsConstructor
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/movies")
 @Tag(name = "영화 API", description = "영화 API입니다.")
 class MovieController(

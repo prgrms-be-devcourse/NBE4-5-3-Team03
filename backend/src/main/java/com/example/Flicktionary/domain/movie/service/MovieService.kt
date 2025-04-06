@@ -14,7 +14,6 @@ import com.example.Flicktionary.domain.movie.repository.MovieRepository
 import com.example.Flicktionary.domain.tmdb.service.TmdbService
 import com.example.Flicktionary.global.dto.PageDto
 import com.example.Flicktionary.global.exception.ServiceException
-import lombok.RequiredArgsConstructor
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -26,7 +25,6 @@ import java.time.LocalDate
 import java.util.*
 
 @Service
-@RequiredArgsConstructor
 class MovieService(
     private val movieRepository: MovieRepository,
     private val tmdbService: TmdbService,
