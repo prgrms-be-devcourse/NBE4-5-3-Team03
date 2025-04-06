@@ -59,19 +59,7 @@ class ReviewServiceTest {
         UserAccountType.USER
     )
 
-    private val testMovie = Movie(
-        id = 13L,
-        tmdbId = 10000000000L,
-        title = "테스트용 영화 제목",
-        overview = "테스트용 영화 줄거리",
-        releaseDate = LocalDate.of(2024, 1, 1),
-        posterPath = "테스트용 이미지",
-        productionCountry = "KR",
-        productionCompany = "테스트용 제작사",
-        status = "상영 중",
-        averageRating = 4.0,
-        ratingCount = 10
-    )
+    private var testMovie: Movie? = null
 
     private val testSeries = Series(
         id = 14L,
@@ -89,30 +77,52 @@ class ReviewServiceTest {
         productionCompany = "테스트용 제작사"
     )
 
-    private val reviewDto1 = ReviewDto(
-        userAccountId = testUser.id,
-        nickname = testUser.nickname,
-        movieId = testMovie.id,
-        seriesId = null,
-        rating = 5,
-        content = "테스트용 리뷰 내용 (영화)"
-    )
+    private var reviewDto1: ReviewDto? = null
 
-    private val reviewDto2 = ReviewDto(
-        userAccountId = testUser.id,
-        nickname = testUser.nickname,
-        movieId = null,
-        seriesId = testSeries.id,
-        rating = 5,
-        content = "테스트용 리뷰 내용 (드라마)"
-    )
+    private var reviewDto2: ReviewDto? = null
 
     @BeforeEach
     fun initValues() {
-        testMovie.averageRating = 4.0
-        testMovie.ratingCount = 10
-        testSeries.averageRating = 4.5
-        testSeries.ratingCount = 10
+        testMovie = Movie(
+            tmdbId = 10000000000L,
+            title = "테스트용 영화 제목",
+            overview = "테스트용 영화 줄거리",
+            releaseDate = LocalDate.of(2024, 1, 1),
+            status = "상영 중",
+            posterPath = "테스트용 이미지",
+            runtime = 100,
+            productionCountry = "KR",
+            productionCompany = "테스트용 제작사"
+        ).apply {
+            id = 13L
+            averageRating = 4.0
+            ratingCount = 10
+        }
+
+        testSeries.apply {
+            averageRating = 4.5
+            ratingCount = 10
+        }
+
+        reviewDto1 = ReviewDto(
+            id = null,
+            userAccountId = testUser.id,
+            nickname = testUser.nickname,
+            movieId = testMovie!!.id,
+            seriesId = null,
+            rating = 5,
+            content = "테스트용 리뷰 내용 (영화)",
+        )
+
+        reviewDto2 = ReviewDto(
+            id = null,
+            userAccountId = testUser.id,
+            nickname = testUser.nickname,
+            movieId = null,
+            seriesId = testSeries.id,
+            rating = 5,
+            content = "테스트용 리뷰 내용 (드라마)",
+        )
     }
 
     @Test

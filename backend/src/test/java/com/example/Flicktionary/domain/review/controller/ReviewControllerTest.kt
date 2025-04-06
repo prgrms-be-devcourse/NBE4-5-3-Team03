@@ -12,6 +12,7 @@ import com.example.Flicktionary.global.dto.PageDto
 import com.example.Flicktionary.global.security.CustomUserDetailsService
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
@@ -63,18 +64,7 @@ class ReviewControllerTest {
         10000L, "테스트용 유저", "test12345", "test@email.com", "테스트 유저", UserAccountType.USER
     )
 
-    private val testMovie = Movie(
-        id = 123L,
-        tmdbId = 10000000000L,
-        title = "테스트용 영화 제목",
-        overview = "테스트용 영화 줄거리",
-        releaseDate = LocalDate.of(2024, 1, 1),
-        posterPath = "테스트용 이미지",
-        productionCountry = "KR",
-        productionCompany = "테스트용 제작사",
-        status = "상영 중",
-        averageRating = 4.0
-    )
+    private var testMovie: Movie? = null
 
     private val testSeries = Series(
         id = 321L,
@@ -92,23 +82,47 @@ class ReviewControllerTest {
         productionCompany = "테스트용 제작사"
     )
 
-    private val reviewDto1 = ReviewDto(
-        id = 123L,
-        userAccountId = testUser.id,
-        nickname = testUser.nickname,
-        movieId = testMovie.id,
-        rating = 5,
-        content = "테스트용 리뷰 내용 (영화)"
-    )
+    private var reviewDto1: ReviewDto? = null
 
-    private val reviewDto2 = ReviewDto(
-        id = 321L,
-        userAccountId = testUser.id,
-        nickname = testUser.nickname,
-        seriesId = testSeries.id,
-        rating = 5,
-        content = "테스트용 리뷰 내용 (드라마)"
-    )
+    private var reviewDto2: ReviewDto? = null
+
+    @BeforeEach
+    fun setUp() {
+        testMovie = Movie(
+            tmdbId = 10000000000L,
+            title = "테스트용 영화 제목",
+            overview = "테스트용 영화 줄거리",
+            releaseDate = LocalDate.of(2024, 1, 1),
+            status = "상영 중",
+            posterPath = "테스트용 이미지",
+            runtime = 100,
+            productionCountry = "KR",
+            productionCompany = "테스트용 제작사"
+        ).apply {
+            id = 123L
+            averageRating = 4.0
+        }
+
+        reviewDto1 = ReviewDto(
+            id = 123L,
+            userAccountId = testUser.id,
+            nickname = testUser.nickname,
+            movieId = testMovie!!.id,
+            seriesId = null, // 영화 리뷰이므로 seriesId는 null
+            rating = 5,
+            content = "테스트용 리뷰 내용 (영화)"
+        )
+
+        reviewDto2 = ReviewDto(
+            id = 321L,
+            userAccountId = testUser.id,
+            nickname = testUser.nickname,
+            movieId = null, // 드라마 리뷰이므로 movieId는 null
+            seriesId = testSeries.id,
+            rating = 5,
+            content = "테스트용 리뷰 내용 (드라마)"
+        )
+    }
 
     @Test
     @DisplayName("리뷰 생성")
