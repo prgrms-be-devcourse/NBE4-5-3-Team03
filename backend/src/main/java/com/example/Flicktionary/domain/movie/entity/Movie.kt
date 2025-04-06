@@ -12,7 +12,7 @@ class Movie(
     @Column(nullable = false)
     val title: String,
     @Column(columnDefinition = "TEXT")
-    val overview: String = "",
+    val overview: String,
     val releaseDate: LocalDate?,
     val status: String,
     val posterPath: String?,

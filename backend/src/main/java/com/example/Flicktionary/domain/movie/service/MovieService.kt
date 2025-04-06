@@ -99,7 +99,7 @@ class MovieService(
                         movieDto.releaseDate
                     ),
                     movieDto.status,
-                    if (movieDto.posterPath == null) null else BASE_IMAGE_URL + "/w342" + movieDto.posterPath,
+                    movieDto.posterPath?.let { "$BASE_IMAGE_URL/w185$it" },
                     movieDto.runtime,
                     if (movieDto.productionCountries.isEmpty()) null else movieDto.productionCountries[0].name,
                     if (movieDto.productionCompanies.isEmpty()) null else movieDto.productionCompanies[0].name
