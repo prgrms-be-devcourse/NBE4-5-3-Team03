@@ -7,7 +7,7 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "review")
-data class Review(
+class Review(
     // 리뷰 id (기본키)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
