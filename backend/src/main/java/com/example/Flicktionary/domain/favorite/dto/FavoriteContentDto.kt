@@ -1,36 +1,32 @@
-package com.example.Flicktionary.domain.favorite.dto;
+package com.example.Flicktionary.domain.favorite.dto
 
-import com.example.Flicktionary.domain.movie.entity.Movie;
-import com.example.Flicktionary.domain.series.entity.Series;
-import lombok.*;
+import com.example.Flicktionary.domain.movie.entity.Movie
+import com.example.Flicktionary.domain.series.entity.Series
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class FavoriteContentDto {
-    private String title;
-    private String imageUrl;
-    private double averageRating;
-    private int ratingCount;
+data class FavoriteContentDto(
+    val title: String,
+    val imageUrl: String,
+    val averageRating: Double,
+    val ratingCount: Int
+) {
 
-    public static FavoriteContentDto fromMovie(Movie movie) {
-        return FavoriteContentDto.builder()
-                .title(movie.getTitle())
-                .imageUrl(movie.getPosterPath())
-                .averageRating(movie.getAverageRating())
-                .ratingCount(movie.getRatingCount())
-                .build();
+    companion object {
+        fun fromMovie(movie: Movie): FavoriteContentDto {
+            return FavoriteContentDto(
+                title = movie.title,
+                imageUrl = movie.posterPath,
+                averageRating = movie.averageRating,
+                ratingCount = movie.ratingCount
+            )
+        }
+
+        fun fromSeries(series: Series): FavoriteContentDto {
+            return FavoriteContentDto(
+                title = series.title,
+                imageUrl = series.posterPath,
+                averageRating = series.averageRating,
+                ratingCount = series.ratingCount
+            )
+        }
     }
-
-    public static FavoriteContentDto fromSeries(Series series) {
-        return FavoriteContentDto.builder()
-                .title(series.getTitle())
-                .imageUrl(series.getPosterPath())
-                .averageRating(series.getAverageRating())
-                .ratingCount(series.getRatingCount())
-                .build();
-    }
-
 }
