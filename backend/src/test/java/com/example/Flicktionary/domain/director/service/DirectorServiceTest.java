@@ -49,14 +49,13 @@ class DirectorServiceTest {
     @BeforeEach
     void setUp() {
         director = new Director(1L, "director", "director.png");
-        movie = Movie.builder()
-                .id(1L)
-                .tmdbId(1L)
-                .title("movie")
-                .posterPath("movie.png")
-                .releaseDate(LocalDate.of(2022, 1, 1))
-                .director(director)
-                .build();
+
+        movie = new Movie(1L, "movie", "",
+                LocalDate.of(2022, 1, 1), "",
+                "movie.png", 100, "", "");
+        movie.setId(1L);
+        movie.setDirector(director);
+
         series = Series.builder()
                 .id(1L)
                 .tmdbId(1L)

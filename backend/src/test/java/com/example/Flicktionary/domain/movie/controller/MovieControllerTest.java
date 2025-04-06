@@ -9,6 +9,7 @@ import com.example.Flicktionary.domain.user.service.UserAccountService;
 import com.example.Flicktionary.global.dto.PageDto;
 import com.example.Flicktionary.global.exception.ServiceException;
 import com.example.Flicktionary.global.security.CustomUserDetailsService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -25,6 +26,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -56,21 +58,26 @@ class MovieControllerTest {
     @MockitoBean
     private UserAccountJwtAuthenticationService userAccountJwtAuthenticationService;
 
-    private Movie testMovie1 = Movie.builder()
-            .id(123L)
-            .tmdbId(321L)
-            .title("testTitle1")
-            .averageRating(1.23)
-            .ratingCount(123)
-            .build();
+    private Movie testMovie1;
 
-    private Movie testMovie2 = Movie.builder()
-            .id(456L)
-            .tmdbId(654L)
-            .title("testTitle2")
-            .averageRating(4.56)
-            .ratingCount(456)
-            .build();
+    private Movie testMovie2;
+
+    @BeforeEach
+    void setUp() {
+        testMovie1 = new Movie(321L, "testTitle1", "",
+                LocalDate.of(2022, 1, 1), "",
+                "movie.png", 100, "", "");
+        testMovie1.setId(123L);
+        testMovie1.setAverageRating(1.23);
+        testMovie1.setRatingCount(123);
+
+        testMovie2 = new Movie(654L, "testTitle2", "",
+                LocalDate.of(2022, 1, 1), "",
+                "movie.png", 100, "", "");
+        testMovie2.setId(456L);
+        testMovie2.setAverageRating(4.56);
+        testMovie2.setRatingCount(456);
+    }
 
     @Test
     @DisplayName("영화 목록 조회 - 성공")
