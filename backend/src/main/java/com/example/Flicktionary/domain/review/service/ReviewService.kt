@@ -135,11 +135,11 @@ class ReviewService (
         }
 
         // 리뷰의 내용 수정
-        if (reviewDto.content.isNullOrBlank()) {
+        if (!reviewDto.content.isNullOrBlank()) {
             review.content = reviewDto.content
         }
 
-        return ReviewDto.fromEntity(review)
+        return ReviewDto.fromEntity(reviewRepository.save(review))
     }
 
     // 리뷰 삭제

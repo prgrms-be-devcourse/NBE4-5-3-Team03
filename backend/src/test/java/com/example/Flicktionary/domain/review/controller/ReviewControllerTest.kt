@@ -16,11 +16,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.BDDMockito.given
 import org.mockito.BDDMockito.then
 import org.mockito.Mockito.doNothing
+import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -130,7 +130,7 @@ class ReviewControllerTest {
     @Test
     @DisplayName("리뷰 생성")
     fun createReview() {
-        given(reviewService.createReview(any())).willReturn(reviewDto1)
+        given(reviewService.createReview(reviewDto1)).willReturn(reviewDto1)
 
         // mockMvc로 post 요청 후 Content-Type 설정과 요청 본문 설정
         mockMvc.perform(
@@ -144,7 +144,7 @@ class ReviewControllerTest {
                     .value("테스트용 리뷰 내용 (영화)")
             )
 
-        then(reviewService).should().createReview(any())
+        verify(reviewService).createReview(reviewDto1)
     }
 
     @Test
@@ -198,9 +198,6 @@ class ReviewControllerTest {
     @Test
     @DisplayName("리뷰 수정")
     fun updateReview() {
-        val longCaptor = ArgumentCaptor.forClass(Long::class.java)
-        val reviewDtoCaptor = ArgumentCaptor.forClass(ReviewDto::class.java)
-
         // 수정할 리뷰 데이터 생성
         val modifyReview = ReviewDto(
             id = reviewDto1.id,
@@ -211,12 +208,12 @@ class ReviewControllerTest {
             rating = 4,
             content = "수정된 테스트용 리뷰"
         )
-        given(reviewService.updateReview(longCaptor.capture(), reviewDtoCaptor.capture()))
+        given(reviewService.updateReview(reviewDto1.id!!, modifyReview))
             .willReturn(modifyReview)
 
         // mockMvc로 put 요청 후 검증
         mockMvc.perform(
-            put("/api/reviews/" + reviewDto1.id)
+            put("/api/reviews/${reviewDto1.id}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(modifyReview))
         )
@@ -226,17 +223,9 @@ class ReviewControllerTest {
                     .value("수정된 테스트용 리뷰")
             )
             .andExpect(jsonPath("$.data.rating").value(4))
-        val captured = reviewDtoCaptor.value
 
-        Assertions.assertEquals(reviewDto1.id, longCaptor.value)
-        Assertions.assertEquals(modifyReview.id, captured.id)
-        Assertions.assertEquals(modifyReview.content, captured.content)
-        Assertions.assertEquals(modifyReview.rating, captured.rating)
-        then(reviewService).should().updateReview(
-            any(Long::class.java), any(
-                ReviewDto::class.java
-            )
-        )
+        // 호출되었는지 검증
+        verify(reviewService).updateReview(reviewDto1.id!!, modifyReview)
     }
 
     @Test
@@ -257,15 +246,9 @@ class ReviewControllerTest {
     @Test
     @DisplayName("특정 영화 리뷰 페이지 조회")
     fun getReviewsMovies() {
-        val longCaptor = ArgumentCaptor.forClass(Long::class.java)
-        val integerCaptor = ArgumentCaptor.forClass(Int::class.java)
-        given(
-            reviewService.reviewMovieDtoPage(
-                longCaptor.capture(),
-                ArgumentMatchers.anyInt(),
-                ArgumentMatchers.anyInt()
-            )
-        )
+        val movieId = requireNotNull(reviewDto1.movieId)
+
+        given(reviewService.reviewMovieDtoPage(movieId, 0, 5))
             .willReturn(
                 PageDto(
                     items = listOf(reviewDto1),
@@ -279,7 +262,7 @@ class ReviewControllerTest {
 
         // mockMvc로 get 요청 후 검증
         mockMvc.perform(
-            get("/api/reviews/movies/" + reviewDto1.movieId)
+            get("/api/reviews/movies/${reviewDto1.movieId}")
                 .param("page", "0")
                 .param("size", "5")
         )
@@ -288,18 +271,9 @@ class ReviewControllerTest {
                 jsonPath("$.data.items[0].content")
                     .value("테스트용 리뷰 내용 (영화)")
             )
-        val longValue = longCaptor.value
-        val integerValues = integerCaptor.allValues
 
-        Assertions.assertEquals(reviewDto1.movieId, longValue)
-        Assertions.assertEquals(0, integerValues[0])
-        Assertions.assertEquals(5, integerValues[1])
-        then(reviewService).should()
-            .reviewMovieDtoPage(
-                any(Long::class.java), any(Int::class.java), any(
-                    Int::class.java
-                )
-            )
+        // 호출되었는지 검증
+        verify(reviewService).reviewMovieDtoPage(movieId, 0, 5)
     }
 
     @Test

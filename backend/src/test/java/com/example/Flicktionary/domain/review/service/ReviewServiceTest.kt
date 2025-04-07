@@ -101,7 +101,7 @@ class ReviewServiceTest {
         }
 
         reviewDto1 = ReviewDto(
-            id = null,
+            id = 123L,
             userAccountId = testUser.id,
             nickname = testUser.nickname,
             movieId = testMovie.id,
@@ -111,7 +111,7 @@ class ReviewServiceTest {
         )
 
         reviewDto2 = ReviewDto(
-            id = null,
+            id = 321L,
             userAccountId = testUser.id,
             nickname = testUser.nickname,
             movieId = null,
@@ -213,10 +213,10 @@ class ReviewServiceTest {
 
         // 리뷰 생성 및 변수에 저장
         val review = reviewService.createReview(reviewDto1)
-
         val newRatingCount = ratingCount + 1
         val newAverageRating = (averageRating * ratingCount + review.rating) / newRatingCount
 
+        /** 검증 /// */
         assertThat(testMovie.ratingCount).isEqualTo(newRatingCount)
         assertThat(testMovie.averageRating).isEqualTo(newAverageRating)
         then(userAccountRepository).should().findById(reviewDto1.userAccountId!!)
@@ -236,7 +236,6 @@ class ReviewServiceTest {
 
         // 리뷰 생성 및 변수에 저장
         val review = reviewService.createReview(reviewDto2)
-
         val newRatingCount = ratingCount + 1
         val newAverageRating = (averageRating * ratingCount + review.rating) / newRatingCount
 
@@ -287,20 +286,25 @@ class ReviewServiceTest {
     @Test
     @DisplayName("특정 영화의 리뷰 조회")
     fun printReviewByMovie() {
+        val movieId = reviewDto1.movieId!!
+        val page = 0
+        val size = 5
+        val pageable: Pageable = PageRequest.of(page, size)
+
         given(
-            reviewRepository.findByMovie_IdOrderByIdDesc(any(), any())
+            reviewRepository.findByMovie_IdOrderByIdDesc(movieId, pageable)
         )
             .willReturn(
                 PageImpl(
                     listOf(reviewDto1.toEntity(testUser, testMovie, null)),
-                    PageRequest.of(0, 5),
+                    pageable,
                     1L
                 )
             )
 
         // 영화 id로 영화를 찾아 리뷰들을 PageDto 변수에 저장
         val reviewDtoPageDto: PageDto<ReviewDto> = reviewService.reviewMovieDtoPage(
-            reviewDto1.movieId!!, 0, 5
+            movieId, page, size
         )
 
         /** 검증 /// */
@@ -311,16 +315,21 @@ class ReviewServiceTest {
         assertEquals(1, reviewDtoPageDto.curPageNo)
         assertEquals(5, reviewDtoPageDto.pageSize)
         then(reviewRepository).should().findByMovie_IdOrderByIdDesc(
-            any(), any()
+            movieId, pageable
         )
     }
 
     @Test
     @DisplayName("특정 드라마의 리뷰 조회")
     fun printReviewBySeries() {
+        val seriesId = reviewDto2.seriesId!!
+        val page = 0
+        val size = 5
+        val pageable: Pageable = PageRequest.of(page, size)
+
         given(
             reviewRepository.findBySeries_IdOrderByIdDesc(
-                any(), any()
+                seriesId, pageable
             )
         )
             .willReturn(
@@ -333,7 +342,7 @@ class ReviewServiceTest {
 
         // 영화 id로 영화를 찾아 리뷰들을 PageDto 변수에 저장
         val reviewDtoPageDto: PageDto<ReviewDto> = reviewService.reviewSeriesDtoPage(
-            reviewDto2.seriesId!!, 0, 5
+            seriesId, page, size
         )
 
         /** 검증 /// */
@@ -344,15 +353,16 @@ class ReviewServiceTest {
         assertEquals(1, reviewDtoPageDto.curPageNo)
         assertEquals(5, reviewDtoPageDto.pageSize)
         then(reviewRepository).should().findBySeries_IdOrderByIdDesc(
-            any(), any()
+            seriesId, pageable
         )
     }
 
     @DisplayName("리뷰 수정")
     @Test
     fun updateReview() {
+        val originalReview = reviewDto1.toEntity(testUser, testMovie, null)
         given(reviewRepository.findById(reviewDto1.id!!))
-            .willReturn(Optional.of(reviewDto1.toEntity(testUser, testMovie, null)))
+            .willReturn(Optional.of(originalReview))
 
         // 수정할 리뷰 내용 변수에 저장
         val updatedReviewDto = ReviewDto(
@@ -365,6 +375,17 @@ class ReviewServiceTest {
             content = "(테스트)수정된 리뷰 내용"
         )
 
+        // 수정된 엔티티 생성
+        val updatedReviewEntity = Review(
+            id = originalReview.id,
+            userAccount = originalReview.userAccount,
+            movie = originalReview.movie,
+            series = originalReview.series,
+            rating = updatedReviewDto.rating,
+            content = updatedReviewDto.content
+        )
+        given(reviewRepository.save(any(Review::class.java))).willReturn(updatedReviewEntity)
+
         // 수정
         val result = reviewService.updateReview(reviewDto1.id!!, updatedReviewDto)
 
@@ -373,6 +394,7 @@ class ReviewServiceTest {
         assertEquals(4, result.rating)
         assertEquals("(테스트)수정된 리뷰 내용", result.content)
         then(reviewRepository).should().findById(reviewDto1.id!!)
+        then(reviewRepository).should().save(any(Review::class.java))
     }
 
     @Test
@@ -380,6 +402,7 @@ class ReviewServiceTest {
     fun updateReviewUpdateMovie() {
         val ratingCount = testMovie.ratingCount
         val averageRating = testMovie.averageRating
+
         // 수정할 리뷰 내용 변수에 저장
         val updatedReviewDto = ReviewDto(
             id = reviewDto1.id,
@@ -393,14 +416,18 @@ class ReviewServiceTest {
         given(reviewRepository.findById(reviewDto1.id!!))
             .willReturn(Optional.of(updatedReviewDto.toEntity(testUser, testMovie, null)))
 
+        given(reviewRepository.save(any(Review::class.java)))
+            .willReturn(updatedReviewDto.toEntity(testUser, testMovie, null))
+
         // 수정
         val review = reviewService.updateReview(reviewDto1.id!!, updatedReviewDto)
-
         val newAverageRating = (averageRating * ratingCount - updatedReviewDto.rating + review.rating) / ratingCount
 
+        /** 검증 /// */
         assertThat(testMovie.ratingCount).isEqualTo(ratingCount)
         assertThat(testMovie.averageRating).isEqualTo(newAverageRating)
         then(reviewRepository).should().findById(reviewDto1.id!!)
+        then(reviewRepository).should().save(any(Review::class.java))
     }
 
     @Test
@@ -408,6 +435,7 @@ class ReviewServiceTest {
     fun updateReviewUpdateSeries() {
         val ratingCount = testSeries.ratingCount
         val averageRating = testSeries.averageRating
+
         // 수정할 리뷰 내용 변수에 저장
         val updatedReviewDto = ReviewDto(
             id = reviewDto2.id,
@@ -421,14 +449,18 @@ class ReviewServiceTest {
         given(reviewRepository.findById(reviewDto2.id!!))
             .willReturn(Optional.of(updatedReviewDto.toEntity(testUser, null, testSeries)))
 
+        given(reviewRepository.save(any(Review::class.java)))
+            .willReturn(updatedReviewDto.toEntity(testUser, null, testSeries))
+
         // 수정
         val review = reviewService.updateReview(reviewDto2.id!!, updatedReviewDto)
-
         val newAverageRating = (averageRating * ratingCount - updatedReviewDto.rating + review.rating) / ratingCount
 
+        /** 검증 **/
         assertThat(testSeries.ratingCount).isEqualTo(ratingCount)
         assertThat(testSeries.averageRating).isEqualTo(newAverageRating)
         then(reviewRepository).should().findById(reviewDto2.id!!)
+        then(reviewRepository).should().save(any(Review::class.java))
     }
 
     @DisplayName("존재하지 않는 리뷰 수정")
@@ -451,7 +483,7 @@ class ReviewServiceTest {
     fun deleteReview() {
         given(reviewRepository.findById(reviewDto1.id!!))
             .willReturn(Optional.of(reviewDto1.toEntity(testUser, testMovie, null)))
-        doNothing().`when`(reviewRepository).deleteById(any())
+        doNothing().`when`(reviewRepository).delete(any())
 
         // 리뷰 삭제
         reviewService.deleteReview(reviewDto1.id!!)
@@ -476,6 +508,7 @@ class ReviewServiceTest {
         val newRatingCount = ratingCount - 1
         val newAverageRating = (averageRating * ratingCount - reviewDto1.rating) / newRatingCount
 
+        /** 검증 /// */
         assertThat(testMovie.ratingCount).isEqualTo(newRatingCount)
         assertThat(testMovie.averageRating).isEqualTo(newAverageRating)
         then(reviewRepository).should().findById(reviewDto1.id!!)
@@ -497,6 +530,7 @@ class ReviewServiceTest {
         val newRatingCount = ratingCount - 1
         val newAverageRating = (averageRating * ratingCount - reviewDto2.rating) / newRatingCount
 
+        /** 검증 /// */
         assertThat(testSeries.ratingCount).isEqualTo(newRatingCount)
         assertThat(testSeries.averageRating).isEqualTo(newAverageRating)
         then(reviewRepository).should().findById(reviewDto2.id!!)
