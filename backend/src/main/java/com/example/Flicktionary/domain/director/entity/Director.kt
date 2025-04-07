@@ -1,39 +1,30 @@
-package com.example.Flicktionary.domain.director.entity;
+package com.example.Flicktionary.domain.director.entity
 
-import com.example.Flicktionary.domain.movie.entity.Movie;
-import com.example.Flicktionary.domain.series.entity.Series;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.example.Flicktionary.domain.movie.entity.Movie
+import com.example.Flicktionary.domain.series.entity.Series
+import jakarta.persistence.*
 
 @Entity
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class Director {
+class Director(
     @Id
-    private Long id;
+    val id: Long,
 
     @Column(nullable = false)
-    private String name;
+    val name: String,
 
-    private String profilePath;
+    val profilePath: String? = null,
 
-    @OneToMany(mappedBy = "director", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    private List<Movie> movies = new ArrayList<>();
+    @OneToMany(mappedBy = "director", fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
+    val movies: MutableList<Movie> = mutableListOf(),
 
-    @OneToMany(mappedBy = "director", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    private List<Series> series = new ArrayList<>();
-
-    public Director(Long id, String name, String profilePath) {
-        this.id = id;
-        this.name = name;
-        this.profilePath = profilePath;
-    }
+    @OneToMany(mappedBy = "director", fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
+    val series: MutableList<Series> = mutableListOf()
+) {
+    constructor(id: Long, name: String, profilePath: String) : this(
+        id = id,
+        name = name,
+        profilePath = profilePath,
+        movies = mutableListOf(),
+        series = mutableListOf()
+    )
 }
