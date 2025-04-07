@@ -129,7 +129,7 @@ class FavoriteService(
                     HttpStatus.NOT_FOUND.value(),
                     "${id}번 즐겨찾기 정보를 찾을 수 없습니다."
                 )
-            }!!
+            }
 
         favoriteRepository.delete(favorite)
     }
