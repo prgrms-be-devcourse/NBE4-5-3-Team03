@@ -15,9 +15,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class ActorService(
-    val actorRepository: ActorRepository,
-    val movieCastRepository: MovieCastRepository,
-    val seriesCastRepository: SeriesCastRepository
+    private val actorRepository: ActorRepository,
+    private val movieCastRepository: MovieCastRepository,
+    private val seriesCastRepository: SeriesCastRepository
 ) {
     // 특정 배우 조회 (출연 영화 포함)
     fun getActorById(id: Long): Actor {
@@ -50,6 +50,6 @@ class ActorService(
     fun getActors(keyword: String, page: Int, pageSize: Int): Page<Actor> {
         val pageable: Pageable = PageRequest.of(page - 1, pageSize)
         val formattedKeyword = keyword.lowercase().replace(" ", "")
-        return actorRepository.findByNameLike(keyword, pageable)
+        return actorRepository.findByNameLike(formattedKeyword, pageable)
     }
 }
