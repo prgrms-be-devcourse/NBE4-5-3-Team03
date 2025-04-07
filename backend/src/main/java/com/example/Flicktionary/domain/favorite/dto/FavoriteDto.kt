@@ -13,7 +13,6 @@ data class FavoriteDto(
 ) {
     companion object {
         // Entity → DTO
-        @JvmStatic
         fun fromEntity(favorite: Favorite): FavoriteDto {
             val contentData: Any? = when (favorite.contentType) {
                 ContentType.MOVIE -> favorite.movie?.let { FavoriteContentDto.fromMovie(it) }
