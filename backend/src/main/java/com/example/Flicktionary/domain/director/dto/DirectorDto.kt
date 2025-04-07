@@ -1,22 +1,15 @@
-package com.example.Flicktionary.domain.director.dto;
+package com.example.Flicktionary.domain.director.dto
 
-import com.example.Flicktionary.domain.director.entity.Director;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import org.springframework.lang.NonNull;
+import com.example.Flicktionary.domain.director.entity.Director
 
-@AllArgsConstructor
-@Getter
-public class DirectorDto {
-    @NonNull
-    private final Long id;
-    @NonNull
-    private final String name;
-    private final String profilePath;
-
-    public DirectorDto(Director director) {
-        this(director.getId(),
-                director.getName(),
-                (director.getProfilePath() == null ? null : "https://image.tmdb.org/t/p/w" + director.getProfilePath()));
-    }
+data class DirectorDto(
+    val id: Long,
+    val name: String,
+    val profilePath: String?
+) {
+    constructor(director: Director) : this(
+        director.id,
+        director.name,
+        profilePath = director.profilePath?.let { "https://image.tmdb.org/t/p/w$it" }
+    )
 }
