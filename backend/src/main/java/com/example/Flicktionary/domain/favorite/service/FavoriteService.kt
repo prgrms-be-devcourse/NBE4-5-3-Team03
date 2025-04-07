@@ -1,114 +1,136 @@
-package com.example.Flicktionary.domain.favorite.service;
+package com.example.Flicktionary.domain.favorite.service
 
-import com.example.Flicktionary.domain.favorite.dto.FavoriteContentDto;
-import com.example.Flicktionary.domain.favorite.dto.FavoriteDto;
-import com.example.Flicktionary.domain.favorite.entity.Favorite;
-import com.example.Flicktionary.domain.favorite.repository.FavoriteRepository;
-import com.example.Flicktionary.domain.movie.repository.MovieRepository;
-import com.example.Flicktionary.domain.series.repository.SeriesRepository;
-import com.example.Flicktionary.domain.user.entity.UserAccount;
-import com.example.Flicktionary.domain.user.repository.UserAccountRepository;
-import com.example.Flicktionary.global.dto.PageDto;
-import com.example.Flicktionary.global.exception.ServiceException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Comparator;
-import java.util.List;
+import com.example.Flicktionary.domain.favorite.dto.FavoriteContentDto
+import com.example.Flicktionary.domain.favorite.dto.FavoriteDto
+import com.example.Flicktionary.domain.favorite.dto.FavoriteDto.Companion.fromEntity
+import com.example.Flicktionary.domain.favorite.entity.ContentType
+import com.example.Flicktionary.domain.favorite.repository.FavoriteRepository
+import com.example.Flicktionary.domain.movie.repository.MovieRepository
+import com.example.Flicktionary.domain.series.repository.SeriesRepository
+import com.example.Flicktionary.domain.user.repository.UserAccountRepository
+import com.example.Flicktionary.global.dto.PageDto
+import com.example.Flicktionary.global.exception.ServiceException
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
-@RequiredArgsConstructor
-public class FavoriteService {
-    private final FavoriteRepository favoriteRepository;
-    private final UserAccountRepository userAccountRepository;
-    private final MovieRepository movieRepository;
-    private final SeriesRepository seriesRepository;
+class FavoriteService(
+    private val favoriteRepository: FavoriteRepository,
+    private val userAccountRepository: UserAccountRepository,
+    private val movieRepository: MovieRepository,
+    private val seriesRepository: SeriesRepository
+) {
+
 
     @Transactional
-    public FavoriteDto createFavorite(FavoriteDto favoriteDto) {
-        UserAccount user = userAccountRepository.findById(favoriteDto.getUserId())
-                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND.value(), "%d번 유저를 찾을 수 없습니다.".formatted(favoriteDto.getUserId())));
+    fun createFavorite(favoriteDto: FavoriteDto): FavoriteDto {
+        val user = userAccountRepository.findById(favoriteDto.userId)
+            .orElseThrow {
+                ServiceException(
+                    HttpStatus.NOT_FOUND.value(),
+                    "${favoriteDto.userId}번 유저를 찾을 수 없습니다."
+                )
+            }
 
         // 즐겨찾기 목록에 존재하는지 확인
-        boolean exists = favoriteRepository.existsByUserAccountIdAndContentTypeAndContentId(
-                favoriteDto.getUserId(),
-                favoriteDto.getContentType(),
-                favoriteDto.getContentId()
-        );
+        val exists = favoriteRepository.existsByUserAccountIdAndContentTypeAndContentId(
+            favoriteDto.userId,
+            favoriteDto.contentType,
+            favoriteDto.contentId
+        )
 
         if (exists) {
-            throw new ServiceException(HttpStatus.CONFLICT.value(), "이미 즐겨찾기에 추가된 항목입니다.");
+            throw ServiceException(HttpStatus.CONFLICT.value(), "이미 즐겨찾기에 추가된 항목입니다.")
         }
 
         // contentType에 따라 contentId 검증
-        boolean contentExists = false;
-
-        if ("MOVIE".equalsIgnoreCase(String.valueOf(favoriteDto.getContentType()))) {
-            contentExists = movieRepository.existsById(favoriteDto.getContentId());
-        } else if ("SERIES".equalsIgnoreCase(String.valueOf(favoriteDto.getContentType()))) {
-            contentExists = seriesRepository.existsById(favoriteDto.getContentId());
+        val contentExists = when (favoriteDto.contentType) {
+            ContentType.MOVIE -> movieRepository.existsById(favoriteDto.contentId)
+            ContentType.SERIES -> seriesRepository.existsById(favoriteDto.contentId)
         }
 
         if (!contentExists) {
-            throw new ServiceException(HttpStatus.NOT_FOUND.value(), favoriteDto.getContentId() + "번 컨텐츠를 찾을 수 없습니다.");
+            throw ServiceException(
+                HttpStatus.NOT_FOUND.value(),
+                "${favoriteDto.contentId}번 컨텐츠를 찾을 수 없습니다."
+            )
         }
 
-        Favorite favorite = favoriteDto.toEntity(user);
+        val favorite = favoriteDto.toEntity(user)
 
-        favoriteRepository.save(favorite);
-        return FavoriteDto.fromEntity(favorite);
+        favoriteRepository.save(favorite)
+        return fromEntity(favorite)
     }
 
-    public PageDto<FavoriteDto> getUserFavorites(Long userId, int page, int pageSize, String sortBy, String direction) {
+    fun getUserFavorites(
+        userId: Long,
+        page: Int,
+        pageSize: Int,
+        sortBy: String,
+        direction: String
+    ): PageDto<FavoriteDto> {
         if (!userAccountRepository.existsById(userId)) {
-            throw new ServiceException(HttpStatus.NOT_FOUND.value(), "%d번 유저를 찾을 수 없습니다.".formatted(userId));
+            throw ServiceException(HttpStatus.NOT_FOUND.value(), "${userId}번 유저를 찾을 수 없습니다.")
         }
 
-        Sort sort = switch (sortBy) {
-            case "rating" ->
-                    Sort.by(Sort.Direction.fromString(direction), "movie.averageRating", "series.averageRating");
-            case "reviews" -> Sort.by(Sort.Direction.fromString(direction), "movie.ratingCount", "series.ratingCount");
-            default -> Sort.by(Sort.Direction.fromString(direction), "id");
-        };
+        val sort = when (sortBy) {
+            "rating" -> Sort.by(Sort.Direction.fromString(direction), "movie.averageRating", "series.averageRating")
+            "reviews" -> Sort.by(Sort.Direction.fromString(direction), "movie.ratingCount", "series.ratingCount")
+            else -> Sort.by(Sort.Direction.fromString(direction), "id")
+        }
 
-        Pageable pageable = PageRequest.of(page - 1, pageSize, sort);
-        Page<Favorite> favorites = favoriteRepository.findAllByUserAccountIdWithContent(userId, pageable);
+        val pageable: Pageable = PageRequest.of(page - 1, pageSize, sort)
+        val favorites = favoriteRepository.findAllByUserAccountIdWithContent(userId, pageable)
 
         // DTO 변환 후 수동 정렬 수행 (ASC/DESC 지원)
-        Comparator<FavoriteDto> comparator = Comparator.comparing(f -> getSortValue(f, sortBy));
+//        var comparator = Comparator.comparing { f: FavoriteDto ->
+//            getSortValue(
+//                f,
+//                sortBy
+//            )
+//        }
+//
+//        if (direction.equals("DESC", ignoreCase = true)) {
+//            comparator = comparator.reversed()
+//        }
 
-        if (direction.equalsIgnoreCase("DESC")) {
-            comparator = comparator.reversed();
-        }
+        val comparator = Comparator.comparing<FavoriteDto, Double> { favoriteDto ->
+            getSortValue(favoriteDto, sortBy)
+        }.let { if (direction.equals("DESC", ignoreCase = true)) it.reversed() else it }
 
-        List<FavoriteDto> sortedFavorites = favorites.stream()
-                .map(FavoriteDto::fromEntity)
-                .sorted(comparator)
-                .toList();
+        val sortedFavorites = favorites
+            .map(FavoriteDto::fromEntity)
+            .sortedWith(comparator)
 
-        return new PageDto<>(new PageImpl<>(sortedFavorites, pageable, favorites.getTotalElements()));
+
+        return PageDto(PageImpl(sortedFavorites, pageable, favorites.totalElements))
     }
 
     // 정렬 기준 값을 가져오는 메서드
-    private double getSortValue(FavoriteDto favoriteDto, String sortBy) {
-        if (favoriteDto.getData() instanceof FavoriteContentDto contentDto) {
-            return switch (sortBy) {
-                case "rating" -> contentDto.getAverageRating();
-                case "reviews" -> contentDto.getRatingCount();
-                default -> favoriteDto.getId(); // 기본값은 ID 정렬
-            };
+    private fun getSortValue(favoriteDto: FavoriteDto, sortBy: String): Double {
+        val contentDto = favoriteDto.data as? FavoriteContentDto
+        return when (sortBy) {
+            "rating" -> contentDto?.averageRating ?: 0.0
+            "reviews" -> contentDto?.ratingCount?.toDouble() ?: 0.0
+            else -> favoriteDto.id.toDouble()
         }
-        return 0.0; // 기본값
     }
 
     @Transactional
-    public void deleteFavorite(Long id) {
-        Favorite favorite = favoriteRepository.findById(id)
-                .orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND.value(), "%d번 즐겨찾기 정보를 찾을 수 없습니다.".formatted(id)));
+    fun deleteFavorite(id: Long) {
+        val favorite = favoriteRepository.findById(id)
+            .orElseThrow {
+                ServiceException(
+                    HttpStatus.NOT_FOUND.value(),
+                    "${id}번 즐겨찾기 정보를 찾을 수 없습니다."
+                )
+            }!!
 
-        favoriteRepository.delete(favorite);
+        favoriteRepository.delete(favorite)
     }
 }
