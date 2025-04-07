@@ -64,21 +64,7 @@ public class ReviewServiceTest {
 
     private Movie testMovie;
 
-    private Series testSeries = Series.builder()
-            .id(14L)
-            .tmdbId(10000000000L)
-            .title("테스트용 드라마 제목")
-            .overview("테스트용 드라마 줄거리")
-            .episodeNumber(12)
-            .status("상영중")
-            .posterPath("테스트용 이미지")
-            .averageRating(4.5)
-            .ratingCount(10)
-            .releaseStartDate(LocalDate.of(2024, 1, 1))
-            .releaseEndDate(LocalDate.of(2200, 1, 2))
-            .productionCountry("KR")
-            .productionCompany("테스트용 제작사")
-            .build();
+    private Series testSeries;
 
     private ReviewDto reviewDto1;
 
@@ -93,6 +79,10 @@ public class ReviewServiceTest {
         testMovie.setAverageRating(4);
         testMovie.setRatingCount(10);
 
+        testSeries = new Series(10000000000L, "테스트용 드라마 제목", "test series1",
+                LocalDate.of(2024, 1, 1), LocalDate.of(2200, 1, 2),
+                "상영중", "테스트용 이미지", 12, "KR", "테스트용 제작사");
+        testSeries.setId(14L);
         testSeries.setAverageRating(4.5);
         testSeries.setRatingCount(10);
 
@@ -103,7 +93,6 @@ public class ReviewServiceTest {
                 .rating(5)
                 .content("테스트용 리뷰 내용 (영화)")
                 .build();
-
 
         reviewDto2 = ReviewDto.builder()
                 .userAccountId(testUser.getId())
