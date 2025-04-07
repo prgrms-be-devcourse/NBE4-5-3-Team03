@@ -8,8 +8,8 @@ data class DirectorDto(
     val profilePath: String?
 ) {
     constructor(director: Director) : this(
-        director.id,
-        director.name,
+        id = director.id,
+        name = director.name,
         profilePath = director.profilePath?.let { "https://image.tmdb.org/t/p/w$it" }
     )
 }
