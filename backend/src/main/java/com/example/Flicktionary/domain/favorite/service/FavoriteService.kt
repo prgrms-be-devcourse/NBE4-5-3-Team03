@@ -88,17 +88,6 @@ class FavoriteService(
         val favorites = favoriteRepository.findAllByUserAccountIdWithContent(userId, pageable)
 
         // DTO 변환 후 수동 정렬 수행 (ASC/DESC 지원)
-//        var comparator = Comparator.comparing { f: FavoriteDto ->
-//            getSortValue(
-//                f,
-//                sortBy
-//            )
-//        }
-//
-//        if (direction.equals("DESC", ignoreCase = true)) {
-//            comparator = comparator.reversed()
-//        }
-
         val comparator = Comparator.comparing<FavoriteDto, Double> { favoriteDto ->
             getSortValue(favoriteDto, sortBy)
         }.let { if (direction.equals("DESC", ignoreCase = true)) it.reversed() else it }
@@ -106,7 +95,6 @@ class FavoriteService(
         val sortedFavorites = favorites
             .map(FavoriteDto::fromEntity)
             .sortedWith(comparator)
-
 
         return PageDto(PageImpl(sortedFavorites, pageable, favorites.totalElements))
     }

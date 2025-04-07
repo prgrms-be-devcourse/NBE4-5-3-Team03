@@ -22,7 +22,7 @@ class FavoriteController(
             .status(HttpStatus.CREATED)
             .body(
                 ResponseDto.of(
-                    HttpStatus.CREATED.value().toString() + "",
+                    HttpStatus.CREATED.value().toString(),
                     HttpStatus.CREATED.reasonPhrase,
                     createdFavorite
                 )
@@ -50,7 +50,7 @@ class FavoriteController(
             .status(HttpStatus.NO_CONTENT)
             .body(
                 ResponseDto.of(
-                    HttpStatus.NO_CONTENT.value().toString() + "",
+                    HttpStatus.NO_CONTENT.value().toString(),
                     HttpStatus.NO_CONTENT.reasonPhrase,
                     null
                 )
