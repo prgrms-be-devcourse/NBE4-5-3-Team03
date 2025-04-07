@@ -141,7 +141,7 @@ class ReviewServiceTest {
         // 리뷰 생성 및 변수에 저장
         val reviewDto = reviewService.createReview(reviewDto1)
 
-        /** 검증 /// */
+        /** 검증 **/
         assertThat(reviewDto).isNotNull()
         assertThat(reviewDto.movieId).isNotNull()
         assertThat(reviewDto.seriesId).isNull()
@@ -168,7 +168,7 @@ class ReviewServiceTest {
 
         val thrownOnEmpty = catchThrowable { reviewService.createReview(reviewEmpty) }
 
-        /** 검증 /// */
+        /** 검증 **/
         assertThat(thrownOnEmpty)
             .isInstanceOf(ServiceException::class.java)
             .hasMessage("리뷰 내용을 입력해주세요.")
@@ -192,7 +192,7 @@ class ReviewServiceTest {
 
         val thrown = catchThrowable { reviewService.createReview(reviewNoRating) }
 
-        /** 검증 /// */
+        /** 검증 **/
         assertThat(thrown)
             .isInstanceOf(ServiceException::class.java)
             .hasMessage("평점을 매겨주세요.")
@@ -216,7 +216,7 @@ class ReviewServiceTest {
         val newRatingCount = ratingCount + 1
         val newAverageRating = (averageRating * ratingCount + review.rating) / newRatingCount
 
-        /** 검증 /// */
+        /** 검증 **/
         assertThat(testMovie.ratingCount).isEqualTo(newRatingCount)
         assertThat(testMovie.averageRating).isEqualTo(newAverageRating)
         then(userAccountRepository).should().findById(reviewDto1.userAccountId!!)
@@ -239,6 +239,7 @@ class ReviewServiceTest {
         val newRatingCount = ratingCount + 1
         val newAverageRating = (averageRating * ratingCount + review.rating) / newRatingCount
 
+        /** 검증 **/
         assertThat(testSeries.ratingCount).isEqualTo(newRatingCount)
         assertThat(testSeries.averageRating).isEqualTo(newAverageRating)
         then(userAccountRepository).should().findById(reviewDto2.userAccountId!!)
@@ -267,7 +268,7 @@ class ReviewServiceTest {
         val reviewsPageDto: PageDto<ReviewDto> = reviewService.findAllReviews(page, size)
         val reviews = reviewsPageDto.items
 
-        /** 검증 /// */
+        /** 검증 **/
         assertThat(reviews).isNotEmpty().hasSize(2)
         assertThat(reviews).extracting<String>(ReviewDto::content)
             .containsExactlyInAnyOrder(reviewDto1.content, reviewDto2.content)
@@ -307,7 +308,7 @@ class ReviewServiceTest {
             movieId, page, size
         )
 
-        /** 검증 /// */
+        /** 검증 **/
         assertThat(reviewDtoPageDto).isNotNull()
         assertThat(reviewDtoPageDto.items).hasSize(1)
         assertThat(reviewDtoPageDto.items).extracting<Long?>(ReviewDto::movieId)
@@ -345,7 +346,7 @@ class ReviewServiceTest {
             seriesId, page, size
         )
 
-        /** 검증 /// */
+        /** 검증 **/
         assertThat(reviewDtoPageDto).isNotNull()
         assertThat(reviewDtoPageDto.items).hasSize(1)
         assertThat(reviewDtoPageDto.items).extracting<Long?>(ReviewDto::seriesId)
@@ -389,7 +390,7 @@ class ReviewServiceTest {
         // 수정
         val result = reviewService.updateReview(reviewDto1.id!!, updatedReviewDto)
 
-        /** 검증 /// */
+        /** 검증 **/
         assertThat(result).isNotNull()
         assertEquals(4, result.rating)
         assertEquals("(테스트)수정된 리뷰 내용", result.content)
@@ -423,7 +424,7 @@ class ReviewServiceTest {
         val review = reviewService.updateReview(reviewDto1.id!!, updatedReviewDto)
         val newAverageRating = (averageRating * ratingCount - updatedReviewDto.rating + review.rating) / ratingCount
 
-        /** 검증 /// */
+        /** 검증 **/
         assertThat(testMovie.ratingCount).isEqualTo(ratingCount)
         assertThat(testMovie.averageRating).isEqualTo(newAverageRating)
         then(reviewRepository).should().findById(reviewDto1.id!!)
@@ -471,7 +472,7 @@ class ReviewServiceTest {
         // 수정
         val thrown = catchThrowable { reviewService.updateReview(1234L, reviewDto1) }
 
-        /** 검증 /// */
+        /** 검증 **/
         assertThat(thrown)
             .isInstanceOf(ServiceException::class.java)
             .hasMessage("1234번 리뷰를 찾을 수 없습니다.")
@@ -488,7 +489,7 @@ class ReviewServiceTest {
         // 리뷰 삭제
         reviewService.deleteReview(reviewDto1.id!!)
 
-        /** 검증 /// */
+        /** 검증 **/
         then(reviewRepository).should().findById(reviewDto1.id!!)
         then(reviewRepository).should().delete(any())
     }
@@ -508,7 +509,7 @@ class ReviewServiceTest {
         val newRatingCount = ratingCount - 1
         val newAverageRating = (averageRating * ratingCount - reviewDto1.rating) / newRatingCount
 
-        /** 검증 /// */
+        /** 검증 **/
         assertThat(testMovie.ratingCount).isEqualTo(newRatingCount)
         assertThat(testMovie.averageRating).isEqualTo(newAverageRating)
         then(reviewRepository).should().findById(reviewDto1.id!!)
@@ -530,7 +531,7 @@ class ReviewServiceTest {
         val newRatingCount = ratingCount - 1
         val newAverageRating = (averageRating * ratingCount - reviewDto2.rating) / newRatingCount
 
-        /** 검증 /// */
+        /** 검증 **/
         assertThat(testSeries.ratingCount).isEqualTo(newRatingCount)
         assertThat(testSeries.averageRating).isEqualTo(newAverageRating)
         then(reviewRepository).should().findById(reviewDto2.id!!)
@@ -545,7 +546,7 @@ class ReviewServiceTest {
         // 리뷰 삭제
         val thrown = catchThrowable { reviewService.deleteReview(reviewDto1.id!!) }
 
-        /** 검증 /// */
+        /** 검증 **/
         assertThat(thrown)
             .isInstanceOf(ServiceException::class.java)
             .hasMessage("${reviewDto1.id}번 리뷰를 찾을 수 없습니다.")
