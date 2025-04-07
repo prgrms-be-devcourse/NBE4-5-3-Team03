@@ -1,19 +1,16 @@
-package com.example.Flicktionary.domain.actor.entity;
+package com.example.Flicktionary.domain.actor.entity
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
 
 @Entity
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class Actor {
+class Actor(
     @Id
-    private Long id;
+    val id: Long,
 
     @Column(nullable = false)
-    private String name;
+    val name: String,
 
-    private String profilePath;
-}
+    val profilePath: String?
+)
