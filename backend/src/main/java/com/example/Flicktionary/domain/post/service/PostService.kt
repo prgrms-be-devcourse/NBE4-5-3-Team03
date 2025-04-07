@@ -75,8 +75,6 @@ class PostService(
                     "지원하지 않는 검색 타입입니다: $keywordType"
                 )
             }
-        } else {
-            postRepository.findAll(pageable)
         }
 
         // PageDto<PostResponseDto>로 변환
