@@ -25,12 +25,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.context.annotation.Import
-import org.springframework.data.jpa.domain.AbstractPersistable_.id
 import org.springframework.http.MediaType
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 
 @DisplayName("리뷰 도메인 컨트롤러 테스트")
@@ -66,21 +66,7 @@ class ReviewControllerTest {
 
     private lateinit var testMovie: Movie
 
-    private val testSeries = Series(
-        id = 321L,
-        tmdbId = 10000000000L,
-        title = "테스트용 드라마 제목",
-        overview = "테스트용 드라마 줄거리",
-        episodeNumber = 12,
-        status = "상영중",
-        posterPath = "테스트용 이미지",
-        averageRating = 4.5,
-        ratingCount = 10,
-        releaseStartDate = LocalDate.of(2024, 1, 1),
-        releaseEndDate = LocalDate.of(2200, 1, 2),
-        productionCountry = "KR",
-        productionCompany = "테스트용 제작사"
-    )
+    private lateinit var testSeries: Series
 
     private lateinit var reviewDto1: ReviewDto
 
@@ -101,6 +87,23 @@ class ReviewControllerTest {
         ).apply {
             id = 123L
             averageRating = 4.0
+        }
+
+        testSeries = Series(
+            tmdbId = 10000000000L,
+            title = "테스트용 드라마 제목",
+            overview = "테스트용 드라마 줄거리",
+            releaseStartDate = LocalDate.of(2024, 1, 1),
+            releaseEndDate = LocalDate.of(2200, 1, 2),
+            status = "상영 중",
+            posterPath = "테스트용 이미지",
+            episodeNumber = 12,
+            productionCountry = "KR",
+            productionCompany = "테스트용 제작사"
+        ).apply {
+            id = 321L
+            averageRating = 4.5
+            ratingCount = 10
         }
 
         reviewDto1 = ReviewDto(

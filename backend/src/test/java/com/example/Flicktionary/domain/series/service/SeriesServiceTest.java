@@ -1,9 +1,14 @@
 package com.example.Flicktionary.domain.series.service;
 
+import com.example.Flicktionary.domain.actor.repository.ActorRepository;
+import com.example.Flicktionary.domain.director.repository.DirectorRepository;
+import com.example.Flicktionary.domain.genre.repository.GenreRepository;
 import com.example.Flicktionary.domain.series.dto.SeriesDetailResponse;
 import com.example.Flicktionary.domain.series.entity.Series;
 import com.example.Flicktionary.domain.series.repository.SeriesRepository;
+import com.example.Flicktionary.domain.tmdb.service.TmdbService;
 import com.example.Flicktionary.global.exception.ServiceException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,8 +18,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -30,9 +35,27 @@ public class SeriesServiceTest {
 
     @Mock
     private SeriesRepository seriesRepository;
+    @Mock
+    private GenreRepository genreRepository;
+    @Mock
+    private ActorRepository actorRepository;
+    @Mock
+    private DirectorRepository directorRepository;
+    @Mock
+    private TmdbService tmdbService;
 
     @InjectMocks
     SeriesService seriesService;
+
+    private Series series;
+
+    @BeforeEach
+    void setUp() {
+        series = new Series(124L, "testTitle", "",
+                LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
+                "", "series.png", 10, "", "");
+        series.setId(123L);
+    }
 
     @Test
     @DisplayName("Series 목록 조회 - id 오름차순 정렬")
@@ -43,13 +66,7 @@ public class SeriesServiceTest {
 
         given(seriesRepository.findByTitleLike(any(String.class), captor.capture()))
                 .willReturn(new PageImpl<>(
-                        List.of(
-                                Series.builder()
-                                        .id(123L)
-                                        .tmdbId(124L)
-                                        .title("testTitle")
-                                        .build()
-                        ),
+                        List.of(series),
                         PageRequest.of(page - 1, pageSize, Sort.by("id").ascending()),
                         10));
 
@@ -76,13 +93,7 @@ public class SeriesServiceTest {
 
         given(seriesRepository.findByTitleLike(any(String.class), captor.capture()))
                 .willReturn(new PageImpl<>(
-                        List.of(
-                                Series.builder()
-                                        .id(123L)
-                                        .tmdbId(124L)
-                                        .title("testTitle")
-                                        .build()
-                        ),
+                        List.of(series),
                         PageRequest.of(page - 1, pageSize, Sort.by("averageRating").descending()),
                         10));
 
@@ -104,13 +115,7 @@ public class SeriesServiceTest {
 
         given(seriesRepository.findByTitleLike(any(String.class), captor.capture()))
                 .willReturn(new PageImpl<>(
-                        List.of(
-                                Series.builder()
-                                        .id(123L)
-                                        .tmdbId(124L)
-                                        .title("testTitle")
-                                        .build()
-                        ),
+                        List.of(series),
                         PageRequest.of(page - 1, pageSize, Sort.by("ratingCount").descending()),
                         10));
 
@@ -131,13 +136,7 @@ public class SeriesServiceTest {
 
         given(seriesRepository.findByTitleLike(captor.capture(), any(Pageable.class)))
                 .willReturn(new PageImpl<>(
-                        List.of(
-                                Series.builder()
-                                        .id(123L)
-                                        .tmdbId(124L)
-                                        .title("testTitle")
-                                        .build()
-                        ),
+                        List.of(series),
                         PageRequest.of(page - 1, pageSize, Sort.by("id").ascending()),
                         10));
 
@@ -166,15 +165,11 @@ public class SeriesServiceTest {
     // TODO: 서비스 메소드 시그니처 변경에 따라 테스트 수정
     @Test
     @DisplayName("Series 상세 정보 조회 성공 테스트")
-    void testGetSeriesDetail_Success() throws InterruptedException {
+    void testGetSeriesDetail_Success() {
         // given
         Long seriesId = 123L;
-        given(seriesRepository.findById(seriesId))
-                .willReturn(Optional.of(Series.builder()
-                        .id(seriesId)
-                        .tmdbId(124L)
-                        .title("testTitle")
-                        .build()));
+        given(seriesRepository.findByIdWithCastsAndDirector(seriesId))
+                .willReturn(series);
 
         // when
         SeriesDetailResponse response = seriesService.getSeriesDetail(seriesId);
@@ -184,7 +179,7 @@ public class SeriesServiceTest {
         assertEquals(seriesId, response.getId());
         assertEquals(124L, response.getTmdbId());
         assertEquals("testTitle", response.getTitle());
-        then(seriesRepository).should().findById(seriesId);
+        then(seriesRepository).should().findByIdWithCastsAndDirector(seriesId);
     }
 
     @Test
@@ -192,7 +187,7 @@ public class SeriesServiceTest {
     void testGetSeriesDetail_Fail_NotFound() {
         // given
         Long seriesId = 999L;  // 존재하지 않는 ID
-        given(seriesRepository.findById(seriesId)).willReturn(Optional.empty());
+        given(seriesRepository.findByIdWithCastsAndDirector(seriesId)).willReturn(null);
 
         // when
         Throwable thrown = catchThrowable(() -> seriesService.getSeriesDetail(seriesId));
@@ -201,6 +196,6 @@ public class SeriesServiceTest {
         assertThat(thrown)
                 .isInstanceOf(ServiceException.class)
                 .hasMessage("%d번 시리즈를 찾을 수 없습니다.".formatted(seriesId));
-        then(seriesRepository).should().findById(seriesId);
+        then(seriesRepository).should().findByIdWithCastsAndDirector(seriesId);
     }
 }

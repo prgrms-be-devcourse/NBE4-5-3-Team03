@@ -12,21 +12,19 @@ import com.example.Flicktionary.domain.user.entity.UserAccountType
 import com.example.Flicktionary.domain.user.repository.UserAccountRepository
 import com.example.Flicktionary.global.dto.PageDto
 import com.example.Flicktionary.global.exception.ServiceException
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.BDDAssertions
 import org.assertj.core.api.BDDAssertions.catchThrowable
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.*
 import org.mockito.ArgumentMatchers.any
 import org.mockito.BDDMockito.*
+import org.mockito.InjectMocks
+import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.data.domain.*
-import org.springframework.data.jpa.domain.AbstractPersistable_.id
 import java.time.LocalDate
 import java.util.*
 
@@ -61,21 +59,7 @@ class ReviewServiceTest {
 
     private lateinit var testMovie: Movie
 
-    private val testSeries = Series(
-        id = 14L,
-        tmdbId = 10000000000L,
-        title = "테스트용 드라마 제목",
-        overview = "테스트용 드라마 줄거리",
-        episodeNumber = 12,
-        status = "상영중",
-        posterPath = "테스트용 이미지",
-        averageRating = 4.5,
-        ratingCount = 10,
-        releaseStartDate = LocalDate.of(2024, 1, 1),
-        releaseEndDate = LocalDate.of(2200, 1, 2),
-        productionCountry = "KR",
-        productionCompany = "테스트용 제작사"
-    )
+    private lateinit var testSeries: Series
 
     private lateinit var reviewDto1: ReviewDto
 
@@ -99,7 +83,19 @@ class ReviewServiceTest {
             ratingCount = 10
         }
 
-        testSeries.apply {
+        testSeries = Series(
+            tmdbId = 10000000000L,
+            title = "테스트용 드라마 제목",
+            overview = "테스트용 드라마 줄거리",
+            releaseStartDate = LocalDate.of(2024, 1, 1),
+            releaseEndDate = LocalDate.of(2200, 1, 2),
+            status = "상영 중",
+            posterPath = "테스트용 이미지",
+            episodeNumber = 12,
+            productionCountry = "KR",
+            productionCompany = "테스트용 제작사"
+        ).apply {
+            id = 14L
             averageRating = 4.5
             ratingCount = 10
         }

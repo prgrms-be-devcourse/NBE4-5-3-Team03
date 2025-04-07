@@ -66,21 +66,7 @@ public class FavoriteServiceTest {
 
     private Movie testMovie2;
 
-    private Series testSeries = Series.builder()
-            .id(101L)
-            .tmdbId(9519L)
-            .title("test series1")
-            .overview("test series1")
-            .episodeNumber(1)
-            .status("test series1")
-            .posterPath("test series1")
-            .releaseStartDate(LocalDate.of(2024, 1, 1))
-            .releaseEndDate(LocalDate.of(2024, 1, 1))
-            .productionCountry("KR")
-            .productionCompany("test series1")
-            .averageRating(4.3)
-            .ratingCount(5)
-            .build();
+    private Series testSeries;
 
     private FavoriteDto favorite1;
 
@@ -104,6 +90,13 @@ public class FavoriteServiceTest {
         testMovie2.setId(59L);
         testMovie2.setAverageRating(3.2);
         testMovie2.setRatingCount(151);
+
+        testSeries = new Series(9519L, "test series1", "test series1",
+                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 1),
+                "test series1", "test series1", 1, "KR", "test series1");
+        testSeries.setId(101L);
+        testSeries.setAverageRating(4.3);
+        testSeries.setRatingCount(5);
 
         favorite1 = FavoriteDto.builder()
                 .userId(testUser.getId())
