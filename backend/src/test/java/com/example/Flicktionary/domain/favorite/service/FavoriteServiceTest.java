@@ -7,6 +7,7 @@ import com.example.Flicktionary.domain.favorite.repository.FavoriteRepository;
 import com.example.Flicktionary.domain.movie.entity.Movie;
 import com.example.Flicktionary.domain.movie.repository.MovieRepository;
 import com.example.Flicktionary.domain.series.entity.Series;
+import com.example.Flicktionary.domain.series.repository.SeriesRepository;
 import com.example.Flicktionary.domain.user.entity.UserAccount;
 import com.example.Flicktionary.domain.user.entity.UserAccountType;
 import com.example.Flicktionary.domain.user.repository.UserAccountRepository;
@@ -48,6 +49,9 @@ public class FavoriteServiceTest {
 
     @Mock
     private MovieRepository movieRepository;
+
+    @Mock
+    private SeriesRepository seriesRepository;
 
     @InjectMocks
     private FavoriteService favoriteService;
