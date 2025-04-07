@@ -289,4 +289,90 @@ class MovieServiceTest {
         assertEquals("characterName", response.getCasts().get(0).getCharacterName());
         assertEquals("Test Director", response.getDirector().getName());
     }
+
+    @Test
+    @DisplayName("영화 수정 - 성공")
+    void updateMovie1() {
+        // given
+        Long movieId = 1L;
+        MovieRequest request = new MovieRequest(
+                "updated title",
+                "updated overview",
+                LocalDate.of(2023, 1, 1),
+                "Released",
+                "updated.png",
+                120,
+                "USA",
+                "Updated Company",
+                List.of(1L, 2L),
+                List.of(new MovieRequest.MovieCastRequest(1L, "new role")),
+                1L
+        );
+
+        Genre genre1 = new Genre(1L, "Action");
+        Genre genre2 = new Genre(2L, "Drama");
+        Actor actor = new Actor(1L, "Actor Name", null);
+        Director director = new Director(1L, "Director Name", null);
+
+        Movie movie = new Movie(
+                "old title", "old overview", LocalDate.of(2020, 1, 1),
+                "old status", "old.png", 90, "Korea", "Old Company"
+        );
+        movie.setId(movieId);
+
+        // mocking
+        when(movieRepository.findById(movieId)).thenReturn(Optional.of(movie));
+        when(genreRepository.findAllById(List.of(1L, 2L))).thenReturn(List.of(genre1, genre2));
+        when(actorRepository.findById(1L)).thenReturn(Optional.of(actor));
+        when(directorRepository.findById(1L)).thenReturn(Optional.of(director));
+
+        // when
+        MovieResponseWithDetail response = movieService.updateMovie(movieId, request);
+
+        // then
+        assertEquals("updated title", response.getTitle());
+        assertEquals("updated overview", response.getOverview());
+        assertEquals("updated.png", response.getPosterPath());
+        assertEquals("Released", response.getStatus());
+        assertEquals(120, response.getRuntime());
+        assertEquals("USA", response.getProductionCountry());
+        assertEquals("Updated Company", response.getProductionCompany());
+        assertEquals(2, response.getGenres().size());
+        assertEquals("Action", response.getGenres().get(0).getName());
+        assertEquals("Drama", response.getGenres().get(1).getName());
+        assertEquals("Actor Name", response.getCasts().get(0).getActor().getName());
+        assertEquals("new role", response.getCasts().get(0).getCharacterName());
+        assertEquals("Director Name", response.getDirector().getName());
+    }
+
+    @Test
+    @DisplayName("영화 수정 - 실패 - 없는 영화")
+    void updateMovie2() {
+        // given
+        Long movieId = 1L;
+        MovieRequest request = new MovieRequest(
+                "updated title",
+                "updated overview",
+                LocalDate.of(2023, 1, 1),
+                "Released",
+                "updated.png",
+                120,
+                "USA",
+                "Updated Company",
+                List.of(1L, 2L),
+                List.of(new MovieRequest.MovieCastRequest(1L, "new role")),
+                1L
+        );
+
+        // mocking
+        when(movieRepository.findById(movieId)).thenReturn(Optional.empty());
+
+        // when
+        Throwable thrown = catchThrowable(() -> movieService.updateMovie(movieId, request));
+
+        // then
+        assertThat(thrown)
+                .isInstanceOf(ServiceException.class)
+                .hasMessage("%d번 영화를 찾을 수 없습니다.".formatted(movieId));
+    }
 }

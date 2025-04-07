@@ -69,6 +69,41 @@ class MovieService(
         return MovieResponseWithDetail(savedMovie)
     }
 
+    @Transactional
+    fun updateMovie(id: Long, request: MovieRequest): MovieResponseWithDetail {
+        val movie = movieRepository.findByIdOrNull(id)
+            ?: throw ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 영화를 찾을 수 없습니다.")
+
+        movie.apply {
+            title = request.title
+            overview = request.overview
+            releaseDate = request.releaseDate
+            status = request.status
+            posterPath = request.posterPath
+            runtime = request.runtime
+            productionCountry = request.productionCountry
+            productionCompany = request.productionCompany
+        }
+
+        val genres = genreRepository.findAllById(request.genreIds)
+        movie.genres.clear()
+        movie.genres.addAll(genres)
+
+        val casts = request.casts.map {
+            val actor = actorRepository.findByIdOrNull(it.actorId)
+                ?: throw ServiceException(HttpStatus.NOT_FOUND.value(), "${it.actorId}번 배우를 찾을 수 없습니다.")
+            MovieCast(movie, actor, it.characterName)
+        }
+        movie.casts.clear()
+        movie.casts.addAll(casts)
+
+        val director = directorRepository.findByIdOrNull(request.directorId)
+            ?: throw ServiceException(HttpStatus.NOT_FOUND.value(), "${request.directorId}번 감독을 찾을 수 없습니다.")
+        movie.director = director
+
+        return MovieResponseWithDetail(movie)
+    }
+
     @Transactional(readOnly = true)
     fun getMovies(keyword: String, page: Int, pageSize: Int, sortBy: String): PageDto<MovieResponse> {
         val sort = getSort(sortBy)

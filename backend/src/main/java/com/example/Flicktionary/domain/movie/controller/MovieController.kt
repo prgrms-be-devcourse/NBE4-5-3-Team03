@@ -45,4 +45,14 @@ class MovieController(
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(ResponseDto.of(HttpStatus.CREATED.value().toString(), HttpStatus.CREATED.reasonPhrase, response))
     }
+
+    @Operation(summary = "영화 수정", description = "영화를 수정합니다. 관리자만 접근 가능합니다.")
+    @PutMapping("/{id}")
+    fun updateMovie(
+        @PathVariable id: Long,
+        @RequestBody @Valid request: MovieRequest
+    ): ResponseEntity<ResponseDto<MovieResponseWithDetail>> {
+        val response = movieService.updateMovie(id, request)
+        return ResponseEntity.ok(ResponseDto.ok(response))
+    }
 }

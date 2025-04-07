@@ -41,8 +41,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -54,7 +54,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(MovieController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class MovieControllerTest {
-
     @Autowired
     private MockMvc mvc;
 
@@ -242,7 +241,7 @@ class MovieControllerTest {
         );
 
         // when
-        Mockito.when(movieService.createMovie(Mockito.any(MovieRequest.class)))
+        when(movieService.createMovie(Mockito.any(MovieRequest.class)))
                 .thenReturn(response);
 
         // then
@@ -258,5 +257,104 @@ class MovieControllerTest {
                 .andExpect(jsonPath("$.data.title").value("movie"))
                 .andExpect(jsonPath("$.data.genres[0].name").value("Action"))
                 .andExpect(jsonPath("$.data.casts[0].actor.name").value("Test Actor"));
+    }
+
+    @Test
+    @DisplayName("영화 수정 - 성공")
+    void updateMovie1() throws Exception {
+        // given
+        Long movieId = 1L;
+        MovieRequest request = new MovieRequest(
+                "updated title",
+                "updated overview",
+                LocalDate.of(2023, 1, 1),
+                "Released",
+                "updated.png",
+                120,
+                "USA",
+                "Updated Company",
+                List.of(1L, 2L),
+                List.of(new MovieRequest.MovieCastRequest(1L, "new role")),
+                1L
+        );
+
+        MovieResponseWithDetail response = new MovieResponseWithDetail(
+                1L,
+                "Updated Movie",
+                "Updated Overview",
+                LocalDate.of(2023, 1, 1),
+                "updated.png",
+                "Released",
+                120,
+                "USA",
+                "Updated Company",
+                0.0,
+                0,
+                List.of(
+                        new GenreDto(1L, "Action"),
+                        new GenreDto(2L, "Drama")
+                ),
+                List.of(
+                        new MovieCastDto(
+                                new ActorDto(1L, "Actor Name", null),
+                                "new roll"
+                        )
+                ),
+                new DirectorDto(1L, "Director Name", null)
+        );
+
+        when(movieService.updateMovie(movieId, request))
+                .thenReturn(response);
+
+        ResultActions resultActions = mvc.perform(put("/api/movies/%d".formatted(movieId))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print());
+
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.message").value("정상 처리되었습니다."))
+                .andExpect(jsonPath("$.data.id").value(1))
+                .andExpect(jsonPath("$.data.title").value("Updated Movie"))
+                .andExpect(jsonPath("$.data.genres[0].name").value("Action"))
+                .andExpect(jsonPath("$.data.casts[0].actor.name").value("Actor Name"))
+                .andExpect(jsonPath("$.data.casts[0].characterName").value("new roll"));
+    }
+
+    @Test
+    @DisplayName("영화 수정 - 실패")
+    void updateMovie2() throws Exception {
+        Long movieId = 1000000000L;
+        MovieRequest request = new MovieRequest(
+                "updated title",
+                "updated overview",
+                LocalDate.of(2023, 1, 1),
+                "Released",
+                "updated.png",
+                120,
+                "USA",
+                "Updated Company",
+                List.of(1L, 2L),
+                List.of(new MovieRequest.MovieCastRequest(1L, "new role")),
+                1L
+        );
+
+        given(movieService.updateMovie(movieId, request)).willThrow(
+                new ServiceException(HttpStatus.NOT_FOUND.value(), "%d번 영화를 찾을 수 없습니다.".formatted(movieId))
+        );
+
+        ResultActions resultActions = mvc.perform(put("/api/movies/%d".formatted(movieId))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(handler().handlerType(MovieController.class))
+                .andExpect(handler().methodName("updateMovie"))
+                .andExpect(jsonPath("$.code").value(HttpStatus.NOT_FOUND.value()))
+                .andExpect(jsonPath("$.message").value("%d번 영화를 찾을 수 없습니다.".formatted(movieId)))
+                .andExpect(jsonPath("$.data").isEmpty());
+
     }
 }
