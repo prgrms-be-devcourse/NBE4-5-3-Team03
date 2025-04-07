@@ -76,13 +76,13 @@ public class ReviewControllerTest {
 
     @BeforeEach
     void setUp() {
-        testMovie = new Movie(10000000000L, "테스트용 영화 제목", "테스트용 드라마 줄거리",
+        testMovie = new Movie(10000000000L, "테스트용 영화 제목", "테스트용 영화 줄거리",
                 LocalDate.of(2024, 1, 1), "상영 중",
                 "테스트용 이미지", 100, "KR", "테스트용 제작사");
         testMovie.setId(123L);
         testMovie.setAverageRating(4);
 
-        testSeries = new Series(10000000000L, "테스트용 드라마 제목", "test series1",
+        testSeries = new Series(10000000000L, "테스트용 드라마 제목", "테스트용 드라마 줄거리",
                 LocalDate.of(2024, 1, 1), LocalDate.of(2200, 1, 2),
                 "상영중", "테스트용 이미지", 12, "KR", "테스트용 제작사");
         testSeries.setId(321L);
