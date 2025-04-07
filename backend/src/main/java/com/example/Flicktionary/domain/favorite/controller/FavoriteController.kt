@@ -35,8 +35,8 @@ class FavoriteController(
         @PathVariable userId: Long,
         @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "10") pageSize: Int,
-        @RequestParam(defaultValue = "id") sortBy: String?,
-        @RequestParam(defaultValue = "desc") direction: String?
+        @RequestParam(defaultValue = "id") sortBy: String,
+        @RequestParam(defaultValue = "desc") direction: String
     ): ResponseEntity<ResponseDto<PageDto<FavoriteDto>>> {
         val favorites = favoriteService.getUserFavorites(userId, page, pageSize, sortBy, direction)
         return ResponseEntity.ok(ResponseDto.ok(favorites))
