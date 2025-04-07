@@ -5,7 +5,7 @@ import com.example.Flicktionary.domain.series.entity.Series
 
 data class FavoriteContentDto(
     val title: String,
-    val imageUrl: String,
+    val imageUrl: String?,
     val averageRating: Double,
     val ratingCount: Int
 ) {
