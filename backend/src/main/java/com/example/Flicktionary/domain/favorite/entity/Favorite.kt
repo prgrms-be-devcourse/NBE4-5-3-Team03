@@ -45,11 +45,11 @@ class Favorite(
         contentType: ContentType,
         contentId: Long
     ) : this(
-        id,
-        userAccount,
-        contentType,
-        contentId,
-        null, // movie
-        null  // series
+        id = id,
+        userAccount = userAccount,
+        contentType = contentType,
+        contentId = contentId,
+        movie = null, // movie
+        series = null  // series
     )
 }
