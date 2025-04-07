@@ -1,51 +1,55 @@
-package com.example.Flicktionary.domain.director.controller;
+package com.example.Flicktionary.domain.director.controller
 
-import com.example.Flicktionary.domain.actor.controller.ActorController;
-import com.example.Flicktionary.domain.director.dto.DirectorDto;
-import com.example.Flicktionary.domain.director.entity.Director;
-import com.example.Flicktionary.domain.director.service.DirectorService;
-import com.example.Flicktionary.domain.movie.entity.Movie;
-import com.example.Flicktionary.domain.series.entity.Series;
-import com.example.Flicktionary.global.dto.PageDto;
-import com.example.Flicktionary.global.dto.ResponseDto;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import com.example.Flicktionary.domain.actor.controller.ActorController
+import com.example.Flicktionary.domain.director.dto.DirectorDto
+import com.example.Flicktionary.domain.director.entity.Director
+import com.example.Flicktionary.domain.director.service.DirectorService
+import com.example.Flicktionary.domain.movie.entity.Movie
+import com.example.Flicktionary.domain.series.entity.Series
+import com.example.Flicktionary.global.dto.PageDto
+import com.example.Flicktionary.global.dto.ResponseDto
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/directors")
-@RequiredArgsConstructor
-public class DirectorController {
-    private final DirectorService directorService;
+class DirectorController(
+    private val directorService: DirectorService
+) {
 
     @GetMapping
-    public ResponseEntity<ResponseDto<PageDto<DirectorDto>>> getDirectors(
-            @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int pageSize
-    ) {
-        Page<Director> directorPage = directorService.getDirectors(keyword, page, pageSize);
-        return ResponseEntity.ok(ResponseDto.ok(new PageDto<>(directorPage.map(DirectorDto::new))));
+    fun getDirectors(
+        @RequestParam(defaultValue = "") keyword: String,
+        @RequestParam(defaultValue = "1") page: Int,
+        @RequestParam(defaultValue = "10") pageSize: Int
+    ): ResponseEntity<ResponseDto<PageDto<DirectorDto>>> {
+        val directorPage = directorService.getDirectors(keyword, page, pageSize)
+        val directorDtoPage = directorPage.map { DirectorDto(it) }
+        return ResponseEntity.ok(ResponseDto.ok(PageDto(directorDtoPage)))
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDto<DirectorResponse>> getDirector(@PathVariable Long id) {
-        Director director = directorService.getDirector(id);
-        List<Movie> movies = directorService.getMoviesByDirectorId(id);
-        List<Series> series = directorService.getSeriesByDirectorId(id);
+    fun getDirector(@PathVariable id: Long): ResponseEntity<ResponseDto<DirectorResponse>> {
+        val director = directorService.getDirector(id)
+        val movies = directorService.getMoviesByDirectorId(id)
+        val series = directorService.getSeriesByDirectorId(id)
 
-        return ResponseEntity.ok(ResponseDto.ok(new DirectorResponse(director, movies, series)));
+        return ResponseEntity.ok(ResponseDto.ok(DirectorResponse(director, movies, series)))
     }
 
-    private record DirectorResponse(Long id, String name, String profilePath, List<ActorController.MovieDTO> movies,
-                                    List<ActorController.SeriesDTO> series) {
-        public DirectorResponse(Director director, List<Movie> movies, List<Series> series) {
-            this(director.getId(), director.getName(), director.getProfilePath(),
-                    movies.stream().map(ActorController.MovieDTO::new).toList(),
-                    series.stream().map(ActorController.SeriesDTO::new).toList());
-        }
+    data class DirectorResponse(
+        val id: Long,
+        val name: String,
+        val profilePath: String?,
+        val movies: List<ActorController.MovieDTO>,
+        val series: List<ActorController.SeriesDTO>
+    ) {
+        constructor(director: Director, movies: List<Movie>, series: List<Series>) : this(
+            id = director.id,
+            name = director.name,
+            profilePath = director.profilePath,
+            movies = movies.map { ActorController.MovieDTO(it) },
+            series = series.map { ActorController.SeriesDTO(it) }
+        )
     }
 }
