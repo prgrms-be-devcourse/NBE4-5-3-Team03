@@ -375,4 +375,40 @@ class MovieServiceTest {
                 .isInstanceOf(ServiceException.class)
                 .hasMessage("%d번 영화를 찾을 수 없습니다.".formatted(movieId));
     }
+
+    @Test
+    @DisplayName("영화 삭제 - 성공")
+    void deleteMovie1() {
+        // given
+        Long movieId = 1L;
+        Movie movie = new Movie();
+        movie.setId(movieId);
+
+        when(movieRepository.findById(movieId))
+                .thenReturn(Optional.of(movie));
+
+        // when
+        movieService.deleteMovie(movieId);
+
+        // then
+        verify(movieRepository).delete(movie);
+    }
+
+    @Test
+    @DisplayName("영화 삭제 - 실패 - 없는 영화")
+    void deleteMovie2() {
+        // given
+        Long movieId = 1L;
+        when(movieRepository.findById(movieId))
+                .thenReturn(Optional.empty());
+
+        // when
+        Throwable thrown = catchThrowable(() -> movieService.deleteMovie(movieId));
+
+        // then
+        assertThat(thrown)
+                .isInstanceOf(ServiceException.class)
+                .hasMessage("%d번 영화를 찾을 수 없습니다.".formatted(movieId));
+    }
+
 }

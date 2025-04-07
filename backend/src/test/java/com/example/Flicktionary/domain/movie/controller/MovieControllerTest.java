@@ -41,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -356,5 +357,38 @@ class MovieControllerTest {
                 .andExpect(jsonPath("$.message").value("%d번 영화를 찾을 수 없습니다.".formatted(movieId)))
                 .andExpect(jsonPath("$.data").isEmpty());
 
+    }
+
+    @Test
+    @DisplayName("영화 삭제 - 성공")
+    void deleteMovie1() throws Exception {
+        // given
+        Long movieId = 1L;
+
+        // when
+        Mockito.doNothing().when(movieService).deleteMovie(movieId);
+
+        // then
+        mvc.perform(delete("/api/movies/{id}", movieId))
+                .andExpect(status().isNoContent())
+                .andExpect(jsonPath("$.code").value("204"))
+                .andExpect(jsonPath("$.message").value("No Content"))
+                .andExpect(jsonPath("$.data").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("영화 삭제 - 실패 - 없는 영화")
+    void deleteMovie_NotFound() throws Exception {
+        // given
+        Long movieId = 999L;
+
+        doThrow(new ServiceException(404, "999번 영화를 찾을 수 없습니다."))
+                .when(movieService).deleteMovie(movieId);
+
+        // then
+        mvc.perform(delete("/api/movies/%d".formatted(movieId)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("404"))
+                .andExpect(jsonPath("$.message").value("999번 영화를 찾을 수 없습니다."));
     }
 }

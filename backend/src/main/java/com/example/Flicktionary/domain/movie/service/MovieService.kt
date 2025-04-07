@@ -104,6 +104,13 @@ class MovieService(
         return MovieResponseWithDetail(movie)
     }
 
+    @Transactional
+    fun deleteMovie(id: Long) {
+        val movie = movieRepository.findByIdOrNull(id)
+            ?: throw ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 영화를 찾을 수 없습니다.")
+        movieRepository.delete(movie)
+    }
+
     @Transactional(readOnly = true)
     fun getMovies(keyword: String, page: Int, pageSize: Int, sortBy: String): PageDto<MovieResponse> {
         val sort = getSort(sortBy)

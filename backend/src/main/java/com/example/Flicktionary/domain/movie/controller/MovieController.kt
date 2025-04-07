@@ -55,4 +55,13 @@ class MovieController(
         val response = movieService.updateMovie(id, request)
         return ResponseEntity.ok(ResponseDto.ok(response))
     }
+
+    @Operation(summary = "영화 삭제", description = "영화를 삭제합니다. 관리자만 접근 가능합니다.")
+    @DeleteMapping("/{id}")
+    fun deleteMovie(@PathVariable id: Long): ResponseEntity<ResponseDto<Void>> {
+        movieService.deleteMovie(id)
+        return ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .body(ResponseDto.of(HttpStatus.NO_CONTENT.value().toString(), HttpStatus.NO_CONTENT.reasonPhrase, null))
+    }
 }
