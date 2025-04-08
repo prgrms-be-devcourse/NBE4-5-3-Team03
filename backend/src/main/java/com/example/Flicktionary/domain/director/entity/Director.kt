@@ -20,7 +20,7 @@ class Director(
     @OneToMany(mappedBy = "director", fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
     val series: MutableList<Series> = mutableListOf()
 ) {
-    constructor(id: Long, name: String, profilePath: String) : this(
+    constructor(id: Long, name: String, profilePath: String?) : this(
         id = id,
         name = name,
         profilePath = profilePath,
