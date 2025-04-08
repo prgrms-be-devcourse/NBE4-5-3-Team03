@@ -54,17 +54,17 @@ class UserAccountServiceTest {
     void givenDtoWhenRegisteringUserWillPersistUserAccount() {
         given(userAccountRepository.save(any(UserAccount.class)))
                 .willReturn(userAccountDto.toEntity());
-        given(passwordEncoder.encode(anyString())).willReturn(userAccountDto.password());
+        given(passwordEncoder.encode(anyString())).willReturn(userAccountDto.getPassword());
 
         UserAccountDto resUserAccountDto = userAccountService.registerUser(userAccountDto);
 
         assertNotNull(resUserAccountDto);
-        assertEquals(userAccountDto.id(), resUserAccountDto.id());
-        assertEquals(userAccountDto.username(), resUserAccountDto.username());
-        assertEquals(userAccountDto.password(), resUserAccountDto.password());
-        assertEquals(userAccountDto.email(), resUserAccountDto.email());
-        assertEquals(userAccountDto.nickname(), resUserAccountDto.nickname());
-        assertEquals(userAccountDto.role(), resUserAccountDto.role());
+        assertEquals(userAccountDto.getId(), resUserAccountDto.getId());
+        assertEquals(userAccountDto.getUsername(), resUserAccountDto.getUsername());
+        assertEquals(userAccountDto.getPassword(), resUserAccountDto.getPassword());
+        assertEquals(userAccountDto.getEmail(), resUserAccountDto.getEmail());
+        assertEquals(userAccountDto.getNickname(), resUserAccountDto.getNickname());
+        assertEquals(userAccountDto.getRole(), resUserAccountDto.getRole());
         then(userAccountRepository).should().save(any(UserAccount.class));
     }
 
@@ -92,42 +92,42 @@ class UserAccountServiceTest {
                 "newnickname",
                 "USER"
         );
-        given(userAccountRepository.findById(userAccountDto.id()))
+        given(userAccountRepository.findById(userAccountDto.getId()))
                 .willReturn(Optional.of(userAccountDto.toEntity()));
         given(userAccountRepository.save(any(UserAccount.class)))
                 .willReturn(newUserAccountDto.toEntity());
-        given(passwordEncoder.encode(anyString())).willReturn(newUserAccountDto.password());
+        given(passwordEncoder.encode(anyString())).willReturn(newUserAccountDto.getPassword());
 
         UserAccountDto result = userAccountService.modifyUser(
-                userAccountDto.id(),
+                userAccountDto.getId(),
                 newUserAccountDto
         );
 
         assertNotNull(result);
-        assertEquals(newUserAccountDto.id(), result.id());
-        assertEquals(newUserAccountDto.username(), result.username());
-        assertEquals(newUserAccountDto.password(), result.password());
-        assertEquals(newUserAccountDto.email(), result.email());
-        assertEquals(newUserAccountDto.nickname(), result.nickname());
-        assertEquals(newUserAccountDto.role(), result.role());
+        assertEquals(newUserAccountDto.getId(), result.getId());
+        assertEquals(newUserAccountDto.getUsername(), result.getUsername());
+        assertEquals(newUserAccountDto.getPassword(), result.getPassword());
+        assertEquals(newUserAccountDto.getEmail(), result.getEmail());
+        assertEquals(newUserAccountDto.getNickname(), result.getNickname());
+        assertEquals(newUserAccountDto.getRole(), result.getRole());
         then(userAccountRepository).should().save(any(UserAccount.class));
     }
 
     @DisplayName("고유 ID로 회원을 조회한다.")
     @Test
     void givenUserIdWhenFindingUserThenReturnsUser() {
-        given(userAccountRepository.findById(userAccountDto.id()))
+        given(userAccountRepository.findById(userAccountDto.getId()))
                 .willReturn(Optional.of(userAccountDto.toEntity()));
 
-        UserAccountDto result = userAccountService.getUserById(userAccountDto.id());
+        UserAccountDto result = userAccountService.getUserById(userAccountDto.getId());
 
         assertNotNull(result);
-        assertEquals(userAccountDto.id(), result.id());
-        assertEquals(userAccountDto.username(), result.username());
-        assertEquals(userAccountDto.password(), result.password());
-        assertEquals(userAccountDto.email(), result.email());
-        assertEquals(userAccountDto.nickname(), result.nickname());
-        assertEquals(userAccountDto.role(), result.role());
+        assertEquals(userAccountDto.getId(), result.getId());
+        assertEquals(userAccountDto.getUsername(), result.getUsername());
+        assertEquals(userAccountDto.getPassword(), result.getPassword());
+        assertEquals(userAccountDto.getEmail(), result.getEmail());
+        assertEquals(userAccountDto.getNickname(), result.getNickname());
+        assertEquals(userAccountDto.getRole(), result.getRole());
     }
 
     @DisplayName("존재하지 않는 고유 ID로 회원을 조회할때 예외를 던진다.")
@@ -145,25 +145,25 @@ class UserAccountServiceTest {
     @DisplayName("유저 ID로 회원을 조회한다.")
     @Test
     void givenUserUsernameWhenFindingUserThenReturnsUser() {
-        given(userAccountRepository.findByUsername(userAccountDto.username()))
-                .willReturn(Optional.of(userAccountDto.toEntity()));
+        given(userAccountRepository.findByUsername(userAccountDto.getUsername()))
+                .willReturn(userAccountDto.toEntity());
 
-        UserAccount result = userAccountService.getUserByUsername(userAccountDto.username());
+        UserAccount result = userAccountService.getUserByUsername(userAccountDto.getUsername());
 
         assertNotNull(result);
-        assertEquals(userAccountDto.id(), result.getId());
-        assertEquals(userAccountDto.username(), result.getUsername());
-        assertEquals(userAccountDto.password(), result.getPassword());
-        assertEquals(userAccountDto.email(), result.getEmail());
-        assertEquals(userAccountDto.nickname(), result.getNickname());
-        assertEquals(userAccountDto.role(), result.getRole().toString());
+        assertEquals(userAccountDto.getId(), result.getId());
+        assertEquals(userAccountDto.getUsername(), result.getUsername());
+        assertEquals(userAccountDto.getPassword(), result.getPassword());
+        assertEquals(userAccountDto.getEmail(), result.getEmail());
+        assertEquals(userAccountDto.getNickname(), result.getNickname());
+        assertEquals(userAccountDto.getRole(), result.getRole().toString());
     }
 
     @DisplayName("존재하지 않는 유저 ID로 회원을 조회할때 예외를 던진다.")
     @Test
     void givenNonexistentUserUsernameWhenFindingUserThenThrowsException() {
         given(userAccountRepository.findByUsername("nonexistentuser"))
-                .willReturn(Optional.empty());
+                .willReturn(null);
 
         Throwable thrown = catchThrowable(() ->
                 userAccountService.getUserByUsername("nonexistentuser"));
@@ -176,13 +176,13 @@ class UserAccountServiceTest {
     @DisplayName("회원을 삭제한다.")
     @Test
     void givenUserIdWhenDeletingUserThenReturnsDeletedUserUsername() {
-        given(userAccountRepository.findById(userAccountDto.id()))
+        given(userAccountRepository.findById(userAccountDto.getId()))
                 .willReturn(Optional.of(userAccountDto.toEntity()));
 
-        String result = userAccountService.deleteUserById(userAccountDto.id());
+        String result = userAccountService.deleteUserById(userAccountDto.getId());
 
         assertNotNull(result);
-        assertEquals(userAccountDto.username(), result);
+        assertEquals(userAccountDto.getUsername(), result);
         then(userAccountRepository).should().delete(any(UserAccount.class));
     }
 

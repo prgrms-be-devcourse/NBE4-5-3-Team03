@@ -56,8 +56,11 @@ class UserAccountControllerTest {
 
         mockMvc.perform(
                         post("/api/users/register")
-                                // POST 요청 본문이 비어있으면 예외가 발생하므로 임의의 문자열을 첨부
-                                .content("{\"fake\": \"json\"}")
+                                .content("{\"username\": \"testUsername\"," +
+                                        "\"password\": \"testPassword\"," +
+                                        "\"email\": \"test@email.com\"," +
+                                        "\"nickname\": \"testNickname\"," +
+                                        "\"role\": \"USER\"}")
                                 .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value("1"))
