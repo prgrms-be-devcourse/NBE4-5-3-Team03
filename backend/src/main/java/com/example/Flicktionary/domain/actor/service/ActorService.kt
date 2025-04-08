@@ -49,7 +49,6 @@ class ActorService(
     // 배우 목록 조회
     fun getActors(keyword: String, page: Int, pageSize: Int): Page<Actor> {
         val pageable: Pageable = PageRequest.of(page - 1, pageSize)
-        val formattedKeyword = keyword.lowercase().replace(" ", "")
-        return actorRepository.findByNameLike(formattedKeyword, pageable)
+        return actorRepository.findByNameLike(keyword, pageable)
     }
 }
