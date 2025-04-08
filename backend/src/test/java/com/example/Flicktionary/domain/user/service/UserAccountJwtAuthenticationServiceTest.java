@@ -73,7 +73,7 @@ class UserAccountJwtAuthenticationServiceTest {
     @DisplayName("올바른 인증 정보가 주어졌을때 해당 유저에게 접근 토큰을 발행한다.")
     @Test
     void givenCorrectUserCredentialsWhenCreatingTokenThenReturnTokenWithCorrectClaims() {
-        given(userAccountRepository.findByUsername(anyString())).willReturn(Optional.of(userAccount));
+        given(userAccountRepository.findByUsername(anyString())).willReturn(userAccount);
         given(passwordEncoder.matches(anyString(), anyString())).willReturn(true);
 
         String token = userAccountJwtAuthenticationService.createNewAccessTokenForUser(
@@ -91,7 +91,7 @@ class UserAccountJwtAuthenticationServiceTest {
     @DisplayName("올바르지 않은 인증 정보가 주어졌을때 예외를 던진다.")
     @Test
     void givenIncorrectUserCredentialsWhenCreatingTokenThenThrowException() {
-        given(userAccountRepository.findByUsername(userAccount.getUsername())).willReturn(Optional.of(userAccount));
+        given(userAccountRepository.findByUsername(userAccount.getUsername())).willReturn(userAccount);
 
         Throwable thrown = catchThrowable(() -> userAccountJwtAuthenticationService.createNewAccessTokenForUser(
                 userAccount.getUsername(),
@@ -105,8 +105,8 @@ class UserAccountJwtAuthenticationServiceTest {
     @DisplayName("올바른 리프레시 토큰이 주어졌을때 접근 토큰와 리프레시 토큰을 재발행한다.")
     @Test
     void givenValidRefreshTokenWhenRefreshingTokensThenReturnRefreshedTokens() {
-        given(userAccountRepository.findByRefreshToken(anyString())).willReturn(Optional.of(userAccount));
-        given(userAccountRepository.findByUsername(anyString())).willReturn(Optional.of(userAccount));
+        given(userAccountRepository.findByRefreshToken(anyString())).willReturn(userAccount);
+        given(userAccountRepository.findByUsername(anyString())).willReturn(userAccount);
 
         String fakeRefreshToken = "=#=#=#=#=#=#=#=#=#=#=#=#";
         LocalDateTime fakeExpiryDate = LocalDateTime.of(3000, 1, 1, 0, 0);
@@ -126,7 +126,7 @@ class UserAccountJwtAuthenticationServiceTest {
     @DisplayName("만료된 리프레시 토큰이 주어졌을때 예외를 던진다.")
     @Test
     void givenStaleRefreshTokenWhenRefreshingTokensThenThrowException() {
-        given(userAccountRepository.findByRefreshToken(anyString())).willReturn(Optional.of(userAccount));
+        given(userAccountRepository.findByRefreshToken(anyString())).willReturn(userAccount);
 
         String wrongRefreshToken = "=#=#=#=#=#=#=#=#=#=#=#=#";
         LocalDateTime fakeExpiryDate = LocalDateTime.of(3000, 1, 1, 0, 0);
