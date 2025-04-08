@@ -1,11 +1,16 @@
 package com.example.Flicktionary.domain.movie.service;
 
+import com.example.Flicktionary.domain.actor.entity.Actor;
 import com.example.Flicktionary.domain.actor.repository.ActorRepository;
+import com.example.Flicktionary.domain.director.entity.Director;
 import com.example.Flicktionary.domain.director.repository.DirectorRepository;
+import com.example.Flicktionary.domain.genre.entity.Genre;
 import com.example.Flicktionary.domain.genre.repository.GenreRepository;
+import com.example.Flicktionary.domain.movie.dto.MovieRequest;
 import com.example.Flicktionary.domain.movie.dto.MovieResponse;
 import com.example.Flicktionary.domain.movie.dto.MovieResponseWithDetail;
 import com.example.Flicktionary.domain.movie.entity.Movie;
+import com.example.Flicktionary.domain.movie.entity.MovieCast;
 import com.example.Flicktionary.domain.movie.repository.MovieRepository;
 import com.example.Flicktionary.domain.tmdb.service.TmdbService;
 import com.example.Flicktionary.global.dto.PageDto;
@@ -25,13 +30,17 @@ import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @DisplayName("영화 서비스 테스트")
 @ExtendWith(MockitoExtension.class)
@@ -59,7 +68,7 @@ class MovieServiceTest {
 
     @BeforeEach
     void setUp() {
-        testMovie = new Movie(124L, "testTitle", "",
+        testMovie = new Movie("testTitle", "",
                 LocalDate.of(2022, 1, 1), "Released",
                 "movie.png", 100, "", "");
         testMovie.setId(123L);
@@ -205,7 +214,6 @@ class MovieServiceTest {
 
         assertThat(result).isNotNull();
         assertEquals(testMovie.getId(), result.getId());
-        assertEquals(testMovie.getTmdbId(), result.getTmdbId());
         assertEquals(testMovie.getAverageRating(), result.getAverageRating());
         assertEquals(testMovie.getRatingCount(), result.getRatingCount());
         then(movieRepository).should().findByIdWithCastsAndDirector(testMovie.getId());
@@ -222,5 +230,63 @@ class MovieServiceTest {
         assertThat(thrown)
                 .isInstanceOf(ServiceException.class)
                 .hasMessage("%d번 영화를 찾을 수 없습니다.".formatted(id));
+    }
+
+    @Test
+    @DisplayName("영화 생성 - 성공")
+    void createMovie1() {
+        // given
+        MovieRequest request = new MovieRequest(
+                "movie",
+                "overview",
+                LocalDate.of(2022, 1, 1),
+                "Released",
+                "posterPath",
+                100,
+                "productionCountry",
+                "productionCompany",
+                List.of(1L, 2L),
+                List.of(new MovieRequest.MovieCastRequest(1L, "characterName")),
+                1L
+        );
+
+        Genre genre1 = new Genre(1L, "Action");
+        Genre genre2 = new Genre(2L, "Drama");
+        Actor actor = new Actor(1L, "Test Actor", null);
+        Director director = new Director(1L, "Test Director", null);
+
+        Movie savedMovie = new Movie(
+                "movie",
+                "overview",
+                LocalDate.of(2022, 1, 1),
+                "Released",
+                "posterPath",
+                100,
+                "productionCountry",
+                "productionCompany"
+        );
+        savedMovie.setId(1L);
+        savedMovie.getGenres().addAll(List.of(genre1, genre2));
+        savedMovie.getCasts().add(new MovieCast(savedMovie, actor, "characterName"));
+        savedMovie.setDirector(director);
+
+        // when
+        when(genreRepository.findAllById(List.of(1L, 2L))).thenReturn(List.of(genre1, genre2));
+        when(actorRepository.findById(1L)).thenReturn(Optional.of(actor));
+        when(directorRepository.findById(1L)).thenReturn(Optional.of(director));
+        when(movieRepository.save(any(Movie.class))).thenReturn(savedMovie);
+
+        MovieResponseWithDetail response = movieService.createMovie(request);
+
+        // then
+        verify(movieRepository).save(any(Movie.class));
+        assertNotNull(response);
+        assertEquals(savedMovie.getId(), response.getId());
+        assertEquals(savedMovie.getTitle(), response.getTitle());
+        assertEquals("Action", response.getGenres().get(0).getName());
+        assertEquals("Drama", response.getGenres().get(1).getName());
+        assertEquals("Test Actor", response.getCasts().get(0).getActor().getName());
+        assertEquals("characterName", response.getCasts().get(0).getCharacterName());
+        assertEquals("Test Director", response.getDirector().getName());
     }
 }

@@ -81,14 +81,14 @@ public class FavoriteServiceTest {
 
     @BeforeEach
     void setUp() {
-        testMovie1 = new Movie(9599L, "test movie1", "test movie1",
+        testMovie1 = new Movie("test movie1", "test movie1",
                 LocalDate.of(2024, 1, 1), "test movie1", "test movie1",
                 100, "KR", "test movie1");
         testMovie1.setId(95L);
         testMovie1.setAverageRating(4);
         testMovie1.setRatingCount(15);
 
-        testMovie2 = new Movie(599L, "test movie2", "test movie2",
+        testMovie2 = new Movie("test movie2", "test movie2",
                 LocalDate.of(2024, 1, 1), "test movie2", "test movie2",
                 100, "KR", "test movie2");
         testMovie2.setId(59L);

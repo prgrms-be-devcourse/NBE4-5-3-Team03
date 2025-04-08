@@ -53,7 +53,7 @@ class ActorServiceTest {
         actor2 = new Actor(2L, "actor2", "test2.png");
         actor3 = new Actor(3L, "actor3", "test3.png");
 
-        movie = new Movie(1L, "movie", "",
+        movie = new Movie("movie", "",
                 LocalDate.of(2022, 1, 1), "",
                 "movie.png", 100, "", "");
         movie.setId(1L);

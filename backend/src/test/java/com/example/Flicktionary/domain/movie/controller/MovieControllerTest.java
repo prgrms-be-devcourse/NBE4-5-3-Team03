@@ -1,5 +1,10 @@
 package com.example.Flicktionary.domain.movie.controller;
 
+import com.example.Flicktionary.domain.actor.dto.ActorDto;
+import com.example.Flicktionary.domain.director.dto.DirectorDto;
+import com.example.Flicktionary.domain.genre.dto.GenreDto;
+import com.example.Flicktionary.domain.movie.dto.MovieCastDto;
+import com.example.Flicktionary.domain.movie.dto.MovieRequest;
 import com.example.Flicktionary.domain.movie.dto.MovieResponse;
 import com.example.Flicktionary.domain.movie.dto.MovieResponseWithDetail;
 import com.example.Flicktionary.domain.movie.entity.Movie;
@@ -9,10 +14,13 @@ import com.example.Flicktionary.domain.user.service.UserAccountService;
 import com.example.Flicktionary.global.dto.PageDto;
 import com.example.Flicktionary.global.exception.ServiceException;
 import com.example.Flicktionary.global.security.CustomUserDetailsService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -34,6 +42,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -58,20 +67,24 @@ class MovieControllerTest {
     @MockitoBean
     private UserAccountJwtAuthenticationService userAccountJwtAuthenticationService;
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     private Movie testMovie1;
 
     private Movie testMovie2;
 
     @BeforeEach
     void setUp() {
-        testMovie1 = new Movie(321L, "testTitle1", "",
+        objectMapper.registerModule(new JavaTimeModule());
+
+        testMovie1 = new Movie("testTitle1", "",
                 LocalDate.of(2022, 1, 1), "",
                 "movie.png", 100, "", "");
         testMovie1.setId(123L);
         testMovie1.setAverageRating(1.23);
         testMovie1.setRatingCount(123);
 
-        testMovie2 = new Movie(654L, "testTitle2", "",
+        testMovie2 = new Movie("testTitle2", "",
                 LocalDate.of(2022, 1, 1), "",
                 "movie.png", 100, "", "");
         testMovie2.setId(456L);
@@ -157,7 +170,6 @@ class MovieControllerTest {
                 .andExpect(handler().handlerType(MovieController.class))
                 .andExpect(handler().methodName("getMovie"))
                 .andExpect(jsonPath("$.data.id").value(testMovie1.getId()))
-                .andExpect(jsonPath("$.data.tmdbId").value(testMovie1.getTmdbId()))
                 .andExpect(jsonPath("$.data.title").value(testMovie1.getTitle()))
                 // TODO: 배우와 장르 정보가 있는 영화 엔티티를 작성해 테스트를 실행할 것
                 .andExpect(jsonPath("$.data.casts").isEmpty())
@@ -184,5 +196,67 @@ class MovieControllerTest {
                 .andExpect(jsonPath("$.code").value(HttpStatus.NOT_FOUND.value()))
                 .andExpect(jsonPath("$.message").value("%d번 영화를 찾을 수 없습니다.".formatted(id)))
                 .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    @DisplayName("영화 생성 - 성공")
+    void createMovie1() throws Exception {
+        // given
+        MovieRequest request = new MovieRequest(
+                "movie",
+                "overview",
+                LocalDate.of(2022, 1, 1),
+                "Released",
+                "movie.png",
+                100,
+                "Korea",
+                "Test Company",
+                List.of(1L, 2L),
+                List.of(new MovieRequest.MovieCastRequest(1L, "characterName")),
+                1L
+        );
+
+        MovieResponseWithDetail response = new MovieResponseWithDetail(
+                1L,
+                "movie",
+                "overview",
+                LocalDate.of(2022, 1, 1),
+                "movie.png",
+                "Released",
+                100,
+                "Korea",
+                "Test Company",
+                0.0,
+                0,
+                List.of(
+                        new GenreDto(1L, "Action"),
+                        new GenreDto(2L, "Drama")
+                ),
+                List.of(
+                        new MovieCastDto(
+                                new ActorDto(1L, "Test Actor", null),
+                                "characterName"
+                        )
+                ),
+                new DirectorDto(1L, "Test Director", null)
+        );
+
+        // when
+        Mockito.when(movieService.createMovie(Mockito.any(MovieRequest.class)))
+                .thenReturn(response);
+
+        // then
+        ResultActions resultActions = mvc.perform(post("/api/movies")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print());
+
+        resultActions.andExpect(status().isCreated())
+                .andExpect(jsonPath("$.code").value("201"))
+                .andExpect(jsonPath("$.message").value("Created"))
+                .andExpect(jsonPath("$.data.id").value(1))
+                .andExpect(jsonPath("$.data.title").value("movie"))
+                .andExpect(jsonPath("$.data.genres[0].name").value("Action"))
+                .andExpect(jsonPath("$.data.casts[0].actor.name").value("Test Actor"));
     }
 }
