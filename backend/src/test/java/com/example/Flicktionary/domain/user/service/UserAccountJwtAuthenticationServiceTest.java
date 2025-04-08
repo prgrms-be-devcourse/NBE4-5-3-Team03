@@ -118,7 +118,7 @@ class UserAccountJwtAuthenticationServiceTest {
 
         assertNotEquals(fakeRefreshToken, userAccount.getRefreshToken());
         assertNotEquals(fakeExpiryDate, userAccount.getRefreshTokenExpiresAt());
-        assertThat(tokens.access()).isNotEmpty();
+        assertThat(tokens.getAccess()).isNotEmpty();
         then(userAccountRepository).should().findByRefreshToken(fakeRefreshToken);
         then(userAccountRepository).should().findByUsername(userAccount.getUsername());
     }
