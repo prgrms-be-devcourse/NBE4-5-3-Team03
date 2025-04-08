@@ -42,8 +42,8 @@ class UserAccountService(
      * @return 변경된 회원에 해당하는 DTO
      */
     fun modifyUser(id: Long, userAccountDto: UserAccountDto): UserAccountDto {
-        val userAccount = userAccountRepository.findById(id)
-            .orElseThrow { ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 유저를 찾을 수 없습니다.") }
+        val userAccount = userAccountRepository.findByIdOrNull(id)?:
+            throw ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 유저를 찾을 수 없습니다.")
         userAccount.username = userAccountDto.username
         userAccount.password = passwordEncoder.encode("{bcrypt}" + userAccountDto.password)
         userAccount.email = userAccountDto.email
@@ -74,8 +74,8 @@ class UserAccountService(
      * @return 변경된 회원에 해당하는 DTO
      */
     fun modifyPassword(id: Long, userAccountDto: UserAccountDto): UserAccountDto {
-        val userAccount = userAccountRepository.findById(id)
-            .orElseThrow { ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 유저를 찾을 수 없습니다.") }
+        val userAccount = userAccountRepository.findByIdOrNull(id)?:
+            throw ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 유저를 찾을 수 없습니다.")
         userAccount.password = passwordEncoder.encode("{bcrypt}" + userAccountDto.password)
         return UserAccountDto.from(userAccountRepository.save(userAccount))
     }
@@ -87,8 +87,8 @@ class UserAccountService(
      * @return 조회된 회원에 해당하는 DTO
      */
     fun getUserById(id: Long): UserAccountDto {
-        return UserAccountDto.from(userAccountRepository.findById(id)
-            .orElseThrow { ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 유저를 찾을 수 없습니다.") })
+        return UserAccountDto.from(userAccountRepository.findByIdOrNull(id)?:
+            throw ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 유저를 찾을 수 없습니다."))
     }
 
     /**
@@ -98,8 +98,8 @@ class UserAccountService(
      * @return 삭제된 회원의 유저 ID
      */
     fun deleteUserById(id: Long): String {
-        val userAccount = userAccountRepository.findById(id)
-            .orElseThrow { ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 유저를 찾을 수 없습니다.") }
+        val userAccount = userAccountRepository.findByIdOrNull(id)?:
+            throw ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 유저를 찾을 수 없습니다.")
 
         // ReviewService를 통해 리뷰의 userAccount를 null로 설정
         reviewService.disassociateReviewsFromUser(userAccount)
