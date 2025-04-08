@@ -59,7 +59,7 @@ class ActorControllerTest {
                 "movie.png", 100, "", "");
         testMovie.setId(1L);
 
-        testSeries = new Series(1L, "series", "",
+        testSeries = new Series("series", "",
                 LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
                 "", "series.png", 10, "", "");
         testSeries.setId(1L);

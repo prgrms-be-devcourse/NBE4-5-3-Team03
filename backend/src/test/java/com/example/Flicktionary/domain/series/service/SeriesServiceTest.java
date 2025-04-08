@@ -51,7 +51,7 @@ public class SeriesServiceTest {
 
     @BeforeEach
     void setUp() {
-        series = new Series(124L, "testTitle", "",
+        series = new Series("testTitle", "",
                 LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
                 "", "series.png", 10, "", "");
         series.setId(123L);
@@ -76,7 +76,6 @@ public class SeriesServiceTest {
         assertThat(series).isNotNull();
         assertThat(series.getContent().size()).isGreaterThan(0);
         assertEquals(123L, series.getContent().getFirst().getId());
-        assertEquals(124L, series.getContent().getFirst().getTmdbId());
         assertEquals("testTitle", series.getContent().getFirst().getTitle());
         assertEquals(Sort.by("id").ascending(), captured.getSort());
         assertEquals(pageSize, captured.getPageSize());
@@ -177,7 +176,6 @@ public class SeriesServiceTest {
         // then
         assertNotNull(response);
         assertEquals(seriesId, response.getId());
-        assertEquals(124L, response.getTmdbId());
         assertEquals("testTitle", response.getTitle());
         then(seriesRepository).should().findByIdWithCastsAndDirector(seriesId);
     }

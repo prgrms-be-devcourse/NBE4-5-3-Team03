@@ -57,21 +57,21 @@ public class SeriesControllerTest {
 
     @BeforeEach
     void setUp() {
-        series1 = new Series(1L, "Series 1", "",
+        series1 = new Series("Series 1", "",
                 LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
                 "", "series.png", 10, "", "");
         series1.setId(1L);
         series1.setAverageRating(2.1);
         series1.setRatingCount(150);
 
-        series2 = new Series(2L, "Series 2", "",
+        series2 = new Series("Series 2", "",
                 LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
                 "", "series.png", 10, "", "");
         series2.setId(2L);
         series2.setAverageRating(3.6);
         series2.setRatingCount(100);
 
-        series3 = new Series(3L, "Series 3", "",
+        series3 = new Series("Series 3", "",
                 LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
                 "", "series.png", 10, "", "");
         series3.setId(3L);
@@ -90,7 +90,7 @@ public class SeriesControllerTest {
 
         //given
         List<Series> mockSeriesList = List.of(
-            series1, series2, series3
+                series1, series2, series3
         );
         Page<Series> mockSeriesPage = new PageImpl<>(mockSeriesList, PageRequest.of(page - 1, pageSize), mockSeriesList.size());
         PageDto<SeriesSummaryResponse> result = new PageDto<>(mockSeriesPage.map(SeriesSummaryResponse::new));
@@ -123,7 +123,7 @@ public class SeriesControllerTest {
         // given
         Long seriesId = 1L;
         SeriesDetailResponse response = new SeriesDetailResponse(
-                seriesId, 1L, "Test Series", "http://test.com/image.jpg",
+                seriesId, "Test Series", "http://test.com/image.jpg",
                 4.5, 100, 10, "Test Plot", "Test Company", "Test Nation",
                 LocalDate.of(2020, 1, 1), LocalDate.of(2021, 1, 1),
                 "Completed", Collections.emptyList(), Collections.emptyList(), null
