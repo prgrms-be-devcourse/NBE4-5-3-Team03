@@ -26,7 +26,6 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import java.time.LocalDate
 import java.util.*
-import java.util.List
 
 @DisplayName("영화 서비스 테스트")
 @ExtendWith(MockitoExtension::class)
@@ -274,12 +273,12 @@ internal class MovieServiceTest {
             "productionCompany"
         )
         savedMovie.id = 1L
-        savedMovie.genres.addAll(List.of(genre1, genre2))
+        savedMovie.genres.addAll(listOf(genre1, genre2))
         savedMovie.casts.add(MovieCast(savedMovie, actor, "characterName"))
         savedMovie.director = director
 
         // when
-        Mockito.`when`(genreRepository.findAllById(listOf(1L, 2L))).thenReturn(List.of(genre1, genre2))
+        Mockito.`when`(genreRepository.findAllById(listOf(1L, 2L))).thenReturn(listOf(genre1, genre2))
         Mockito.`when`(actorRepository.findById(1L)).thenReturn(Optional.of(actor))
         Mockito.`when`(directorRepository.findById(1L)).thenReturn(Optional.of(director))
         Mockito.`when`(movieRepository.save(ArgumentMatchers.any(Movie::class.java))).thenReturn(savedMovie)
@@ -330,7 +329,7 @@ internal class MovieServiceTest {
 
         // mocking
         Mockito.`when`(movieRepository.findById(movieId)).thenReturn(Optional.of(movie))
-        Mockito.`when`(genreRepository.findAllById(listOf(1L, 2L))).thenReturn(List.of(genre1, genre2))
+        Mockito.`when`(genreRepository.findAllById(listOf(1L, 2L))).thenReturn(listOf(genre1, genre2))
         Mockito.`when`(actorRepository.findById(1L)).thenReturn(Optional.of(actor))
         Mockito.`when`(directorRepository.findById(1L)).thenReturn(Optional.of(director))
 
@@ -368,7 +367,7 @@ internal class MovieServiceTest {
             "USA",
             "Updated Company",
             listOf(1L, 2L),
-            List.of(MovieCastRequest(1L, "new role")),
+            listOf(MovieCastRequest(1L, "new role")),
             1L
         )
 
