@@ -63,13 +63,6 @@ tasks.test {
     useJUnitPlatform()
 }
 
-// 테스트 경로에 코틀린 파일이 존재할때만 compileTestKotlin 작업 수행
-tasks.compileTestKotlin {
-	onlyIf {
-		fileTree('src/test').any { it.name.endsWith('.kt') }
-	}
-}
-
 kotlin {
 	compilerOptions {
 		freeCompilerArgs.addAll '-Xjsr305=strict'
