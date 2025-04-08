@@ -53,21 +53,16 @@ class ActorControllerTest {
                 .build();
 
         testActor = new Actor(1L, "actor", "actor.png");
-        testMovie = Movie.builder()
-                .id(1L)
-                .tmdbId(1L)
-                .title("movie")
-                .posterPath("movie.png")
-                .releaseDate(LocalDate.of(2022, 1, 1))
-                .build();
-        testSeries = Series.builder()
-                .id(1L)
-                .tmdbId(1L)
-                .title("series")
-                .posterPath("series.png")
-                .releaseStartDate(LocalDate.of(2022, 1, 1))
-                .releaseEndDate(LocalDate.of(2023, 1, 1))
-                .build();
+
+        testMovie = new Movie(1L, "movie", "",
+                LocalDate.of(2022, 1, 1), "",
+                "movie.png", 100, "", "");
+        testMovie.setId(1L);
+
+        testSeries = new Series(1L, "series", "",
+                LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
+                "", "series.png", 10, "", "");
+        testSeries.setId(1L);
     }
 
     @Test

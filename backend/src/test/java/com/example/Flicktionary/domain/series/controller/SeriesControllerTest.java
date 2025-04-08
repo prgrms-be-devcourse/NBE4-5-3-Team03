@@ -8,6 +8,7 @@ import com.example.Flicktionary.domain.user.service.UserAccountJwtAuthentication
 import com.example.Flicktionary.domain.user.service.UserAccountService;
 import com.example.Flicktionary.global.dto.PageDto;
 import com.example.Flicktionary.global.security.CustomUserDetailsService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,32 @@ public class SeriesControllerTest {
     @MockitoBean
     private UserAccountJwtAuthenticationService userAccountJwtAuthenticationService;
 
+    private Series series1, series2, series3;
+
+    @BeforeEach
+    void setUp() {
+        series1 = new Series(1L, "Series 1", "",
+                LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
+                "", "series.png", 10, "", "");
+        series1.setId(1L);
+        series1.setAverageRating(2.1);
+        series1.setRatingCount(150);
+
+        series2 = new Series(2L, "Series 2", "",
+                LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
+                "", "series.png", 10, "", "");
+        series2.setId(2L);
+        series2.setAverageRating(3.6);
+        series2.setRatingCount(100);
+
+        series3 = new Series(3L, "Series 3", "",
+                LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
+                "", "series.png", 10, "", "");
+        series3.setId(3L);
+        series3.setAverageRating(3.0);
+        series3.setRatingCount(50);
+    }
+
     @Test
     @DisplayName("Series 목록 조회")
     void getSeriesTest() throws Exception {
@@ -63,24 +90,7 @@ public class SeriesControllerTest {
 
         //given
         List<Series> mockSeriesList = List.of(
-                Series.builder()
-                        .id(1L)
-                        .title("Series 1")
-                        .averageRating(2.1)
-                        .ratingCount(150)
-                        .build(),
-                Series.builder()
-                        .id(2L)
-                        .title("Series 2")
-                        .averageRating(3.6)
-                        .ratingCount(100)
-                        .build(),
-                Series.builder()
-                        .id(3L)
-                        .title("Series 3")
-                        .averageRating(3.0)
-                        .ratingCount(50)
-                        .build()
+            series1, series2, series3
         );
         Page<Series> mockSeriesPage = new PageImpl<>(mockSeriesList, PageRequest.of(page - 1, pageSize), mockSeriesList.size());
         PageDto<SeriesSummaryResponse> result = new PageDto<>(mockSeriesPage.map(SeriesSummaryResponse::new));
@@ -112,23 +122,12 @@ public class SeriesControllerTest {
     void getSeriesDetailTest() throws Exception {
         // given
         Long seriesId = 1L;
-        SeriesDetailResponse response = SeriesDetailResponse.builder()
-                .id(seriesId)
-                .title("Test Series")
-                .posterPath("http://test.com/image.jpg")
-                .averageRating(4.5)
-                .ratingCount(100)
-                .episode(10)
-                .plot("Test Plot")
-                .company("Test Company")
-                .nation("Test Nation")
-                .releaseStartDate(LocalDate.of(2020, 1, 1))
-                .releaseEndDate(LocalDate.of(2021, 1, 1))
-                .status("Completed")
-                .genres(Collections.emptyList())
-                .casts(Collections.emptyList())
-                .director(null)
-                .build();
+        SeriesDetailResponse response = new SeriesDetailResponse(
+                seriesId, 1L, "Test Series", "http://test.com/image.jpg",
+                4.5, 100, 10, "Test Plot", "Test Company", "Test Nation",
+                LocalDate.of(2020, 1, 1), LocalDate.of(2021, 1, 1),
+                "Completed", Collections.emptyList(), Collections.emptyList(), null
+        );
 
         //when
         when(seriesService.getSeriesDetail(seriesId)).thenReturn(response);

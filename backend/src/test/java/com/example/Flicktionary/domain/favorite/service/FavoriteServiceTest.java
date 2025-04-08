@@ -7,11 +7,13 @@ import com.example.Flicktionary.domain.favorite.repository.FavoriteRepository;
 import com.example.Flicktionary.domain.movie.entity.Movie;
 import com.example.Flicktionary.domain.movie.repository.MovieRepository;
 import com.example.Flicktionary.domain.series.entity.Series;
+import com.example.Flicktionary.domain.series.repository.SeriesRepository;
 import com.example.Flicktionary.domain.user.entity.UserAccount;
 import com.example.Flicktionary.domain.user.entity.UserAccountType;
 import com.example.Flicktionary.domain.user.repository.UserAccountRepository;
 import com.example.Flicktionary.global.dto.PageDto;
 import com.example.Flicktionary.global.exception.ServiceException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,6 +50,9 @@ public class FavoriteServiceTest {
     @Mock
     private MovieRepository movieRepository;
 
+    @Mock
+    private SeriesRepository seriesRepository;
+
     @InjectMocks
     private FavoriteService favoriteService;
 
@@ -60,64 +65,55 @@ public class FavoriteServiceTest {
             .role(UserAccountType.USER)
             .build();
 
-    private Movie testMovie1 = Movie.builder()
-            .id(95L)
-            .tmdbId(9599L)
-            .title("test movie1")
-            .overview("test movie1")
-            .releaseDate(LocalDate.of(2024, 1, 1))
-            .posterPath("test movie1")
-            .productionCountry("KR")
-            .productionCompany("test movie1")
-            .status("test movie1")
-            .averageRating(4)
-            .ratingCount(15)
-            .build();
 
-    private Movie testMovie2 = Movie.builder()
-            .id(59L)
-            .tmdbId(599L)
-            .title("test movie2")
-            .overview("test movie2")
-            .releaseDate(LocalDate.of(2024, 1, 1))
-            .posterPath("test movie2")
-            .productionCountry("KR")
-            .productionCompany("test movie2")
-            .status("test movie2")
-            .averageRating(3.2)
-            .ratingCount(151)
-            .build();
+    private Movie testMovie1;
 
-    private Series testSeries = Series.builder()
-            .id(101L)
-            .tmdbId(9519L)
-            .title("test series1")
-            .overview("test series1")
-            .episodeNumber(1)
-            .status("test series1")
-            .posterPath("test series1")
-            .releaseStartDate(LocalDate.of(2024, 1, 1))
-            .releaseEndDate(LocalDate.of(2024, 1, 1))
-            .productionCountry("KR")
-            .productionCompany("test series1")
-            .averageRating(4.3)
-            .ratingCount(5)
-            .build();
+    private Movie testMovie2;
 
-    private FavoriteDto favorite1 = FavoriteDto.builder()
-            .userId(testUser.getId())
-            .contentType(ContentType.MOVIE)
-            .contentId(testMovie1.getId())
-            .build();
+    private Series testSeries;
 
-    private FavoriteDto favorite2 = FavoriteDto.builder()
-            .userId(testUser.getId())
-            .contentType(ContentType.SERIES)
-            .contentId(testSeries.getId())  // 가상의 Series ID
-            .build();
+    private FavoriteDto favorite1;
+
+    private FavoriteDto favorite2;
 
     private Long movieCount = 2L;
     private Long seriesCount = 1L;
+
+    @BeforeEach
+    void setUp() {
+        testMovie1 = new Movie(9599L, "test movie1", "test movie1",
+                LocalDate.of(2024, 1, 1), "test movie1", "test movie1",
+                100, "KR", "test movie1");
+        testMovie1.setId(95L);
+        testMovie1.setAverageRating(4);
+        testMovie1.setRatingCount(15);
+
+        testMovie2 = new Movie(599L, "test movie2", "test movie2",
+                LocalDate.of(2024, 1, 1), "test movie2", "test movie2",
+                100, "KR", "test movie2");
+        testMovie2.setId(59L);
+        testMovie2.setAverageRating(3.2);
+        testMovie2.setRatingCount(151);
+
+        testSeries = new Series(9519L, "test series1", "test series1",
+                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 1),
+                "test series1", "test series1", 1, "KR", "test series1");
+        testSeries.setId(101L);
+        testSeries.setAverageRating(4.3);
+        testSeries.setRatingCount(5);
+
+        favorite1 = FavoriteDto.builder()
+                .userId(testUser.getId())
+                .contentType(ContentType.MOVIE)
+                .contentId(testMovie1.getId())
+                .build();
+
+        favorite2 = FavoriteDto.builder()
+                .userId(testUser.getId())
+                .contentType(ContentType.SERIES)
+                .contentId(testSeries.getId())  // 가상의 Series ID
+                .build();
+    }
 
     @Test
     @DisplayName("즐겨찾기 추가 성공")

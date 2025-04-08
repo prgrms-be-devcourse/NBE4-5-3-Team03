@@ -52,21 +52,16 @@ class ActorServiceTest {
         actor1 = new Actor(1L, "actor1", "test1.png");
         actor2 = new Actor(2L, "actor2", "test2.png");
         actor3 = new Actor(3L, "actor3", "test3.png");
-        movie = Movie.builder()
-                .id(1L)
-                .tmdbId(1L)
-                .title("movie")
-                .posterPath("movie.png")
-                .releaseDate(LocalDate.of(2022, 1, 1))
-                .build();
-        series = Series.builder()
-                .id(1L)
-                .tmdbId(1L)
-                .title("series")
-                .posterPath("series.png")
-                .releaseStartDate(LocalDate.of(2022, 1, 1))
-                .releaseEndDate(LocalDate.of(2023, 1, 1))
-                .build();
+
+        movie = new Movie(1L, "movie", "",
+                LocalDate.of(2022, 1, 1), "",
+                "movie.png", 100, "", "");
+        movie.setId(1L);
+
+        series = new Series(1L, "series", "",
+                LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
+                "", "series.png", 10, "", "");
+        series.setId(1L);
     }
 
     @Test
@@ -85,7 +80,8 @@ class ActorServiceTest {
     @DisplayName("배우가 출연한 영화 리스트 조회 - 성공")
     void getMoviesByActorId1() {
         // Given
-        MovieCast movieCast = new MovieCast(1L, movie, actor1, "name");
+        MovieCast movieCast = new MovieCast(movie, actor1, "name");
+        movieCast.setId(1L);
         given(movieCastRepository.findMoviesByActorId(1L)).willReturn(List.of(movieCast));
 
         // When
@@ -101,7 +97,8 @@ class ActorServiceTest {
     @DisplayName("배우가 출연한 시리즈 리스트 조회 - 성공")
     void getSeriesByActorId1() {
         // Given
-        SeriesCast seriesCast = new SeriesCast(1L, series, actor1, "name");
+        SeriesCast seriesCast = new SeriesCast(series, actor1, "name");
+        seriesCast.setId(1L);
         given(seriesCastRepository.findSeriesByActorId(1L)).willReturn(List.of(seriesCast));
 
         // When

@@ -1,5 +1,8 @@
 package com.example.Flicktionary.domain.movie.service;
 
+import com.example.Flicktionary.domain.actor.repository.ActorRepository;
+import com.example.Flicktionary.domain.director.repository.DirectorRepository;
+import com.example.Flicktionary.domain.genre.repository.GenreRepository;
 import com.example.Flicktionary.domain.movie.dto.MovieResponse;
 import com.example.Flicktionary.domain.movie.dto.MovieResponseWithDetail;
 import com.example.Flicktionary.domain.movie.entity.Movie;
@@ -7,6 +10,7 @@ import com.example.Flicktionary.domain.movie.repository.MovieRepository;
 import com.example.Flicktionary.domain.tmdb.service.TmdbService;
 import com.example.Flicktionary.global.dto.PageDto;
 import com.example.Flicktionary.global.exception.ServiceException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,8 +23,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
@@ -37,10 +41,31 @@ class MovieServiceTest {
     private MovieRepository movieRepository;
 
     @Mock
+    private GenreRepository genreRepository;
+
+    @Mock
+    private ActorRepository actorRepository;
+
+    @Mock
+    private DirectorRepository directorRepository;
+
+    @Mock
     private TmdbService tmdbService;
 
     @InjectMocks
     private MovieService movieService;
+
+    private Movie testMovie;
+
+    @BeforeEach
+    void setUp() {
+        testMovie = new Movie(124L, "testTitle", "",
+                LocalDate.of(2022, 1, 1), "Released",
+                "movie.png", 100, "", "");
+        testMovie.setId(123L);
+        testMovie.setAverageRating(1.23);
+        testMovie.setRatingCount(12);
+    }
 
     @Test
     @DisplayName("영화 목록 조회 - 성공 - 기본")
@@ -52,11 +77,7 @@ class MovieServiceTest {
 
         given(movieRepository.findByTitleLike(any(String.class), captor.capture()))
                 .willReturn(new PageImpl<>(
-                        List.of(Movie.builder()
-                                .id(123L)
-                                .tmdbId(124L)
-                                .title("testTitle")
-                                .build()),
+                        List.of(testMovie),
                         PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.ASC, "id")),
                         10));
 
@@ -87,11 +108,7 @@ class MovieServiceTest {
 
         given(movieRepository.findByTitleLike(stringCaptor.capture(), pageableCaptor.capture()))
                 .willReturn(new PageImpl<>(
-                        List.of(Movie.builder()
-                                .id(123L)
-                                .tmdbId(124L)
-                                .title("testTitle")
-                                .build()),
+                        List.of(testMovie),
                         PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.ASC, "id")),
                         10));
 
@@ -120,11 +137,7 @@ class MovieServiceTest {
 
         given(movieRepository.findByTitleLike(any(String.class), captor.capture()))
                 .willReturn(new PageImpl<>(
-                        List.of(Movie.builder()
-                                .id(123L)
-                                .tmdbId(124L)
-                                .title("testTitle")
-                                .build()),
+                        List.of(testMovie),
                         PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "averageRating")),
                         10));
 
@@ -151,11 +164,7 @@ class MovieServiceTest {
 
         given(movieRepository.findByTitleLike(any(String.class), captor.capture()))
                 .willReturn(new PageImpl<>(
-                        List.of(Movie.builder()
-                                .id(123L)
-                                .tmdbId(124L)
-                                .title("testTitle")
-                                .build()),
+                        List.of(testMovie),
                         PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "ratingCount")),
                         10));
 
@@ -189,16 +198,8 @@ class MovieServiceTest {
     @Test
     @DisplayName("영화 상세 조회 - 성공 - 기본")
     void getMovie1() {
-        Movie testMovie = Movie.builder()
-                .id(123L)
-                .tmdbId(124L)
-                .title("testTitle")
-                .averageRating(1.23)
-                .ratingCount(12)
-                .status("Released")
-                .build();
         given(movieRepository.findByIdWithCastsAndDirector(testMovie.getId()))
-                .willReturn(Optional.of(testMovie));
+                .willReturn(testMovie);
 
         MovieResponseWithDetail result = movieService.getMovie(testMovie.getId());
 
@@ -214,7 +215,7 @@ class MovieServiceTest {
     @DisplayName("영화 상세 조회 - 실패 - 없는 영화 조회")
     void getMovie3() {
         long id = 1000000000000000000L;
-        given(movieRepository.findByIdWithCastsAndDirector(id)).willReturn(Optional.empty());
+        given(movieRepository.findByIdWithCastsAndDirector(id)).willReturn(null);
 
         Throwable thrown = catchThrowable(() -> movieService.getMovie(id));
 
