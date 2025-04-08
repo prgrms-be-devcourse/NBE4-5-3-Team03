@@ -89,8 +89,8 @@ class UserAccountController(
     @GetMapping("/refresh")
     fun refreshAccessToken(@CookieValue("refreshToken") refreshTokenBase64: String, response: HttpServletResponse): ResponseEntity<ResponseDto<*>> {
         val tokenSet = userAccountJwtAuthenticationService.createNewAccessTokenWithRefreshToken(refreshTokenBase64)
-        val accessToken = newCookieWithDefaultSettings("accessToken", tokenSet.access())
-        val refreshToken = newCookieWithDefaultSettings("refreshToken", tokenSet.refresh())
+        val accessToken = newCookieWithDefaultSettings("accessToken", tokenSet.access)
+        val refreshToken = newCookieWithDefaultSettings("refreshToken", tokenSet.refresh)
         response.addCookie(accessToken)
         response.addCookie(refreshToken)
 
