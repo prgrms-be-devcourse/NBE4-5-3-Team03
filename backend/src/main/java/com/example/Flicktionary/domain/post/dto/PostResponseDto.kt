@@ -13,7 +13,6 @@ data class PostResponseDto(
     val isSpoiler: Boolean? = null
 ) {
     companion object {
-        @JvmStatic
         fun fromEntity(post: Post): PostResponseDto {
             // 유저가 탈퇴할 경우 "탈퇴한 회원"으로 처리
             val nickname = post.userAccount?.nickname ?: "탈퇴한 회원"
