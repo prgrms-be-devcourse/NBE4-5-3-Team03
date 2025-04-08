@@ -33,12 +33,12 @@ class UserAccountDtoTest {
     void createDtoFromEntity() {
         UserAccountDto testDto = UserAccountDto.from(userAccount);
         assertNotNull(testDto);
-        assertEquals(userAccount.getId(), testDto.id());
-        assertEquals(userAccount.getUsername(), testDto.username());
-        assertEquals(userAccount.getPassword(), testDto.password());
-        assertEquals(userAccount.getEmail(), testDto.email());
-        assertEquals(userAccount.getNickname(), testDto.nickname());
-        assertEquals(userAccount.getRole().toString(), testDto.role());
+        assertEquals(userAccount.getId(), testDto.getId());
+        assertEquals(userAccount.getUsername(), testDto.getUsername());
+        assertEquals(userAccount.getPassword(), testDto.getPassword());
+        assertEquals(userAccount.getEmail(), testDto.getEmail());
+        assertEquals(userAccount.getNickname(), testDto.getNickname());
+        assertEquals(userAccount.getRole().toString(), testDto.getRole());
     }
 
     @DisplayName("DTO로부터 올바른 엔티티를 생성한다.")
@@ -46,12 +46,12 @@ class UserAccountDtoTest {
     void createEntityFromDto() {
         UserAccount testEntity = userAccountDto.toEntity();
         assertNotNull(testEntity);
-        assertEquals(userAccountDto.id(), testEntity.getId());
-        assertEquals(userAccountDto.username(), testEntity.getUsername());
-        assertEquals(userAccountDto.password(), testEntity.getPassword());
-        assertEquals(userAccountDto.email(), testEntity.getEmail());
-        assertEquals(userAccountDto.nickname(), testEntity.getNickname());
-        assertEquals(UserAccountType.valueOf(userAccountDto.role()), testEntity.getRole());
+        assertEquals(userAccountDto.getId(), testEntity.getId());
+        assertEquals(userAccountDto.getUsername(), testEntity.getUsername());
+        assertEquals(userAccountDto.getPassword(), testEntity.getPassword());
+        assertEquals(userAccountDto.getEmail(), testEntity.getEmail());
+        assertEquals(userAccountDto.getNickname(), testEntity.getNickname());
+        assertEquals(UserAccountType.valueOf(userAccountDto.getRole()), testEntity.getRole());
         assertTrue(testEntity.getFavorites().isEmpty());
         assertTrue(testEntity.getReviews().isEmpty());
     }

@@ -56,14 +56,14 @@ public class FavoriteServiceTest {
     @InjectMocks
     private FavoriteService favoriteService;
 
-    private UserAccount testUser = UserAccount.builder()
-            .id(123L)
-            .username("tester1234")
-            .password("tester1234")
-            .email("tester1234@email.com")
-            .nickname("tester1234")
-            .role(UserAccountType.USER)
-            .build();
+    private UserAccount testUser = new UserAccount(
+            123L,
+            "tester1234",
+            "tester1234",
+            "tester1234@email.com",
+            "tester1234",
+            UserAccountType.USER
+            );
 
 
     private Movie testMovie1;
