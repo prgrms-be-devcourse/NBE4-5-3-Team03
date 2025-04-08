@@ -31,13 +31,13 @@ class UserAccountJwtAuthenticationService(
     /**
      * 접큰 토큰의 유효기간(초)
      */
-    @Value("\${custom.jwt.access-expire-seconds")
+    @Value("\${custom.jwt.access-expire-seconds}")
     private var accessExpireSeconds: Int = 0
 
     /**
      * 리프레시 토큰의 유효기간(일)
      */
-    @Value("\${custom.jwt.refresh-expire-days")
+    @Value("\${custom.jwt.refresh-expire-days}")
     private var refreshExpireDays: Int = 0
 
     /**
