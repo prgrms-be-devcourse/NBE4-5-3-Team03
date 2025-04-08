@@ -25,7 +25,7 @@ data class UserAccountDto(
         @JvmStatic
         fun from(userAccount: UserAccount): UserAccountDto {
             return UserAccountDto(
-                userAccount.id ?: 0L,
+                userAccount.id,
                 userAccount.username,
                 userAccount.password,
                 userAccount.email,

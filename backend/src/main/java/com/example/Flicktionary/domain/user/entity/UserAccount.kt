@@ -11,13 +11,6 @@ import java.time.LocalDateTime
 @Entity
 class UserAccount(
     /**
-     * 유저의 고유 ID.
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
-
-    /**
      * 유저의 유저네임(로그인 ID).
      */
     @Column(nullable = false, unique = true)
@@ -49,6 +42,24 @@ class UserAccount(
     @Column(nullable = false)
     var role: UserAccountType = UserAccountType.USER
 ) {
+    /**
+     * 유저의 고유 ID.
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private var _id: Long? = null
+
+    var id: Long
+        get() = _id ?: 0
+        set(value) {
+            _id = value
+        }
+
+    constructor(id: Long, username: String, password: String, email: String, nickname: String, role: UserAccountType): this(username, password, email, nickname, role) {
+        this._id = id
+    }
+
     /**
      * 유저의 리프레시 토큰.
      */
