@@ -58,7 +58,7 @@ class ActorServiceTest {
                 "movie.png", 100, "", "");
         movie.setId(1L);
 
-        series = new Series(1L, "series", "",
+        series = new Series("series", "",
                 LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
                 "", "series.png", 10, "", "");
         series.setId(1L);

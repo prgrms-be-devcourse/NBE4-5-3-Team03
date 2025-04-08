@@ -253,7 +253,7 @@ class MovieServiceTest {
         Genre genre1 = new Genre(1L, "Action");
         Genre genre2 = new Genre(2L, "Drama");
         Actor actor = new Actor(1L, "Test Actor", null);
-        Director director = new Director(1L, "Test Director", null);
+        Director director = new Director(1L, "Test Director", "PosterPath");
 
         Movie savedMovie = new Movie(
                 "movie",
@@ -312,7 +312,7 @@ class MovieServiceTest {
         Genre genre1 = new Genre(1L, "Action");
         Genre genre2 = new Genre(2L, "Drama");
         Actor actor = new Actor(1L, "Actor Name", null);
-        Director director = new Director(1L, "Director Name", null);
+        Director director = new Director(1L, "Director Name", "posterPath");
 
         Movie movie = new Movie(
                 "old title", "old overview", LocalDate.of(2020, 1, 1),

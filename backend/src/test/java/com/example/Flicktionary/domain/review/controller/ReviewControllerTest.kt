@@ -89,7 +89,6 @@ class ReviewControllerTest {
         }
 
         testSeries = Series(
-            tmdbId = 10000000000L,
             title = "테스트용 드라마 제목",
             overview = "테스트용 드라마 줄거리",
             releaseStartDate = LocalDate.of(2024, 1, 1),

@@ -13,15 +13,14 @@ import java.time.LocalDate
 @Getter
 class SeriesDetailResponse(
     val id: Long,
-    val tmdbId: Long,
     val title: String,
     val posterPath: String?,
     val averageRating: Double,
     val ratingCount: Int,
     val episode: Int,
     val plot: String,
-    val company: String?,
-    val nation: String?,
+    val company: String,
+    val nation: String,
     val releaseStartDate: LocalDate?,
     val releaseEndDate: LocalDate?,
     val status: String,
@@ -31,7 +30,6 @@ class SeriesDetailResponse(
 ) {
     constructor(series: Series) : this(
         series.id,
-        series.tmdbId,
         series.title,
         series.posterPath,
         series.averageRating,
