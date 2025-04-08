@@ -1,10 +1,15 @@
 package com.example.Flicktionary.domain.series.service;
 
+import com.example.Flicktionary.domain.actor.entity.Actor;
 import com.example.Flicktionary.domain.actor.repository.ActorRepository;
+import com.example.Flicktionary.domain.director.entity.Director;
 import com.example.Flicktionary.domain.director.repository.DirectorRepository;
+import com.example.Flicktionary.domain.genre.entity.Genre;
 import com.example.Flicktionary.domain.genre.repository.GenreRepository;
 import com.example.Flicktionary.domain.series.dto.SeriesDetailResponse;
+import com.example.Flicktionary.domain.series.dto.SeriesRequest;
 import com.example.Flicktionary.domain.series.entity.Series;
+import com.example.Flicktionary.domain.series.entity.SeriesCast;
 import com.example.Flicktionary.domain.series.repository.SeriesRepository;
 import com.example.Flicktionary.domain.tmdb.service.TmdbService;
 import com.example.Flicktionary.global.exception.ServiceException;
@@ -20,6 +25,7 @@ import org.springframework.data.domain.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -28,6 +34,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @DisplayName("시리즈 서비스 테스트")
 @ExtendWith(MockitoExtension.class)
@@ -51,7 +59,7 @@ public class SeriesServiceTest {
 
     @BeforeEach
     void setUp() {
-        series = new Series(124L, "testTitle", "",
+        series = new Series("testTitle", "",
                 LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
                 "", "series.png", 10, "", "");
         series.setId(123L);
@@ -76,7 +84,6 @@ public class SeriesServiceTest {
         assertThat(series).isNotNull();
         assertThat(series.getContent().size()).isGreaterThan(0);
         assertEquals(123L, series.getContent().getFirst().getId());
-        assertEquals(124L, series.getContent().getFirst().getTmdbId());
         assertEquals("testTitle", series.getContent().getFirst().getTitle());
         assertEquals(Sort.by("id").ascending(), captured.getSort());
         assertEquals(pageSize, captured.getPageSize());
@@ -177,7 +184,6 @@ public class SeriesServiceTest {
         // then
         assertNotNull(response);
         assertEquals(seriesId, response.getId());
-        assertEquals(124L, response.getTmdbId());
         assertEquals("testTitle", response.getTitle());
         then(seriesRepository).should().findByIdWithCastsAndDirector(seriesId);
     }
@@ -197,5 +203,182 @@ public class SeriesServiceTest {
                 .isInstanceOf(ServiceException.class)
                 .hasMessage("%d번 시리즈를 찾을 수 없습니다.".formatted(seriesId));
         then(seriesRepository).should().findByIdWithCastsAndDirector(seriesId);
+    }
+
+    @Test
+    @DisplayName("시리즈 생성 - 성공")
+    void createSeries1() {
+        // given
+        SeriesRequest request = new SeriesRequest(
+                "title",
+                "overview",
+                LocalDate.of(2022, 1, 1),
+                LocalDate.of(2023, 1, 1),
+                "status",
+                "posterPath", 10,
+                "productionCountry",
+                "productionCompany",
+                List.of(1L, 2L),
+                List.of(new SeriesRequest.SeriesCastRequest(1L, "characterName")),
+                1L
+        );
+
+        Genre genre1 = new Genre(1L, "Action");
+        Genre genre2 = new Genre(2L, "Drama");
+        Actor actor = new Actor(1L, "name", null);
+        Director director = new Director(1L, "name", "PosterPath");
+
+        Series savedSeries = new Series(
+                "title",
+                "overview",
+                LocalDate.of(2022, 1, 1),
+                LocalDate.of(2023, 1, 1),
+                "status",
+                "posterPath",
+                10,
+                "productionCountry",
+                "productionCompany"
+        );
+        savedSeries.setId(1L);
+        savedSeries.getGenres().addAll(List.of(genre1, genre2));
+        savedSeries.getCasts().add(new SeriesCast(savedSeries, actor, "characterName"));
+        savedSeries.setDirector(director);
+
+        // when
+        when(genreRepository.findAllById(List.of(1L, 2L))).thenReturn(List.of(genre1, genre2));
+        when(actorRepository.findById(1L)).thenReturn(Optional.of(actor));
+        when(directorRepository.findById(1L)).thenReturn(Optional.of(director));
+        when(seriesRepository.save(any(Series.class))).thenReturn(savedSeries);
+
+        SeriesDetailResponse response = seriesService.createSeries(request);
+
+        // then
+        assertNotNull(response);
+        assertEquals(request.getTitle(), response.getTitle());
+        assertEquals(request.getOverview(), response.getPlot());
+        assertEquals(request.getPosterPath(), response.getPosterPath());
+        assertEquals("Action", response.getGenres().get(0).getName());
+        assertEquals("Drama", response.getGenres().get(1).getName());
+        assertEquals("name", response.getCasts().get(0).getActor().getName());
+        assertEquals("characterName", response.getCasts().get(0).getCharacterName());
+        assertEquals("name", response.getDirector().getName());
+    }
+
+    @Test
+    @DisplayName("시리즈 수정 - 성공")
+    void updateSeries1() {
+        // given
+        Long id = 1L;
+        SeriesRequest request = new SeriesRequest(
+                "title",
+                "overview",
+                LocalDate.of(2022, 1, 1),
+                LocalDate.of(2023, 1, 1),
+                "status",
+                "posterPath", 10,
+                "productionCountry",
+                "productionCompany",
+                List.of(1L, 2L),
+                List.of(new SeriesRequest.SeriesCastRequest(1L, "characterName")),
+                1L
+        );
+
+        Genre genre1 = new Genre(1L, "Action");
+        Genre genre2 = new Genre(2L, "Drama");
+        Actor actor = new Actor(1L, "name", null);
+        Director director = new Director(1L, "name", "PosterPath");
+
+        Series series = new Series(
+                "title",
+                "overview",
+                LocalDate.of(2022, 1, 1),
+                LocalDate.of(2023, 1, 1),
+                "status",
+                "posterPath",
+                10,
+                "productionCountry",
+                "productionCompany"
+        );
+        series.setId(id);
+
+        // when
+        when(seriesRepository.findById(id)).thenReturn(Optional.of(series));
+        when(genreRepository.findAllById(List.of(1L, 2L))).thenReturn(List.of(genre1, genre2));
+        when(actorRepository.findById(1L)).thenReturn(Optional.of(actor));
+        when(directorRepository.findById(1L)).thenReturn(Optional.of(director));
+
+        SeriesDetailResponse response = seriesService.updateSeries(id, request);
+
+        // then
+        assertNotNull(response);
+        assertEquals(request.getTitle(), response.getTitle());
+        assertEquals(request.getOverview(), response.getPlot());
+        assertEquals(request.getPosterPath(), response.getPosterPath());
+        assertEquals("Action", response.getGenres().get(0).getName());
+        assertEquals("Drama", response.getGenres().get(1).getName());
+        assertEquals("name", response.getCasts().get(0).getActor().getName());
+        assertEquals("characterName", response.getCasts().get(0).getCharacterName());
+        assertEquals("name", response.getDirector().getName());
+    }
+
+    @Test
+    @DisplayName("시리즈 수정 - 실패 - 없는 시리즈")
+    void updateSeries2() {
+        // given
+        Long id = 1L;
+        SeriesRequest request = new SeriesRequest(
+                "title",
+                "overview",
+                LocalDate.of(2022, 1, 1),
+                LocalDate.of(2023, 1, 1),
+                "status",
+                "posterPath", 10,
+                "productionCountry",
+                "productionCompany",
+                List.of(1L, 2L),
+                List.of(new SeriesRequest.SeriesCastRequest(1L, "characterName")),
+                1L
+        );
+
+        // when
+        when(seriesRepository.findById(id)).thenReturn(Optional.empty());
+        Throwable thrown = catchThrowable(() -> seriesService.updateSeries(id, request));
+
+        // then
+        assertThat(thrown)
+                .isInstanceOf(ServiceException.class)
+                .hasMessage("%d번 시리즈를 찾을 수 없습니다.".formatted(id));
+    }
+
+    @Test
+    @DisplayName("시리즈 삭제 - 성공")
+    void deleteSeries1() {
+        // given
+        Long id = 1L;
+        Series series = new Series();
+        series.setId(id);
+
+        // when
+        when(seriesRepository.findById(id)).thenReturn(Optional.of(series));
+        seriesService.deleteSeries(id);
+
+        // then
+        verify(seriesRepository).delete(series);
+    }
+
+    @Test
+    @DisplayName("시리즈 삭제 - 실패 - 없는 시리즈")
+    void deleteSeries2() {
+        // given
+        Long id = 1L;
+
+        // when
+        when(seriesRepository.findById(id)).thenReturn(Optional.empty());
+        Throwable thrown = catchThrowable(() -> seriesService.deleteSeries(id));
+
+        // then
+        assertThat(thrown)
+                .isInstanceOf(ServiceException.class)
+                .hasMessage("%d번 시리즈를 찾을 수 없습니다.".formatted(id));
     }
 }

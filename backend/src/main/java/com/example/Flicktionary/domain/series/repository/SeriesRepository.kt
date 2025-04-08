@@ -23,7 +23,4 @@ interface SeriesRepository : JpaRepository<Series, Long> {
     fun findByTitleLike(@Param("keyword") keyword: String, pageable: Pageable): Page<Series>
 
     fun findByDirectorId(directorId: Long): List<Series>
-
-    @Query("SELECT s.tmdbId FROM Series s")
-    fun findAllTmdbIds(): Set<Long>
 }

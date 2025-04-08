@@ -7,19 +7,17 @@ import java.time.LocalDate
 
 @Entity
 class Series(
-    @Column(unique = true)
-    val tmdbId: Long,
     @Column(nullable = false)
-    val title: String,
+    var title: String,
     @Column(columnDefinition = "TEXT")
-    val overview: String,
-    val releaseStartDate: LocalDate?,
-    val releaseEndDate: LocalDate?,
-    val status: String,
-    val posterPath: String?,
-    val episodeNumber: Int,
-    val productionCountry: String?,
-    val productionCompany: String?
+    var overview: String,
+    var releaseStartDate: LocalDate?,
+    var releaseEndDate: LocalDate?,
+    var status: String,
+    var posterPath: String?,
+    var episodeNumber: Int,
+    var productionCountry: String,
+    var productionCompany: String
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
