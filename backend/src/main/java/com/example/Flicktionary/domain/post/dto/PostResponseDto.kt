@@ -1,6 +1,7 @@
 package com.example.Flicktionary.domain.post.dto
 
 import com.example.Flicktionary.domain.post.entity.Post
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.LocalDateTime
 
 data class PostResponseDto(
@@ -10,6 +11,7 @@ data class PostResponseDto(
     val title: String,
     val content: String,
     val createdAt: LocalDateTime? = null,
+    @JsonProperty("isSpoiler")
     val isSpoiler: Boolean? = null
 ) {
     companion object {
