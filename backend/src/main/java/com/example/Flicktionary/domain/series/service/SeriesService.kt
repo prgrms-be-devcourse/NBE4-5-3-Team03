@@ -71,7 +71,7 @@ class SeriesService(
     @Transactional
     fun updateSeries(id: Long, request: SeriesRequest): SeriesDetailResponse {
         val series = seriesRepository.findByIdOrNull(id)
-            ?: throw ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 영화를 찾을 수 없습니다.")
+            ?: throw ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 시리즈를 찾을 수 없습니다.")
 
         series.apply {
             title = request.title
@@ -107,7 +107,7 @@ class SeriesService(
     @Transactional
     fun deleteSeries(id: Long) {
         val series = seriesRepository.findByIdOrNull(id)
-            ?: throw ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 영화를 찾을 수 없습니다.")
+            ?: throw ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 시리즈를 찾을 수 없습니다.")
         seriesRepository.delete(series)
     }
 

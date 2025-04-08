@@ -1,6 +1,5 @@
 package com.example.Flicktionary.domain.series.dto
 
-import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import java.time.LocalDate
 
@@ -18,9 +17,6 @@ data class SeriesRequest(
     val status: String,
 
     val posterPath: String?,
-
-    @field:Min(1, message = "상영 시간은 1분 이상이어야 합니다.")
-    val runtime: Int,
 
     val episodeNumber: Int,
 
