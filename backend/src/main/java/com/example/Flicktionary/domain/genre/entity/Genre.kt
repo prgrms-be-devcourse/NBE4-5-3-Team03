@@ -1,24 +1,15 @@
-package com.example.Flicktionary.domain.genre.entity;
+package com.example.Flicktionary.domain.genre.entity
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-public class Genre {
+class Genre(
     @Id
     @Column(nullable = false)
-    private Long id;
+    val id: Long,
 
     @Column(nullable = false)
-    private String name;
-
-    public Genre(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-}
+    val name: String
+)
