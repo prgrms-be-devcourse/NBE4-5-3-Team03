@@ -54,7 +54,7 @@ class ActorControllerTest {
 
         testActor = new Actor(1L, "actor", "actor.png");
 
-        testMovie = new Movie(1L, "movie", "",
+        testMovie = new Movie("movie", "",
                 LocalDate.of(2022, 1, 1), "",
                 "movie.png", 100, "", "");
         testMovie.setId(1L);

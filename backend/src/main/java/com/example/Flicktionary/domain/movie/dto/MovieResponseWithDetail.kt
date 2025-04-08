@@ -7,7 +7,6 @@ import java.time.LocalDate
 
 data class MovieResponseWithDetail(
     val id: Long,
-    val tmdbId: Long,
     val title: String,
     val overview: String,
     val releaseDate: LocalDate?,
@@ -24,7 +23,6 @@ data class MovieResponseWithDetail(
 ) {
     constructor(movie: Movie) : this(
         id = movie.id,
-        tmdbId = movie.tmdbId,
         title = movie.title,
         overview = movie.overview,
         releaseDate = movie.releaseDate,
