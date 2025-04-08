@@ -59,7 +59,7 @@ class DirectorControllerTest {
 
         director = new Director(1L, "director", "director.png");
 
-        movie = new Movie(1L, "movie", "",
+        movie = new Movie("movie", "",
                 LocalDate.of(2022, 1, 1), "",
                 "movie.png", 100, "", "");
         movie.setId(1L);

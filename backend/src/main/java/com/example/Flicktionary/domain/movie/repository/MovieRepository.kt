@@ -20,7 +20,4 @@ interface MovieRepository : JpaRepository<Movie, Long> {
     fun findByIdWithCastsAndDirector(id: Long): Movie?
 
     fun findByDirectorId(directorId: Long): List<Movie>
-
-    @Query("SELECT m.tmdbId FROM Movie m")
-    fun findAllTmdbIds(): Set<Long>
 }

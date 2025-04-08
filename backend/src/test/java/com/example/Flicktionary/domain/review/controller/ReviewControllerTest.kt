@@ -75,7 +75,6 @@ class ReviewControllerTest {
     @BeforeEach
     fun setUp() {
         testMovie = Movie(
-            tmdbId = 10000000000L,
             title = "테스트용 영화 제목",
             overview = "테스트용 영화 줄거리",
             releaseDate = LocalDate.of(2024, 1, 1),
