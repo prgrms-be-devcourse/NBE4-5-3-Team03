@@ -4,10 +4,11 @@ import org.springframework.http.HttpStatus;
 
 /**
  * HTTP 응답 DTO.
- * @param code 응답 코드
+ *
+ * @param code    응답 코드
  * @param message 응답 메시지
- * @param data 응답 본문
- * @param <T> 본문의 타입
+ * @param data    응답 본문
+ * @param <T>     본문의 타입
  */
 public record ResponseDto<T>(
         String code,
@@ -16,6 +17,7 @@ public record ResponseDto<T>(
 ) {
     /**
      * 응답 본문이 없는 경우의 생성자.
+     *
      * @param code
      * @param message
      */
@@ -25,6 +27,7 @@ public record ResponseDto<T>(
 
     /**
      * 응답 본문이 없는 경우의 생성자 메소드.
+     *
      * @param code
      * @param message
      */
@@ -34,11 +37,12 @@ public record ResponseDto<T>(
 
     /**
      * 생성자 메소드.
+     *
      * @param code
      * @param message
      * @param data
-     * @return
      * @param <T>
+     * @return
      */
     public static <T> ResponseDto<T> of(String code, String message, T data) {
         return new ResponseDto<>(code, message, data);
@@ -46,9 +50,10 @@ public record ResponseDto<T>(
 
     /**
      * HTTP 응답 코드 200 OK에 해당하는 응답을 반환한다.
+     *
      * @param data 응답 본문
+     * @param <T>  본문의 타입
      * @return
-     * @param <T> 본문의 타입
      */
     public static <T> ResponseDto<T> ok(String message, T data) {
         return new ResponseDto<>(HttpStatus.OK.value() + "", message, data);
