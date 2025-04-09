@@ -12,6 +12,7 @@ import com.example.Flicktionary.global.dto.PageDto
 import com.example.Flicktionary.global.exception.ServiceException
 import com.example.Flicktionary.global.security.CustomUserDetailsService
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.*
@@ -53,25 +54,33 @@ class PostControllerTest {
     @MockitoBean
     private lateinit var userAccountJwtAuthenticationService: UserAccountJwtAuthenticationService
 
-    /* 테스트용 변수 설정 */ // 테스트용 유저
-    private val testUser = UserAccount(
-        1L,
-        "테스트용 유저",
-        "test12345",
-        "test@email.com",
-        "테스트 유저",
-        UserAccountType.USER
-    )
+    /* 테스트용 변수 설정 */
+    // 테스트용 유저
+    private lateinit var testUser: UserAccount
 
     // 검증용 게시글 응답 Dto
-    private val expectedPost = PostResponseDto(
-        id = 1L,
-        userAccountId = testUser.id,
-        nickname = "테스트 유저",
-        title = "테스트 제목",
-        content = "테스트 내용",
-        isSpoiler = false
-    )
+    private lateinit var expectedPost: PostResponseDto
+
+    @BeforeEach
+    fun setUp() {
+        testUser = UserAccount(
+            1L,
+            "테스트용 유저",
+            "test12345",
+            "test@email.com",
+            "테스트 유저",
+            UserAccountType.USER
+        )
+
+        expectedPost = PostResponseDto(
+            id = 1L,
+            userAccountId = testUser.id,
+            nickname = "테스트 유저",
+            title = "테스트 제목",
+            content = "테스트 내용",
+            isSpoiler = false
+        )
+    }
 
     @Test
     @DisplayName("게시글 생성")
