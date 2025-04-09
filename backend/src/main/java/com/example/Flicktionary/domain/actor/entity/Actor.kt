@@ -1,16 +1,22 @@
 package com.example.Flicktionary.domain.actor.entity
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
+import jakarta.persistence.*
 
 @Entity
 class Actor(
-    @Id
-    val id: Long,
-
     @Column(nullable = false)
     val name: String,
 
     val profilePath: String?
-)
+) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private var _id: Long? = null
+
+    var id: Long
+        get() = _id ?: 0
+        set(value) {
+            _id = value
+        }
+}

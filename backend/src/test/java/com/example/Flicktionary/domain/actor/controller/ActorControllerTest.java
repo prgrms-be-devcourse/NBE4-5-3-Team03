@@ -52,7 +52,8 @@ class ActorControllerTest {
                 .setControllerAdvice(new GlobalExceptionHandler()) // 예외 핸들러 적용
                 .build();
 
-        testActor = new Actor(1L, "actor", "actor.png");
+        testActor = new Actor("actor", "actor.png");
+        testActor.setId(1L);
 
         testMovie = new Movie("movie", "",
                 LocalDate.of(2022, 1, 1), "",
