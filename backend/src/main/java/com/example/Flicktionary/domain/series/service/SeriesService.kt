@@ -35,6 +35,10 @@ class SeriesService(
 
     @Transactional
     fun createSeries(request: SeriesRequest): SeriesDetailResponse {
+        if (seriesRepository.existsByTitleAndReleaseStartDate(request.title, request.releaseStartDate)) {
+            throw ServiceException(HttpStatus.CONFLICT.value(), "이미 존재하는 시리즈입니다.")
+        }
+
         val series = Series(
             title = request.title,
             overview = request.overview,

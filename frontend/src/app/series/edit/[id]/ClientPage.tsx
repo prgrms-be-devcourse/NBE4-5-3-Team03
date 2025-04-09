@@ -12,27 +12,43 @@ import GenreModal from "@/components/modal/GenreModal";
 import ActorSearchModal from "@/components/modal/ActorModal";
 import DirectorModal from "@/components/modal/DirectorModal";
 
-export default function MovieCreatePage() {
+export default function MovieUpdatePage({
+  data,
+}: {
+  data: components["schemas"]["SeriesDetailResponse"];
+}) {
   const router = useRouter();
 
-  const [title, setTitle] = useState("");
-  const [overview, setOverview] = useState("");
-  const [releaseDate, setReleaseDate] = useState("");
-  const [status, setStatus] = useState("");
-  const [posterPath, setPosterPath] = useState("");
-  const [runtime, setRuntime] = useState(0);
-  const [productionCountry, setProductionCountry] = useState("");
-  const [productionCompany, setProductionCompany] = useState("");
-  const [genres, setGenres] = useState<components["schemas"]["GenreDto"][]>([]);
+  const [title, setTitle] = useState(data.title);
+  const [overview, setOverview] = useState(data.plot);
+  const [releaseStartDate, setReleaseStartDate] = useState(
+    data.releaseStartDate
+  );
+  const [releaseEndDate, setReleaseEndDate] = useState(data.releaseEndDate);
+  const [status, setStatus] = useState(data.status);
+  const [posterPath, setPosterPath] = useState(data.posterPath);
+  const [episodeNumber, setEpisodeNumber] = useState(data.episode);
+  const [productionCountry, setProductionCountry] = useState(data.company);
+  const [productionCompany, setProductionCompany] = useState(data.nation);
+  const [genres, setGenres] = useState<components["schemas"]["GenreDto"][]>(
+    data.genres
+  );
   const [casts, setCasts] = useState<
     {
       id: number;
       name: string;
       characterName: string;
     }[]
-  >([]);
-  const [director, setDirector] =
-    useState<components["schemas"]["DirectorDto"]>();
+  >(
+    data.casts.map((c) => ({
+      id: c.actor.id,
+      name: c.actor.name,
+      characterName: c.characterName,
+    }))
+  );
+  const [director, setDirector] = useState<
+    components["schemas"]["DirectorDto"]
+  >(data.director);
 
   const [genreModalOpen, setGenreModalOpen] = useState(false);
   const [actorModalOpen, setActorModalOpen] = useState(false);
@@ -68,14 +84,20 @@ export default function MovieCreatePage() {
       return;
     }
 
-    const res = await client.POST("/api/movies", {
+    const res = await client.PUT("/api/series/{id}", {
+      params: {
+        path: {
+          id: data.id,
+        },
+      },
       body: {
         title,
         overview,
-        releaseDate,
+        releaseStartDate,
+        releaseEndDate,
         status,
         posterPath,
-        runtime,
+        episodeNumber,
         productionCountry,
         productionCompany,
         genreIds: genres.map((g) => g.id),
@@ -90,7 +112,7 @@ export default function MovieCreatePage() {
     if (res.error) {
       alert(res.error.message);
     } else {
-      router.push(`/movies/${res.data.data!!.id}`);
+      router.push(`/series/${res.data.data!!.id}`);
     }
   };
 
@@ -98,7 +120,7 @@ export default function MovieCreatePage() {
     <div className="max-w-4xl mx-auto mt-10">
       <Card className="p-6 shadow-xl rounded-2xl">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold">영화 등록</CardTitle>
+          <CardTitle className="text-3xl font-bold">시리즈 수정</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -111,19 +133,27 @@ export default function MovieCreatePage() {
                 />
               </div>
               <div>
-                <Label>상영 시간</Label>
+                <Label>회차</Label>
                 <Input
                   type="number"
-                  value={runtime}
-                  onChange={(e) => setRuntime(+e.target.value)}
+                  value={episodeNumber}
+                  onChange={(e) => setEpisodeNumber(+e.target.value)}
                 />
               </div>
               <div>
-                <Label>개봉일</Label>
+                <Label>첫 방영일</Label>
                 <Input
                   type="date"
-                  value={releaseDate}
-                  onChange={(e) => setReleaseDate(e.target.value)}
+                  value={releaseStartDate}
+                  onChange={(e) => setReleaseStartDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>종영일</Label>
+                <Input
+                  type="date"
+                  value={releaseEndDate}
+                  onChange={(e) => setReleaseEndDate(e.target.value)}
                 />
               </div>
               <div>
@@ -283,7 +313,7 @@ export default function MovieCreatePage() {
                 type="submit"
                 className="px-6 py-2 text-base font-semibold"
               >
-                등록
+                수정
               </Button>
             </div>
           </form>
