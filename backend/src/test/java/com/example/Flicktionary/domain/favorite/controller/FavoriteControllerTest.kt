@@ -236,7 +236,6 @@ class FavoriteControllerTest {
 
     @Test
     @DisplayName("존재하지 않는 ContentID 추가 시 예외 발생")
-    @Throws(Exception::class)
     fun checkContentId() {
         // Given
         val userId = 1L
@@ -271,5 +270,41 @@ class FavoriteControllerTest {
             .andExpect(jsonPath("$.code").value(HttpStatus.NOT_FOUND.value()))
             .andExpect(jsonPath("$.message").value("${contentId}번 컨텐츠를 찾을 수 없습니다."))
         then(favoriteService).should().createFavorite(any())
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 UserId로 즐겨찾기 추가 시 예외 발생")
+    fun checkUserId() {
+        // Given
+        val userId = 999999999L
+        val contentType = ContentType.MOVIE
+        val contentId = 1L
+        given(favoriteService.createFavorite(any()))
+            .willThrow(ServiceException(HttpStatus.NOT_FOUND.value(), "${userId}번 유저를 찾을 수 없습니다."))
+
+        // When & Then
+        val resultActions = mvc.perform(
+            post("/api/favorites")
+                .content(
+                    """
+                                {
+                                    "userId": "${userId}",
+                                    "contentType": "${contentType}",
+                                    "contentId": "${contentId}"
+                                }
+                                
+                                """
+                        .trimIndent()
+                )
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andDo(print())
+
+        resultActions
+            .andExpect(status().isNotFound())
+            .andExpect(handler().handlerType(FavoriteController::class.java))
+            .andExpect(handler().methodName("createFavorite"))
+            .andExpect(jsonPath("$.code").value(HttpStatus.NOT_FOUND.value()))
+            .andExpect(jsonPath("$.message").value("${userId}번 유저를 찾을 수 없습니다."))
     }
 }
