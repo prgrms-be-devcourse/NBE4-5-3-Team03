@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
+import java.time.LocalDate
 
 @Repository
 interface SeriesRepository : JpaRepository<Series, Long> {
@@ -23,4 +24,6 @@ interface SeriesRepository : JpaRepository<Series, Long> {
     fun findByTitleLike(@Param("keyword") keyword: String, pageable: Pageable): Page<Series>
 
     fun findByDirectorId(directorId: Long): List<Series>
+
+    fun existsByTitleAndReleaseStartDate(title: String, releaseStartDate: LocalDate?): Boolean
 }
