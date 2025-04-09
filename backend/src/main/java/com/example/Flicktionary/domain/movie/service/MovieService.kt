@@ -173,8 +173,8 @@ class MovieService(
 
                 // 장르 추가
                 for (tmdbGenre in movieDto.genres) {
-                    val genre = genreRepository.findByIdOrNull(tmdbGenre.id)
-                        ?: genreRepository.save(Genre(tmdbGenre.id, tmdbGenre.name))
+                    val genre = genreRepository.findByName(tmdbGenre.name)
+                        ?: genreRepository.save(Genre(tmdbGenre.name))
                     movie.genres.add(genre)
                 }
 

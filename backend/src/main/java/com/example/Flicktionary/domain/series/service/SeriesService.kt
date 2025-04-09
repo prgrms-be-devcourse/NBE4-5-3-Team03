@@ -174,8 +174,8 @@ class SeriesService(
 
                 // 장르 저장
                 for (tmdbGenre in seriesDto.genres) {
-                    val genre = genreRepository.findByIdOrNull(tmdbGenre.id)
-                        ?: genreRepository.save(Genre(tmdbGenre.id, tmdbGenre.name))
+                    val genre = genreRepository.findByName(tmdbGenre.name)
+                        ?: genreRepository.save(Genre(tmdbGenre.name))
                     series.genres.add(genre)
                 }
 
