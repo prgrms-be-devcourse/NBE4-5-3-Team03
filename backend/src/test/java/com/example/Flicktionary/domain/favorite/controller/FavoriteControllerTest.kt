@@ -9,6 +9,7 @@ import com.example.Flicktionary.global.dto.PageDto
 import com.example.Flicktionary.global.security.CustomUserDetailsService
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.doNothing
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.given
@@ -22,8 +23,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.nio.charset.StandardCharsets
@@ -167,5 +167,30 @@ class FavoriteControllerTest {
         assertEquals("desc", capturedStrings[1]) // direction
 
         then(favoriteService).should().getUserFavorites(userId, 1, 10, "id", "desc")
+    }
+
+    @Test
+    @DisplayName("즐겨찾기 삭제 - 성공")
+    fun deleteFavorite() {
+        // Given
+        val id = 1L
+        val captor = argumentCaptor<Long>()
+        doNothing().`when`(favoriteService).deleteFavorite(captor.capture())
+
+        // When & Then
+        val resultActions = mvc
+            .perform(
+                delete("/api/favorites/${id}")
+                    .contentType(
+                        MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                    )
+            )
+            .andDo(print())
+
+        resultActions
+            .andExpect(status().isNoContent())
+            .andExpect(handler().handlerType(FavoriteController::class.java))
+            .andExpect(handler().methodName("deleteFavorite"))
+        then(favoriteService).should().deleteFavorite(id)
     }
 }
