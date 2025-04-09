@@ -1,133 +1,144 @@
-package com.example.Flicktionary.domain.director.service;
+package com.example.Flicktionary.domain.director.service
 
-import com.example.Flicktionary.domain.director.entity.Director;
-import com.example.Flicktionary.domain.director.repository.DirectorRepository;
-import com.example.Flicktionary.domain.movie.entity.Movie;
-import com.example.Flicktionary.domain.movie.repository.MovieRepository;
-import com.example.Flicktionary.domain.series.entity.Series;
-import com.example.Flicktionary.domain.series.repository.SeriesRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import com.example.Flicktionary.domain.director.entity.Director
+import com.example.Flicktionary.domain.director.repository.DirectorRepository
+import com.example.Flicktionary.domain.movie.entity.Movie
+import com.example.Flicktionary.domain.movie.repository.MovieRepository
+import com.example.Flicktionary.domain.series.entity.Series
+import com.example.Flicktionary.domain.series.repository.SeriesRepository
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.InjectMocks
+import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.*
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import java.time.LocalDate
+import java.util.*
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.*;
-
-@ExtendWith(MockitoExtension.class)
-class DirectorServiceTest {
+@ExtendWith(MockitoExtension::class)
+internal class DirectorServiceTest {
     @Mock
-    private DirectorRepository directorRepository;
+    private lateinit var directorRepository: DirectorRepository
 
     @Mock
-    private MovieRepository movieRepository;
+    private lateinit var movieRepository: MovieRepository
 
     @Mock
-    private SeriesRepository seriesRepository;
+    private lateinit var seriesRepository: SeriesRepository
 
     @InjectMocks
-    private DirectorService directorService;
+    private lateinit var directorService: DirectorService
 
-    private Director director;
-    private Movie movie;
-    private Series series;
+    private lateinit var director: Director
+    private lateinit var movie: Movie
+    private lateinit var series: Series
 
     @BeforeEach
-    void setUp() {
-        director = new Director("director", "director.png");
+    fun setUp() {
+        director = Director("director", "director.png")
 
-        movie = new Movie("movie", "",
-                LocalDate.of(2022, 1, 1), "",
-                "movie.png", 100, "", "");
-        movie.setId(1L);
-        movie.setDirector(director);
+        movie = Movie(
+            "movie", "",
+            LocalDate.of(2022, 1, 1), "",
+            "movie.png", 100, "", ""
+        ).apply {
+            id = 1L
+            this.director = this@DirectorServiceTest.director
+        }
 
-        series = new Series("series", "",
-                LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
-                "", "series.png", 10, "", "");
-        series.setId(1L);
-        series.setDirector(director);
+        series = Series(
+            "series", "",
+            LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
+            "", "series.png", 10, "", ""
+        ).apply {
+            id = 1L
+            this.director = this@DirectorServiceTest.director
+        }
     }
 
-    @Test
     @DisplayName("감독 목록 조회 - 성공")
-    void getDirectors() {
+    @Test
+    fun getDirectors() {
         // Given
-        String keyword = "";
-        int page = 1, pageSize = 10;
-        Pageable pageable = PageRequest.of(page - 1, pageSize);
-        Page<Director> directorPage = new PageImpl<>(List.of(director), pageable, 1);
+        val keyword = ""
+        val page = 1
+        val pageSize = 10
+        val pageable: Pageable = PageRequest.of(page - 1, pageSize)
+        val directorPage = PageImpl(listOf(director), pageable, 1)
 
-        given(directorRepository.findByNameLike(any(String.class), eq(pageable))).willReturn(directorPage);
+        given(
+            directorRepository.findByNameLike(
+                any(), eq(pageable)
+            )
+        ).willReturn(directorPage)
 
         // When
-        Page<Director> result = directorService.getDirectors(keyword, page, pageSize);
+        val result = directorService.getDirectors(keyword, page, pageSize)
 
         // Then
-        assertThat(result).isNotNull().isNotEmpty();
-        assertEquals(1, result.getContent().size());
-        assertEquals("director", result.getContent().get(0).getName());
+        assertThat(result).isNotNull().isNotEmpty()
+        assertEquals(1, result.content.size)
+        assertEquals("director", result.content[0].name)
 
-        then(directorRepository).should().findByNameLike(any(String.class), eq(pageable));
+        then(directorRepository).should().findByNameLike(
+            any(), eq(pageable)
+        )
     }
 
     @Test
     @DisplayName("감독 상세 조회 - 성공")
-    void getDirector() {
+    fun getDirector() {
         // Given
-        given(directorRepository.findById(1L)).willReturn(Optional.of(director));
+        given(directorRepository.findById(1L))
+            .willReturn(Optional.of(director))
 
         // When
-        Director result = directorService.getDirector(1L);
+        val result = directorService.getDirector(1L)
 
         // Then
-        assertThat(result).isNotNull();
-        assertEquals(director, result);
+        assertThat(result).isNotNull()
+        assertEquals(director, result)
 
-        then(directorRepository).should().findById(1L);
+        then(directorRepository).should().findById(1L)
     }
 
-    @Test
     @DisplayName("감독 아이디로 영화 조회 - 성공")
-    void getMoviesByDirectorId() {
+    @Test
+    fun getMoviesByDirectorId() {
         // Arrange
-        when(movieRepository.findByDirectorId(director.getId())).thenReturn(List.of(movie));
+        whenever(movieRepository.findByDirectorId(director.id))
+            .thenReturn(listOf(movie))
 
         // Act
-        List<Movie> movies = directorService.getMoviesByDirectorId(director.getId());
+        val movies = directorService.getMoviesByDirectorId(director.id)
 
         // Assert
-        assertNotNull(movies);
-        assertEquals(1, movies.size());
-        assertEquals(movie.getTitle(), movies.get(0).getTitle());
+        assertNotNull(movies)
+        assertEquals(1, movies.size)
+        assertEquals(movie.title, movies[0].title)
     }
 
-    @Test
     @DisplayName("감독 아이디로 시리즈 조회 - 성공")
-    void getSeriesByDirectorId() {
+    @Test
+    fun getSeriesByDirectorId() {
         // Arrange
-        when(seriesRepository.findByDirectorId(director.getId())).thenReturn(List.of(series));
+        whenever(seriesRepository.findByDirectorId(director.id))
+            .thenReturn(listOf(series))
 
         // Act
-        List<Series> seriesList = directorService.getSeriesByDirectorId(director.getId());
+        val seriesList = directorService.getSeriesByDirectorId(director.id)
 
         // Assert
-        assertNotNull(seriesList);
-        assertEquals(1, seriesList.size());
-        assertEquals(series.getTitle(), seriesList.get(0).getTitle());
+        assertNotNull(seriesList)
+        assertEquals(1, seriesList.size)
+        assertEquals(series.title, seriesList[0].title)
     }
 }
