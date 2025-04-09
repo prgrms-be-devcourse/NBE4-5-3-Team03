@@ -249,7 +249,7 @@ class SeriesServiceTest {
 
         val genre1 = Genre(1L, "Action")
         val genre2 = Genre(2L, "Drama")
-        val actor = Actor(1L, "name", null)
+        val actor = Actor("name", null)
         val director = Director(1L, "name", "PosterPath")
 
         val savedSeries = Series(
@@ -315,7 +315,7 @@ class SeriesServiceTest {
 
         val genre1 = Genre(1L, "Action")
         val genre2 = Genre(2L, "Drama")
-        val actor = Actor(1L, "name", null)
+        val actor = Actor("name", null)
         val director = Director(1L, "name", "PosterPath")
 
         val series = Series(
