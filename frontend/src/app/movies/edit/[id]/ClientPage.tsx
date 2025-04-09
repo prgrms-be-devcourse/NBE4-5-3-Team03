@@ -12,7 +12,7 @@ import GenreModal from "@/components/modal/GenreModal";
 import ActorSearchModal from "@/components/modal/ActorModal";
 import DirectorModal from "@/components/modal/DirectorModal";
 
-export default function MovieCreatePage({
+export default function MovieUpdatePage({
   data,
 }: {
   data: components["schemas"]["MovieResponseWithDetail"];
