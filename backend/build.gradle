@@ -57,6 +57,7 @@ dependencies {
 	implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
 	implementation 'org.jetbrains.kotlin:kotlin-reflect'
 	testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+	testImplementation 'org.mockito.kotlin:mockito-kotlin:5.4.0'
 }
 
 tasks.test {
