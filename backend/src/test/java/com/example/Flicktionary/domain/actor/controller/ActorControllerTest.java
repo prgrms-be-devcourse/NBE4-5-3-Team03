@@ -52,14 +52,15 @@ class ActorControllerTest {
                 .setControllerAdvice(new GlobalExceptionHandler()) // 예외 핸들러 적용
                 .build();
 
-        testActor = new Actor(1L, "actor", "actor.png");
+        testActor = new Actor("actor", "actor.png");
+        testActor.setId(1L);
 
-        testMovie = new Movie(1L, "movie", "",
+        testMovie = new Movie("movie", "",
                 LocalDate.of(2022, 1, 1), "",
                 "movie.png", 100, "", "");
         testMovie.setId(1L);
 
-        testSeries = new Series(1L, "series", "",
+        testSeries = new Series("series", "",
                 LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
                 "", "series.png", 10, "", "");
         testSeries.setId(1L);

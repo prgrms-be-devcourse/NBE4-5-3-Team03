@@ -57,15 +57,16 @@ class DirectorControllerTest {
                 .setControllerAdvice(new GlobalExceptionHandler()) // 예외 핸들러 적용
                 .build();
 
-        director = new Director(1L, "director", "director.png");
+        director = new Director("director", "director.png");
+        director.setId(1L);
 
-        movie = new Movie(1L, "movie", "",
+        movie = new Movie("movie", "",
                 LocalDate.of(2022, 1, 1), "",
                 "movie.png", 100, "", "");
         movie.setId(1L);
         movie.setDirector(director);
 
-        series = new Series(1L, "series", "",
+        series = new Series("series", "",
                 LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
                 "", "series.png", 10, "", "");
         series.setId(1L);

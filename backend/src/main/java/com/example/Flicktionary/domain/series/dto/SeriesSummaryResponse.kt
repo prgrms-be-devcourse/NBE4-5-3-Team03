@@ -10,7 +10,6 @@ import lombok.Getter
 @Getter
 class SeriesSummaryResponse(
     val id: Long,
-    val tmdbId: Long,
     val title: String,
     val posterPath: String?,
     val averageRating: Double,
@@ -18,7 +17,6 @@ class SeriesSummaryResponse(
 ) {
     constructor(series: Series) : this(
         series.id,
-        series.tmdbId,
         series.title,
         series.posterPath,
         series.averageRating,

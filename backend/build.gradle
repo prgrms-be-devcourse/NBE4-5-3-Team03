@@ -60,7 +60,7 @@ dependencies {
 	testImplementation 'org.mockito.kotlin:mockito-kotlin:5.4.0'
 }
 
-tasks.named('test') {
+tasks.test {
     useJUnitPlatform()
 }
 

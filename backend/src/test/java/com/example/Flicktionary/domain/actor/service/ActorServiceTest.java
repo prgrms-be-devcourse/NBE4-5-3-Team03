@@ -49,16 +49,16 @@ class ActorServiceTest {
 
     @BeforeEach
     void setUp() {
-        actor1 = new Actor(1L, "actor1", "test1.png");
-        actor2 = new Actor(2L, "actor2", "test2.png");
-        actor3 = new Actor(3L, "actor3", "test3.png");
+        actor1 = new Actor("actor1", "test1.png");
+        actor2 = new Actor("actor2", "test2.png");
+        actor3 = new Actor("actor3", "test3.png");
 
-        movie = new Movie(1L, "movie", "",
+        movie = new Movie("movie", "",
                 LocalDate.of(2022, 1, 1), "",
                 "movie.png", 100, "", "");
         movie.setId(1L);
 
-        series = new Series(1L, "series", "",
+        series = new Series("series", "",
                 LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
                 "", "series.png", 10, "", "");
         series.setId(1L);

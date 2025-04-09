@@ -6,6 +6,7 @@ import com.example.Flicktionary.domain.director.entity.Director
 import com.example.Flicktionary.domain.director.repository.DirectorRepository
 import com.example.Flicktionary.domain.genre.entity.Genre
 import com.example.Flicktionary.domain.genre.repository.GenreRepository
+import com.example.Flicktionary.domain.movie.dto.MovieRequest
 import com.example.Flicktionary.domain.movie.dto.MovieResponse
 import com.example.Flicktionary.domain.movie.dto.MovieResponseWithDetail
 import com.example.Flicktionary.domain.movie.entity.Movie
@@ -34,6 +35,82 @@ class MovieService(
 ) {
     private val BASE_IMAGE_URL = "https://image.tmdb.org/t/p"
 
+    @Transactional
+    fun createMovie(request: MovieRequest): MovieResponseWithDetail {
+        val movie = Movie(
+            title = request.title,
+            overview = request.overview,
+            releaseDate = request.releaseDate,
+            status = request.status,
+            posterPath = request.posterPath,
+            runtime = request.runtime,
+            productionCountry = request.productionCountry,
+            productionCompany = request.productionCompany
+        )
+
+        // 장르 추가
+        val genres = genreRepository.findAllById(request.genreIds)
+        movie.genres.addAll(genres)
+
+        // 배우 추가
+        val casts = request.casts.map {
+            val actor = actorRepository.findByIdOrNull(it.actorId)
+                ?: throw ServiceException(HttpStatus.NOT_FOUND.value(), "${it.actorId}번 배우를 찾을 수 없습니다.")
+            MovieCast(movie, actor, it.characterName)
+        }
+        movie.casts.addAll(casts)
+
+        // 감독 설정
+        val director = directorRepository.findByIdOrNull(request.directorId)
+            ?: throw ServiceException(HttpStatus.NOT_FOUND.value(), "${request.directorId}번 감독을 찾을 수 없습니다.")
+        movie.director = director
+
+        val savedMovie = movieRepository.save(movie)
+        return MovieResponseWithDetail(savedMovie)
+    }
+
+    @Transactional
+    fun updateMovie(id: Long, request: MovieRequest): MovieResponseWithDetail {
+        val movie = movieRepository.findByIdOrNull(id)
+            ?: throw ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 영화를 찾을 수 없습니다.")
+
+        movie.apply {
+            title = request.title
+            overview = request.overview
+            releaseDate = request.releaseDate
+            status = request.status
+            posterPath = request.posterPath
+            runtime = request.runtime
+            productionCountry = request.productionCountry
+            productionCompany = request.productionCompany
+        }
+
+        val genres = genreRepository.findAllById(request.genreIds)
+        movie.genres.clear()
+        movie.genres.addAll(genres)
+
+        val casts = request.casts.map {
+            val actor = actorRepository.findByIdOrNull(it.actorId)
+                ?: throw ServiceException(HttpStatus.NOT_FOUND.value(), "${it.actorId}번 배우를 찾을 수 없습니다.")
+            MovieCast(movie, actor, it.characterName)
+        }
+        movie.casts.clear()
+        movie.casts.addAll(casts)
+
+        val director = directorRepository.findByIdOrNull(request.directorId)
+            ?: throw ServiceException(HttpStatus.NOT_FOUND.value(), "${request.directorId}번 감독을 찾을 수 없습니다.")
+        movie.director = director
+
+        return MovieResponseWithDetail(movie)
+    }
+
+    @Transactional
+    fun deleteMovie(id: Long) {
+        val movie = movieRepository.findByIdOrNull(id)
+            ?: throw ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 영화를 찾을 수 없습니다.")
+        movieRepository.delete(movie)
+    }
+
     @Transactional(readOnly = true)
     fun getMovies(keyword: String, page: Int, pageSize: Int, sortBy: String): PageDto<MovieResponse> {
         val sort = getSort(sortBy)
@@ -42,11 +119,7 @@ class MovieService(
 
         val movies = movieRepository.findByTitleLike(formattedKeyword, pageable)
 
-        return PageDto(movies.map { movie: Movie ->
-            MovieResponse(
-                movie
-            )
-        })
+        return PageDto(movies.map { movie: Movie -> MovieResponse(movie) })
     }
 
     fun getSort(sortBy: String): Sort {
@@ -71,79 +144,62 @@ class MovieService(
     // tmdb api를 이용해서 영화 정보를 받아와 저장합니다.
     @Transactional
     fun fetchAndSaveMovies(pages: Int) {
-        val moviesToSave: MutableList<Movie> = mutableListOf()
-        val genreCache: MutableMap<Long, Genre> = mutableMapOf()
-        val actorCache: MutableMap<Long, Actor> = mutableMapOf()
-        val directorCache: MutableMap<Long, Director> = mutableMapOf()
+        val moviesToSave = mutableListOf<Movie>()
+        val existingMovieKeys = mutableSetOf<Pair<String, LocalDate?>>()
 
         for (i in 1..pages) {
             val movieDtos = tmdbService.fetchMovies(i)
 
-            // 먼저 중복을 방지하기 위해 저장된 영화 ID를 조회
-            val existingMovieIds = movieRepository.findAllTmdbIds()
-
             for (movieDto in movieDtos) {
-                if (existingMovieIds.contains(movieDto.tmdbId) ||
-                    moviesToSave.stream().anyMatch { s: Movie -> s.tmdbId == (movieDto.tmdbId) }
-                ) {
-                    continue  // 이미 존재하는 영화면 스킵
+                val releaseDate = if (movieDto.releaseDate.isEmpty()) null else LocalDate.parse(movieDto.releaseDate)
+                val movieKey = movieDto.title to releaseDate
+
+                // 이미 저장된 영화인지 확인
+                if (existingMovieKeys.contains(movieKey)) {
+                    continue
                 }
+                existingMovieKeys.add(movieKey)
 
                 val movie = Movie(
-                    movieDto.tmdbId,
                     movieDto.title,
                     movieDto.overview,
-                    if (movieDto.releaseDate == null || movieDto.releaseDate.isEmpty()) null else LocalDate.parse(
-                        movieDto.releaseDate
-                    ),
+                    releaseDate,
                     movieDto.status,
                     movieDto.posterPath?.let { "$BASE_IMAGE_URL/w185$it" },
                     movieDto.runtime,
-                    if (movieDto.productionCountries.isEmpty()) null else movieDto.productionCountries[0].name,
-                    if (movieDto.productionCompanies.isEmpty()) null else movieDto.productionCompanies[0].name
+                    movieDto.productionCountries.firstOrNull()?.name ?: "",
+                    movieDto.productionCompanies.firstOrNull()?.name ?: ""
                 )
 
-                // 장르 저장 (캐싱 활용)
+                // 장르 추가
                 for (tmdbGenre in movieDto.genres) {
-                    val genre = genreCache.computeIfAbsent(tmdbGenre.id) { id: Long ->
-                        genreRepository.findByIdOrNull(id) ?: genreRepository.save(Genre(id, tmdbGenre.name))
-                    }
+                    val genre = genreRepository.findByName(tmdbGenre.name)
+                        ?: genreRepository.save(Genre(tmdbGenre.name))
                     movie.genres.add(genre)
                 }
 
-                // 배우 저장 (캐싱 활용)
-                for (tmdbActor in movieDto.credits.cast.stream().limit(5).toList()) {
-                    val actor = actorCache.computeIfAbsent(tmdbActor.id) { id: Long ->
-                        actorRepository.findByIdOrNull(id) ?: actorRepository.save(
-                            Actor(
-                                id,
-                                tmdbActor.name,
-                                tmdbActor.profilePath?.let { "$BASE_IMAGE_URL/w185$it" }
-                            )
+                // 배우 추가 (상위 5명)
+                for (tmdbActor in movieDto.credits.cast.take(5)) {
+                    val profilePath = tmdbActor.profilePath?.let { "$BASE_IMAGE_URL/w185$it" }
+                    val actor =
+                        actorRepository.findByNameAndProfilePath(tmdbActor.name, profilePath) ?: actorRepository.save(
+                            Actor(tmdbActor.name, profilePath)
                         )
-                    }
 
-                    val movieCast = MovieCast(movie, actor, tmdbActor.character)
-                    movie.casts.add(movieCast)
+                    movie.casts.add(MovieCast(movie, actor, tmdbActor.character))
                 }
 
-                // 감독 저장 (캐싱 활용)
-                for (crew in movieDto.credits.crew) {
-                    if (crew.job.equals("Director", ignoreCase = true)) {
-                        val director = directorCache.computeIfAbsent(crew.id) { id: Long ->
-                            directorRepository.findByIdOrNull(id) ?: directorRepository.save(
-                                Director(
-                                    id,
-                                    crew.name,
-                                    crew.profilePath?.let { "$BASE_IMAGE_URL/w185$it" }
-                                )
-                            )
-                        }
-                        movie.director = director
+                // 감독 설정
+                movieDto.credits.crew.firstOrNull { it.job.equals("Director", ignoreCase = true) }?.let {
+                    val profilePath = it.profilePath?.let { "$BASE_IMAGE_URL/w185$it" }
+                    val director =
+                        directorRepository.findByNameAndProfilePath(it.name, profilePath) ?: directorRepository.save(
+                            Director(it.name, profilePath)
+                        )
 
-                        if (!director.movies.contains(movie)) {
-                            director.movies.add(movie)
-                        }
+                    movie.director = director
+                    if (!director.movies.contains(movie)) {
+                        director.movies.add(movie)
                     }
                 }
 
@@ -151,8 +207,6 @@ class MovieService(
             }
         }
 
-        if (moviesToSave.isNotEmpty()) {
-            movieRepository.saveAll(moviesToSave)
-        }
+        movieRepository.saveAll(moviesToSave)
     }
 }

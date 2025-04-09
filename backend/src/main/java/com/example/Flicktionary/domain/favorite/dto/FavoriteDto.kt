@@ -21,7 +21,7 @@ data class FavoriteDto(
 
             return FavoriteDto(
                 id = favorite.id,
-                userId = favorite.userAccount.id,
+                userId = favorite.userAccount.id?: 0,
                 contentType = favorite.contentType,
                 contentId = favorite.contentId,
                 data = contentData

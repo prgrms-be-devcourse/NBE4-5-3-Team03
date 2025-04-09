@@ -7,18 +7,16 @@ import java.time.LocalDate
 
 @Entity
 class Movie(
-    @Column(unique = true)
-    val tmdbId: Long,
     @Column(nullable = false)
-    val title: String,
+    var title: String,
     @Column(columnDefinition = "TEXT")
-    val overview: String,
-    val releaseDate: LocalDate?,
-    val status: String,
-    val posterPath: String?,
-    val runtime: Int,
-    val productionCountry: String?,
-    val productionCompany: String?
+    var overview: String,
+    var releaseDate: LocalDate?,
+    var status: String,
+    var posterPath: String?,
+    var runtime: Int,
+    var productionCountry: String,
+    var productionCompany: String
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
