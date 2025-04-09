@@ -165,7 +165,7 @@ class MovieService(
                     movieDto.overview,
                     releaseDate,
                     movieDto.status,
-                    movieDto.posterPath?.let { "$BASE_IMAGE_URL/w185$it" },
+                    movieDto.posterPath?.let { "$BASE_IMAGE_URL/w342$it" },
                     movieDto.runtime,
                     movieDto.productionCountries.firstOrNull()?.name ?: "",
                     movieDto.productionCompanies.firstOrNull()?.name ?: ""
