@@ -10,6 +10,7 @@ import com.example.Flicktionary.domain.user.entity.UserAccountType;
 import com.example.Flicktionary.domain.user.repository.UserAccountRepository;
 import com.example.Flicktionary.global.dto.PageDto;
 import com.example.Flicktionary.global.exception.ServiceException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +23,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -43,41 +45,43 @@ public class PostServiceTest {
 
     /* 테스트용 변수 설정 */
     // 테스트용 유저
-    private final UserAccount testUser = new UserAccount(
-            1L,
-            "테스트용 유저",
-            "test12345",
-            "test@email.com",
-            "테스트 유저",
-            UserAccountType.USER);
+    private UserAccount testUser;
 
     // 테스트용 요청 게시글 Dto
-    private final PostCreateRequestDto requestDto = PostCreateRequestDto.builder()
-            .userAccountId(testUser.getId())
-            .title("테스트 제목")
-            .content("테스트 내용")
-            .isSpoiler(false)
-            .build();
+    private PostCreateRequestDto requestDto;
 
     // 테스트용 저장된 게시글 엔티티
-    private final Post savedPost = Post.builder()
-            .id(1L)
-            .userAccount(testUser)
-            .title("테스트 제목")
-            .content("테스트 내용")
-            .isSpoiler(false)
-            .createdAt(LocalDateTime.now())
-            .build();
+    private Post savedPost;
 
     // 검증용 게시글 응답 Dto
-    private final PostResponseDto expectedPost = PostResponseDto.builder()
-            .id(1L)
-            .userAccountId(testUser.getId())
-            .nickname("테스트 유저")
-            .title("테스트 제목")
-            .content("테스트 내용")
-            .isSpoiler(false)
-            .build();
+    private PostResponseDto expectedPost;
+
+    // 테스트용 객체 생성
+    @BeforeEach
+    void setUp() {
+        testUser = new UserAccount(
+                1L,
+                "테스트용 유저",
+                "test12345",
+                "test@email.com",
+                "테스트 유저",
+                UserAccountType.USER);
+
+        requestDto = new PostCreateRequestDto(
+                testUser.getId(), "테스트 제목", "테스트 내용",
+                false
+        );
+
+        savedPost = new Post(
+                1L, testUser, "테스트 제목", "테스트 내용",
+                LocalDateTime.now(), false
+        );
+
+        expectedPost = new PostResponseDto(
+                1L, testUser.getId(), "테스트 유저", "테스트 제목",
+                "테스트 내용", LocalDateTime.now(), false
+        );
+    }
 
     @Test
     @DisplayName("게시글 생성")
@@ -94,7 +98,7 @@ public class PostServiceTest {
         assertEquals(testPostDto.getNickname(), expectedPost.getNickname());
         assertEquals(testPostDto.getTitle(), expectedPost.getTitle());
         assertEquals(testPostDto.getContent(), expectedPost.getContent());
-        assertEquals(testPostDto.getIsSpoiler(), expectedPost.getIsSpoiler());
+        assertEquals(testPostDto.isSpoiler(), expectedPost.isSpoiler());
 
         // PostRepository의 save 메서드가 한 번 호출되었는지 검증
         verify(postRepository).save(any(Post.class));
@@ -117,7 +121,7 @@ public class PostServiceTest {
         assertEquals(testPostDto.getNickname(), expectedPost.getNickname());
         assertEquals(testPostDto.getTitle(), expectedPost.getTitle());
         assertEquals(testPostDto.getContent(), expectedPost.getContent());
-        assertEquals(testPostDto.getIsSpoiler(), expectedPost.getIsSpoiler());
+        assertEquals(testPostDto.isSpoiler(), expectedPost.isSpoiler());
 
         // PostRepository의 findById 메서드가 호출되었는지 검증
         verify(postRepository).findById(postId);
@@ -150,46 +154,46 @@ public class PostServiceTest {
 
         // 테스트용 게시글 목록 생성
         List<Post> posts = List.of(
-                Post.builder()
-                        .id(1L)
-                        .userAccount(testUser)
-                        .title("테스트용 게시글1")
-                        .content("테스트용 게시글 내용1")
-                        .isSpoiler(true)
-                        .createdAt(LocalDateTime.now())
-                        .build(),
-                Post.builder()
-                        .id(2L)
-                        .userAccount(testUser)
-                        .title("테스트용 게시글2")
-                        .content("테스트용 게시글 내용2")
-                        .isSpoiler(false)
-                        .createdAt(LocalDateTime.now())
-                        .build(),
-                Post.builder()
-                        .id(3L)
-                        .userAccount(testUser)
-                        .title("테스트용 게시글3")
-                        .content("테스트용 게시글 내용3")
-                        .isSpoiler(true)
-                        .createdAt(LocalDateTime.now().minusDays(1))
-                        .build(),
-                Post.builder()
-                        .id(4L)
-                        .userAccount(testUser)
-                        .title("테스트용 게시글4")
-                        .content("테스트용 게시글 내용4")
-                        .isSpoiler(false)
-                        .createdAt(LocalDateTime.now())
-                        .build(),
-                Post.builder()
-                        .id(5L)
-                        .userAccount(testUser)
-                        .title("테스트용 게시글5")
-                        .content("테스트용 게시글 내용5")
-                        .isSpoiler(true)
-                        .createdAt(LocalDateTime.now())
-                        .build()
+                new Post(
+                        1L,
+                        testUser,
+                        "테스트용 게시글1",
+                        "테스트용 게시글 내용1",
+                        LocalDateTime.now(),
+                        true
+                ),
+                new Post(
+                        2L,
+                        testUser,
+                        "테스트용 게시글2",
+                        "테스트용 게시글 내용2",
+                        LocalDateTime.now(),
+                        false
+                ),
+                new Post(
+                        3L,
+                        testUser,
+                        "테스트용 게시글3",
+                        "테스트용 게시글 내용3",
+                        LocalDateTime.now().minusDays(1),
+                        true
+                ),
+                new Post(
+                        4L,
+                        testUser,
+                        "테스트용 게시글4",
+                        "테스트용 게시글 내용4",
+                        LocalDateTime.now(),
+                        false
+                ),
+                new Post(
+                        5L,
+                        testUser,
+                        "테스트용 게시글5",
+                        "테스트용 게시글 내용5",
+                        LocalDateTime.now(),
+                        true
+                )
         );
 
         Page<Post> postPage = new PageImpl<>(posts, pageable, posts.size());
@@ -205,7 +209,7 @@ public class PostServiceTest {
             System.out.println("제목: " + post.getTitle());
             System.out.println("내용: " + post.getContent());
             System.out.println("생성 시간: " + post.getCreatedAt());
-            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.getIsSpoiler());
+            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.isSpoiler());
             System.out.println(" =================================== ");
         }
         assertEquals(testPages.getItems().size(), posts.size());
@@ -227,7 +231,7 @@ public class PostServiceTest {
             System.out.println("제목: " + post.getTitle());
             System.out.println("내용: " + post.getContent());
             System.out.println("생성 시간: " + post.getCreatedAt());
-            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.getIsSpoiler());
+            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.isSpoiler());
             System.out.println(" =================================== ");
         }
         assertEquals(titleSearchResult.getItems().size(), titleSearch.size());
@@ -249,7 +253,7 @@ public class PostServiceTest {
             System.out.println("제목: " + post.getTitle());
             System.out.println("내용: " + post.getContent());
             System.out.println("생성 시간: " + post.getCreatedAt());
-            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.getIsSpoiler());
+            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.isSpoiler());
             System.out.println(" =================================== ");
         }
         assertEquals(contentSearchResult.getItems().size(), contentSearch.size());
@@ -271,7 +275,7 @@ public class PostServiceTest {
             System.out.println("제목: " + post.getTitle());
             System.out.println("내용: " + post.getContent());
             System.out.println("생성 시간: " + post.getCreatedAt());
-            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.getIsSpoiler());
+            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.isSpoiler());
             System.out.println(" =================================== ");
         }
         assertEquals(nicknameSearchResult.getItems().size(), nicknameSearch.size());
@@ -283,22 +287,23 @@ public class PostServiceTest {
     void updatePost() {
 
         // 테스트용 수정할 내용 Dto 생성
-        PostUpdateRequestDto updateRequestDto = PostUpdateRequestDto.builder()
-                .title("수정된 제목")
-                .content("수정된 내용")
-                .isSpoiler(false)
-                .build();
+        PostUpdateRequestDto updateRequestDto = new PostUpdateRequestDto(
+                54321L,
+                "수정된 제목",
+                "수정된 내용",
+                false
+        );
 
         // 확인용 엔티티 생성
-        Post checkPost = Post.builder()
-                .id(savedPost.getId())
-                .userAccount(testUser)
-                .title("수정된 제목")
-                .content("수정된 내용")
-                .isSpoiler(false)
+        Post checkPost = new Post(
+                savedPost.getId(),
+                testUser,
+                "수정된 제목",
+                "수정된 내용",
                 // LocalDateTime.now()의 정밀도로 인해 50초 더하기
-                .createdAt(LocalDateTime.now().plusSeconds(50))
-                .build();
+                LocalDateTime.now().plusSeconds(50),
+                false
+        );
 
         // 저장된 게시글의 id로 특정 게시글을 찾아 기존 게시글을 반환되도록 설정
         when(postRepository.findById(savedPost.getId())).thenReturn(Optional.of(savedPost));
@@ -314,12 +319,12 @@ public class PostServiceTest {
         System.out.println("제목: " + testPage.getTitle());
         System.out.println("내용: " + testPage.getContent());
         System.out.println("생성 시간: " + testPage.getCreatedAt());
-        System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + testPage.getIsSpoiler());
+        System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + testPage.isSpoiler());
         System.out.println(" =================================== ");
 
         assertEquals(testPage.getTitle(), checkPost.getTitle());
         assertEquals(testPage.getContent(), checkPost.getContent());
-        assertEquals(testPage.getIsSpoiler(), checkPost.getIsSpoiler());
+        assertEquals(testPage.isSpoiler(), checkPost.isSpoiler());
 
         // PostRepository의 findById 메서드가 호출되었는지 검증
         verify(postRepository).findById(savedPost.getId());
@@ -334,7 +339,14 @@ public class PostServiceTest {
 
         // 테스트용 게시글 생성
         Long postId = 1000L;
-        Post existingPost = Post.builder().id(postId).build();
+        Post existingPost = new Post(
+                postId,
+                testUser,
+                "삭제할 제목",
+                "삭제할 내용",
+                LocalDateTime.now(),
+                false
+        );
 
         // 저장된 게시글의 id로 특정 게시글을 찾아 기존 게시글을 반환되도록 설정
         when(postRepository.findById(postId)).thenReturn(Optional.of(existingPost));

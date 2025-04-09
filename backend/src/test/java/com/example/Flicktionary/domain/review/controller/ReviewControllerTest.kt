@@ -11,7 +11,7 @@ import com.example.Flicktionary.domain.user.service.UserAccountService
 import com.example.Flicktionary.global.dto.PageDto
 import com.example.Flicktionary.global.security.CustomUserDetailsService
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -237,7 +237,7 @@ class ReviewControllerTest {
             .andExpect(status().isNoContent())
         val captured = captor.value
 
-        Assertions.assertEquals(reviewDto1.id, captured)
+        assertEquals(reviewDto1.id, captured)
         then(reviewService).should().deleteReview(reviewDto1.id!!)
     }
 
@@ -311,9 +311,9 @@ class ReviewControllerTest {
         val longValue = longCaptor.value
         val integerValues = integerCaptor.allValues
 
-        Assertions.assertEquals(reviewDto2.seriesId, longValue)
-        Assertions.assertEquals(0, integerValues[0])
-        Assertions.assertEquals(5, integerValues[1])
+        assertEquals(reviewDto2.seriesId, longValue)
+        assertEquals(0, integerValues[0])
+        assertEquals(5, integerValues[1])
         then(reviewService).should()
             .reviewSeriesDtoPage(
                 any(Long::class.java), any(Int::class.java), any(

@@ -12,6 +12,7 @@ import com.example.Flicktionary.global.dto.PageDto;
 import com.example.Flicktionary.global.exception.ServiceException;
 import com.example.Flicktionary.global.security.CustomUserDetailsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -57,35 +59,32 @@ public class PostControllerTest {
 
     /* 테스트용 변수 설정 */
     // 테스트용 유저
-    private final UserAccount testUser = new UserAccount(
-            1L,
-            "테스트용 유저",
-            "test12345",
-            "test@email.com",
-            "테스트 유저",
-            UserAccountType.USER);
+    private UserAccount testUser;
 
     // 검증용 게시글 응답 Dto
-    private final PostResponseDto expectedPost = PostResponseDto.builder()
-            .id(1L)
-            .userAccountId(testUser.getId())
-            .nickname("테스트 유저")
-            .title("테스트 제목")
-            .content("테스트 내용")
-            .isSpoiler(false)
-            .build();
+    private PostResponseDto expectedPost;
+
+    // 테스트용 객체 생성
+    @BeforeEach
+    void setUp() {
+        testUser = new UserAccount(1L, "테스트용 유저",
+                "test12345",
+                "test@email.com",
+                "테스트 유저", UserAccountType.USER);
+
+        expectedPost = new PostResponseDto(1L, testUser.getId(),
+                "테스트 유저", "테스트 제목", "테스트 내용",
+                LocalDateTime.now(), false);
+    }
 
     @Test
     @DisplayName("게시글 생성")
     void createPost() throws Exception {
 
         // 테스트용 게시글 생성
-        PostCreateRequestDto postDto = PostCreateRequestDto.builder()
-                .userAccountId(testUser.getId())
-                .title("테스트 제목")
-                .content("테스트 내용")
-                .isSpoiler(false)
-                .build();
+        PostCreateRequestDto postDto = new PostCreateRequestDto(
+                testUser.getId(), "테스트 제목", "테스트 내용", false
+        );
 
         // 메서드 실행
         given(postService.create(any(PostCreateRequestDto.class))).willReturn(expectedPost);
@@ -145,22 +144,24 @@ public class PostControllerTest {
 
         // 테스트용 게시글 목록 생성
         List<PostResponseDto> postList = List.of(
-                PostResponseDto.builder()
-                        .id(2L)
-                        .userAccountId(testUser.getId())
-                        .nickname(testUser.getNickname())
-                        .title("테스트 제목2")
-                        .content("테스트 내용2")
-                        .isSpoiler(false)
-                        .build(),
-                PostResponseDto.builder()
-                        .id(3L)
-                        .userAccountId(testUser.getId())
-                        .nickname(testUser.getNickname())
-                        .title("테스트 제목3")
-                        .content("테스트 내용3")
-                        .isSpoiler(true)
-                        .build()
+                new PostResponseDto(
+                        2L,
+                        testUser.getId(),
+                        testUser.getNickname(),
+                        "테스트 제목2",
+                        "테스트 내용2",
+                        LocalDateTime.now(),
+                        false
+                ),
+                new PostResponseDto(
+                        3L,
+                        testUser.getId(),
+                        testUser.getNickname(),
+                        "테스트 제목3",
+                        "테스트 내용3",
+                        LocalDateTime.now(),
+                        true
+                )
         );
 
         PageDto<PostResponseDto> pageDto = new PageDto<>(postList, 2, 1, 1, 2, "createdAt");
@@ -172,15 +173,15 @@ public class PostControllerTest {
             System.out.println("제목: " + post.getTitle());
             System.out.println("내용: " + post.getContent());
             System.out.println("생성 시간: " + post.getCreatedAt());
-            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.getIsSpoiler());
+            System.out.println("스포일러(true면 스포일러, false면 스포일러 아님): " + post.isSpoiler());
             System.out.println(" =================================== ");
         }
 
         // 게시글 전체 조회
         given(postService.getPostList(page, pageSize, null, null)).willReturn(pageDto);
         mockMvc.perform(get("/api/posts")
-                .param("page", String.valueOf(page))
-                .param("pageSize", String.valueOf(pageSize)))
+                        .param("page", String.valueOf(page))
+                        .param("pageSize", String.valueOf(pageSize)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.items").isArray())
                 .andExpect(jsonPath("$.data.items.length()").value(postList.size()))
@@ -246,20 +247,18 @@ public class PostControllerTest {
 
         // 수정할 dto와 검증 dto 저장
         Long postId = 1L;
-        PostUpdateRequestDto updateRequestDto = PostUpdateRequestDto.builder()
-                .title("수정된 테스트 제목")
-                .content("수정된 테스트 내용")
-                .isSpoiler(true)
-                .build();
+        PostUpdateRequestDto updateRequestDto = new PostUpdateRequestDto(
+                postId, "수정된 테스트 제목","수정된 테스트 내용",
+                true
+        );
 
-        PostResponseDto updatedPostResponseDto = PostResponseDto.builder()
-                .id(postId)
-                .userAccountId(testUser.getId())
-                .nickname(testUser.getNickname())
-                .title(updateRequestDto.getTitle())
-                .content(updateRequestDto.getContent())
-                .isSpoiler(updateRequestDto.getIsSpoiler())
-                .build();
+        PostResponseDto updatedPostResponseDto = new PostResponseDto(
+                postId, testUser.getId(), testUser.getNickname(),
+                updateRequestDto.getTitle(),
+                updateRequestDto.getContent(),
+                LocalDateTime.now(),
+                updateRequestDto.isSpoiler()
+        );
 
         given(postService.update(postId, updateRequestDto)).willReturn(updatedPostResponseDto);
 
@@ -274,7 +273,7 @@ public class PostControllerTest {
                 .andExpect(jsonPath("$.data.nickname").value(updatedPostResponseDto.getNickname()))
                 .andExpect(jsonPath("$.data.title").value(updateRequestDto.getTitle()))
                 .andExpect(jsonPath("$.data.content").value(updateRequestDto.getContent()))
-                .andExpect(jsonPath("$.data.isSpoiler").value(updateRequestDto.getIsSpoiler()));
+                .andExpect(jsonPath("$.data.isSpoiler").value(updateRequestDto.isSpoiler()));
 
         then(postService).should().update(postId, updateRequestDto);
     }
