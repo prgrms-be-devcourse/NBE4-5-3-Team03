@@ -37,6 +37,10 @@ class MovieService(
 
     @Transactional
     fun createMovie(request: MovieRequest): MovieResponseWithDetail {
+        if (movieRepository.existsMovieByTitleAndReleaseDate(request.title, request.releaseDate)) {
+            throw ServiceException(HttpStatus.CONFLICT.value(), "이미 존재하는 영화입니다.")
+        }
+
         val movie = Movie(
             title = request.title,
             overview = request.overview,
