@@ -14,10 +14,10 @@ class GlobalExceptionHandler {
     @ExceptionHandler(
         ServiceException::class
     )
-    fun serviceExceptionHandler(e: ServiceException): ResponseEntity<ResponseDto<Void>> {
+    fun serviceExceptionHandler(e: ServiceException): ResponseEntity<ResponseDto<Nothing>> {
         return ResponseEntity
             .status(e.code)
-            .body(ResponseDto.of(e.code.toString(), e.message, null))
+            .body(ResponseDto.of(e.code.toString(), e.message?: ""))
     }
 
     // 그 외 모든 예외 처리
@@ -25,11 +25,11 @@ class GlobalExceptionHandler {
     @ExceptionHandler(
         Exception::class
     )
-    fun exceptionHandler(e: Exception): ResponseEntity<ResponseDto<Void>> {
+    fun exceptionHandler(e: Exception): ResponseEntity<ResponseDto<Nothing>> {
         val code = HttpStatus.INTERNAL_SERVER_ERROR.value()
         e.printStackTrace()
         return ResponseEntity
             .status(code)
-            .body(ResponseDto.of(code.toString(), "서버 에러가 발생했습니다.", null))
+            .body(ResponseDto.of(code.toString(), "서버 에러가 발생했습니다."))
     }
 }
