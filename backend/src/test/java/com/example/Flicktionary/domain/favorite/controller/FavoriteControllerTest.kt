@@ -6,6 +6,7 @@ import com.example.Flicktionary.domain.favorite.service.FavoriteService
 import com.example.Flicktionary.domain.user.service.UserAccountJwtAuthenticationService
 import com.example.Flicktionary.domain.user.service.UserAccountService
 import com.example.Flicktionary.global.dto.PageDto
+import com.example.Flicktionary.global.exception.ServiceException
 import com.example.Flicktionary.global.security.CustomUserDetailsService
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -20,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.context.annotation.Import
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
@@ -192,5 +194,43 @@ class FavoriteControllerTest {
             .andExpect(handler().handlerType(FavoriteController::class.java))
             .andExpect(handler().methodName("deleteFavorite"))
         then(favoriteService).should().deleteFavorite(id)
+    }
+
+    @Test
+    @DisplayName("즐겨찾기에 중복 추가 시 예외 발생")
+    fun checkDuplicate() {
+        // Given
+        val userId = 1L
+        val contentType = ContentType.MOVIE
+        val contentId = 599L
+        val content = """
+                {
+                    "userId": "${userId}",
+                    "contentType": "${contentType}",
+                    "contentId": "${contentId}"
+                }
+                """
+            .trimIndent()
+
+        given(favoriteService.createFavorite(any()))
+            .willThrow(ServiceException(HttpStatus.CONFLICT.value(), "이미 즐겨찾기에 추가된 항목입니다."))
+
+        // When & Then
+        val resultActions = mvc.perform(
+            post("/api/favorites")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andDo(print())
+
+        resultActions
+            .andExpect(status().isConflict())
+            .andExpect(handler().handlerType(FavoriteController::class.java))
+            .andExpect(handler().methodName("createFavorite"))
+            .andExpect(jsonPath("$.code").value(HttpStatus.CONFLICT.value()))
+            .andExpect(jsonPath("$.message").value("이미 즐겨찾기에 추가된 항목입니다."))
+            .andExpect(jsonPath("$.data").isEmpty())
+
+        then(favoriteService).should().createFavorite(any())
     }
 }
