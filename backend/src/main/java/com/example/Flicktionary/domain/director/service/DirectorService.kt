@@ -21,7 +21,8 @@ class DirectorService(
 ) {
     fun getDirectors(keyword: String, page: Int, pageSize: Int): Page<Director> {
         val pageable: Pageable = PageRequest.of(page - 1, pageSize)
-        return directorRepository.findByNameLike(keyword, pageable)
+        val formattedKeyword = keyword.lowercase().replace(" ", "")
+        return directorRepository.findByNameLike(formattedKeyword, pageable)
     }
 
     fun getDirector(id: Long): Director {
