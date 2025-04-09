@@ -5,10 +5,10 @@ import jakarta.validation.constraints.NotBlank
 import java.time.LocalDate
 
 data class MovieRequest(
-    @field:NotBlank(message = "영화 제목은 필수입니다.")
+    @field:NotBlank(message = "영화 제목은 공백일 수 없습니다.")
     val title: String,
 
-    @field:NotBlank(message = "줄거리는 필수입니다.")
+    @field:NotBlank(message = "줄거리는 공백일 수 없습니다.")
     val overview: String,
 
     val releaseDate: LocalDate?,
@@ -32,6 +32,7 @@ data class MovieRequest(
 ) {
     data class MovieCastRequest(
         val actorId: Long,
+        @field:NotBlank(message = "배역 이름은 공백일 수 없습니다.")
         val characterName: String
     )
 }
