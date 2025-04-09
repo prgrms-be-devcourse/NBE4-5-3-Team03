@@ -27,9 +27,6 @@ data class FavoriteDto(
                 data = contentData
             )
         }
-
-        @JvmStatic
-        fun builder(): Builder = Builder()
     }
 
     // DTO → Entity
@@ -40,29 +37,5 @@ data class FavoriteDto(
             contentType = contentType,
             contentId = contentId
         )
-    }
-
-    class Builder {
-        private var id: Long = 0
-        private var userId: Long = 0
-        private var contentType: ContentType = ContentType.MOVIE
-        private var contentId: Long = 0
-        private var data: Any? = null
-
-        fun id(id: Long) = apply { this.id = id }
-        fun userId(userId: Long) = apply { this.userId = userId }
-        fun contentType(contentType: ContentType) = apply { this.contentType = contentType }
-        fun contentId(contentId: Long) = apply { this.contentId = contentId }
-        fun data(data: Any?) = apply { this.data = data }
-
-        fun build(): FavoriteDto {
-            return FavoriteDto(
-                id = id,
-                userId = userId,
-                contentType = contentType,
-                contentId = contentId,
-                data = data
-            )
-        }
     }
 }

@@ -99,17 +99,19 @@ class FavoriteServiceTest {
         testSeries.averageRating = 4.3
         testSeries.ratingCount = 5
 
-        favorite1 = FavoriteDto.builder()
-            .userId(testUser.id)
-            .contentType(ContentType.MOVIE)
-            .contentId(testMovie1.id)
-            .build()
+        favorite1 = FavoriteDto(
+            id = 0L,
+            userId = testUser.id,
+            contentType = ContentType.MOVIE,
+            contentId = testMovie1.id
+        )
 
-        favorite2 = FavoriteDto.builder()
-            .userId(testUser.id)
-            .contentType(ContentType.SERIES)
-            .contentId(testSeries.id)
-            .build()
+        favorite2 = FavoriteDto(
+            id = 0L,
+            userId = testUser.id,
+            contentType = ContentType.SERIES,
+            contentId = testSeries.id
+        )
     }
 
     @Test
