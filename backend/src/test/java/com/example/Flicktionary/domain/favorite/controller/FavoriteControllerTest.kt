@@ -8,6 +8,7 @@ import com.example.Flicktionary.domain.user.service.UserAccountService
 import com.example.Flicktionary.global.dto.PageDto
 import com.example.Flicktionary.global.exception.ServiceException
 import com.example.Flicktionary.global.security.CustomUserDetailsService
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.doNothing
@@ -29,7 +30,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.nio.charset.StandardCharsets
-import kotlin.test.assertEquals
 
 
 @DisplayName("즐겨찾기 도메인 컨트롤러 테스트")
