@@ -64,7 +64,10 @@ export default function SeriesCreatePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (director === null) alert("감독을 선택해주세요");
+    if (director == null || director == undefined) {
+      alert("감독을 선택해주세요");
+      return;
+    }
 
     const res = await client.POST("/api/series", {
       body: {
