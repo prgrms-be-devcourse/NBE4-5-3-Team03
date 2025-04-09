@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { components } from "@/lib/backend/apiV1/schema";
 import ReviewPage from "@/components/review/ClientPage";
 import FavoriteButton from "@/components/favorite/FavoriteButton";
+import client from "@/lib/backend/client";
+import { Button } from "@/components/ui/button";
 
 export default function ClientPage({
   data,
@@ -12,6 +14,21 @@ export default function ClientPage({
   data: components["schemas"]["SeriesDetailResponse"];
 }) {
   const router = useRouter();
+
+  const handleDelete = async () => {
+    if (confirm("정말 이 시리즈를 삭제하시겠습니까?")) {
+      const res = await client.DELETE("/api/series/{id}", {
+        params: { path: { id: data.id } },
+      });
+
+      if (res.error) {
+        alert(res.error.message);
+      } else {
+        alert("삭제되었습니다.");
+        router.push("/series");
+      }
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10 space-y-10">
@@ -28,7 +45,20 @@ export default function ClientPage({
 
         {/* 오른쪽: 영화 정보 */}
         <div className="w-full md:w-2/3 space-y-4">
-          <h1 className="text-4xl font-bold">{data.title}</h1>
+          <div className="flex justify-between items-start">
+            <h1 className="text-4xl font-bold">{data.title}</h1>
+            <div className="space-x-2">
+              <Button
+                variant="default"
+                onClick={() => router.push(`/series/edit/${data.id}`)}
+              >
+                수정
+              </Button>
+              <Button variant="destructive" onClick={handleDelete}>
+                삭제
+              </Button>
+            </div>
+          </div>
           <div className="text-gray-500">
             <ul className="space-y-4">
               <li>
