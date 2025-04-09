@@ -24,6 +24,14 @@ export default function GenreModal({ open, onClose, onSelect }: Props) {
   const [keyword, setKeyword] = useState("");
   const [results, setResults] = useState<GenreDto[]>([]);
 
+  // 모달 열릴 때 keyword, results 초기화
+  useEffect(() => {
+    if (open) {
+      setKeyword("");
+      setResults([]);
+    }
+  }, [open]);
+
   useEffect(() => {
     if (keyword.trim() === "") return;
     const timeout = setTimeout(async () => {

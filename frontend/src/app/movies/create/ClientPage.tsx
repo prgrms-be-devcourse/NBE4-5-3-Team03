@@ -210,7 +210,9 @@ export default function MovieCreatePage() {
               <div className="space-y-2 mt-2">
                 {casts.map((cast, index) => (
                   <div key={index} className="flex gap-2 items-center">
-                    <span className="font-medium w-32">{cast.name}</span>
+                    <span className="font-medium min-w-[10rem]">
+                      {cast.name}
+                    </span>{" "}
                     <Input
                       placeholder="역할 이름"
                       value={cast.characterName}

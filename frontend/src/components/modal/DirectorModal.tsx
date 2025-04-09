@@ -28,6 +28,14 @@ export default function DirectorSearchModal({
   const [keyword, setKeyword] = useState("");
   const [results, setResults] = useState<Director[]>([]);
 
+  // 모달 열릴 때 keyword, results 초기화
+  useEffect(() => {
+    if (open) {
+      setKeyword("");
+      setResults([]);
+    }
+  }, [open]);
+
   useEffect(() => {
     if (keyword.trim() === "") return;
     const timeout = setTimeout(async () => {
