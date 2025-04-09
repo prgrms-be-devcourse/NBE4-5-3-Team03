@@ -12,15 +12,16 @@ import GenreModal from "@/components/modal/GenreModal";
 import ActorSearchModal from "@/components/modal/ActorModal";
 import DirectorModal from "@/components/modal/DirectorModal";
 
-export default function MovieCreatePage() {
+export default function SeriesCreatePage() {
   const router = useRouter();
 
   const [title, setTitle] = useState("");
   const [overview, setOverview] = useState("");
-  const [releaseDate, setReleaseDate] = useState("");
+  const [releaseStartDate, setReleaseStartDate] = useState("");
+  const [releaseEndDate, setReleaseEndDate] = useState("");
   const [status, setStatus] = useState("");
   const [posterPath, setPosterPath] = useState("");
-  const [runtime, setRuntime] = useState(0);
+  const [episodeNumber, setEpisodeNumber] = useState(0);
   const [productionCountry, setProductionCountry] = useState("");
   const [productionCompany, setProductionCompany] = useState("");
   const [genres, setGenres] = useState<components["schemas"]["GenreDto"][]>([]);
@@ -68,14 +69,15 @@ export default function MovieCreatePage() {
       return;
     }
 
-    const res = await client.POST("/api/movies", {
+    const res = await client.POST("/api/series", {
       body: {
         title,
         overview,
-        releaseDate,
+        releaseStartDate,
+        releaseEndDate,
         status,
         posterPath,
-        runtime,
+        episodeNumber,
         productionCountry,
         productionCompany,
         genreIds: genres.map((g) => g.id),
@@ -90,7 +92,7 @@ export default function MovieCreatePage() {
     if (res.error) {
       alert(res.error.message);
     } else {
-      router.push(`/movies/${res.data.data!!.id}`);
+      router.push(`/series/${res.data.data!!.id}`);
     }
   };
 
@@ -98,7 +100,7 @@ export default function MovieCreatePage() {
     <div className="max-w-4xl mx-auto mt-10">
       <Card className="p-6 shadow-xl rounded-2xl">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold">영화 등록</CardTitle>
+          <CardTitle className="text-3xl font-bold">시리즈 등록</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -111,19 +113,27 @@ export default function MovieCreatePage() {
                 />
               </div>
               <div>
-                <Label>상영 시간</Label>
+                <Label>회차</Label>
                 <Input
                   type="number"
-                  value={runtime}
-                  onChange={(e) => setRuntime(+e.target.value)}
+                  value={episodeNumber}
+                  onChange={(e) => setEpisodeNumber(+e.target.value)}
                 />
               </div>
               <div>
-                <Label>개봉일</Label>
+                <Label>첫 방영일</Label>
                 <Input
                   type="date"
-                  value={releaseDate}
-                  onChange={(e) => setReleaseDate(e.target.value)}
+                  value={releaseStartDate}
+                  onChange={(e) => setReleaseStartDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>종영일</Label>
+                <Input
+                  type="date"
+                  value={releaseEndDate}
+                  onChange={(e) => setReleaseEndDate(e.target.value)}
                 />
               </div>
               <div>
@@ -141,7 +151,6 @@ export default function MovieCreatePage() {
                 />
               </div>
             </div>
-
             <div>
               <Label>줄거리</Label>
               <textarea
