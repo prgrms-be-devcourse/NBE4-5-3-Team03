@@ -23,6 +23,13 @@ export default function ClientLayout({
   const { isAuthenticated, logout, user } = useAuth();
   const [authState, setAuthState] = useState(isAuthenticated);
 
+  const [isRegisterDropdownOpen, setIsRegisterDropdownOpen] = useState(false);
+
+  const handleDropdownClose = () => {
+    setIsDropdownOpen(false);
+    setIsRegisterDropdownOpen(false);
+  };
+
   // 인증 상태 변경 감지하여 UI 강제 업데이트
   useEffect(() => {
     setAuthState(isAuthenticated);
@@ -47,7 +54,10 @@ export default function ClientLayout({
               {/* Dropdown for 인물 */}
               <div className="relative">
                 <button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  onClick={() => {
+                    setIsDropdownOpen(!isDropdownOpen);
+                    setIsRegisterDropdownOpen(false);
+                  }}
                   className="hover:text-gray-300"
                 >
                   인물
@@ -74,6 +84,58 @@ export default function ClientLayout({
               <Link href="/community" className="hover:text-gray-300">
                 커뮤니티
               </Link>
+
+              {/* 등록 드롭다운 메뉴 */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setIsRegisterDropdownOpen(!isRegisterDropdownOpen);
+                    setIsDropdownOpen(false);
+                  }}
+                  className="hover:text-gray-300"
+                >
+                  등록
+                </button>
+                {isRegisterDropdownOpen && (
+                  <div className="absolute bg-gray-800 text-white w-40 mt-2 rounded shadow-lg z-10">
+                    <Link
+                      href="/movies/create"
+                      className="block px-4 py-2 hover:bg-gray-700"
+                      onClick={handleDropdownClose}
+                    >
+                      영화 등록
+                    </Link>
+                    <Link
+                      href="/series/create"
+                      className="block px-4 py-2 hover:bg-gray-700"
+                      onClick={handleDropdownClose}
+                    >
+                      시리즈 등록
+                    </Link>
+                    <Link
+                      href="/actors/create"
+                      className="block px-4 py-2 hover:bg-gray-700"
+                      onClick={handleDropdownClose}
+                    >
+                      배우 등록
+                    </Link>
+                    <Link
+                      href="/directors/create"
+                      className="block px-4 py-2 hover:bg-gray-700"
+                      onClick={handleDropdownClose}
+                    >
+                      감독 등록
+                    </Link>
+                    <Link
+                      href="/genres/create"
+                      className="block px-4 py-2 hover:bg-gray-700"
+                      onClick={handleDropdownClose}
+                    >
+                      장르 등록
+                    </Link>
+                  </div>
+                )}
+              </div>
             </nav>
           </div>
 
