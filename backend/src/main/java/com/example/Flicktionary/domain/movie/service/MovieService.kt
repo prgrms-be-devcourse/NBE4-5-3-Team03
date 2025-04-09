@@ -181,19 +181,22 @@ class MovieService(
                 // 배우 추가 (상위 5명)
                 for (tmdbActor in movieDto.credits.cast.take(5)) {
                     val profilePath = tmdbActor.profilePath?.let { "$BASE_IMAGE_URL/w185$it" }
-                    if (actorRepository.existsByNameAndProfilePath(tmdbActor.name, profilePath)) {
-                        continue
-                    }
-                    val actor = actorRepository.save(Actor(tmdbActor.name, profilePath))
+                    val actor =
+                        actorRepository.findByNameAndProfilePath(tmdbActor.name, profilePath) ?: actorRepository.save(
+                            Actor(tmdbActor.name, profilePath)
+                        )
+
                     movie.casts.add(MovieCast(movie, actor, tmdbActor.character))
                 }
 
                 // 감독 설정
-                movieDto.credits.crew.firstOrNull { it.job.equals("Director", ignoreCase = true) }?.let { crew ->
-                    val director = directorRepository.findByIdOrNull(crew.id)
-                        ?: directorRepository.save(
-                            Director(crew.id, crew.name, crew.profilePath?.let { "$BASE_IMAGE_URL/w185$it" })
+                movieDto.credits.crew.firstOrNull { it.job.equals("Director", ignoreCase = true) }?.let {
+                    val profilePath = it.profilePath?.let { "$BASE_IMAGE_URL/w185$it" }
+                    val director =
+                        directorRepository.findByNameAndProfilePath(it.name, profilePath) ?: directorRepository.save(
+                            Director(it.name, profilePath)
                         )
+
                     movie.director = director
                     if (!director.movies.contains(movie)) {
                         director.movies.add(movie)

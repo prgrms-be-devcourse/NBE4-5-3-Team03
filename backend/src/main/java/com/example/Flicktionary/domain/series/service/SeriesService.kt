@@ -182,19 +182,22 @@ class SeriesService(
                 // 배우 저장
                 for (tmdbActor in seriesDto.credits.cast.take(5)) {
                     val profilePath = tmdbActor.profilePath?.let { "$BASE_IMAGE_URL/w185$it" }
-                    if (actorRepository.existsByNameAndProfilePath(tmdbActor.name, profilePath)) {
-                        continue
-                    }
-                    val actor = actorRepository.save(Actor(tmdbActor.name, profilePath))
+                    val actor =
+                        actorRepository.findByNameAndProfilePath(tmdbActor.name, profilePath) ?: actorRepository.save(
+                            Actor(tmdbActor.name, profilePath)
+                        )
+
                     series.casts.add(SeriesCast(series, actor, tmdbActor.character))
                 }
 
                 // 감독 저장
-                seriesDto.credits.crew.firstOrNull { it.job.equals("Director", ignoreCase = true) }?.let { crew ->
-                    val director = directorRepository.findByIdOrNull(crew.id)
-                        ?: directorRepository.save(
-                            Director(crew.id, crew.name, crew.profilePath?.let { "$BASE_IMAGE_URL/w185$it" })
+                seriesDto.credits.crew.firstOrNull { it.job.equals("Director", ignoreCase = true) }?.let {
+                    val profilePath = it.profilePath?.let { "$BASE_IMAGE_URL/w185$it" }
+                    val director =
+                        directorRepository.findByNameAndProfilePath(it.name, profilePath) ?: directorRepository.save(
+                            Director(it.name, profilePath)
                         )
+
                     series.director = director
                     if (!director.series.contains(series)) {
                         director.series.add(series)

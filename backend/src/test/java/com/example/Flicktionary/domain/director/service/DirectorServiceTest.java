@@ -48,7 +48,7 @@ class DirectorServiceTest {
 
     @BeforeEach
     void setUp() {
-        director = new Director(1L, "director", "director.png");
+        director = new Director("director", "director.png");
 
         movie = new Movie("movie", "",
                 LocalDate.of(2022, 1, 1), "",

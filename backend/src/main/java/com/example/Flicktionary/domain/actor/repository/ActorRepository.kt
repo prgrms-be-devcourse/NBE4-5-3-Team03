@@ -10,5 +10,5 @@ interface ActorRepository : JpaRepository<Actor, Long> {
     @Query("SELECT a FROM Actor a WHERE LOWER(REPLACE(a.name, ' ', '')) LIKE CONCAT('%', :keyword, '%')")
     fun findByNameLike(keyword: String, pageable: Pageable): Page<Actor>
 
-    fun existsByNameAndProfilePath(name: String, profilePath: String?): Boolean
+    fun findByNameAndProfilePath(name: String, profilePath: String?): Actor?
 }

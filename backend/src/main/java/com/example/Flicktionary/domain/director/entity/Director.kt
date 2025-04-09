@@ -6,9 +6,6 @@ import jakarta.persistence.*
 
 @Entity
 class Director(
-    @Id
-    val id: Long,
-
     @Column(nullable = false)
     val name: String,
 
@@ -20,8 +17,18 @@ class Director(
     @OneToMany(mappedBy = "director", fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
     val series: MutableList<Series> = mutableListOf()
 ) {
-    constructor(id: Long, name: String, profilePath: String?) : this(
-        id = id,
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private var _id: Long? = null
+
+    var id: Long
+        get() = _id ?: 0
+        set(value) {
+            _id = value
+        }
+
+    constructor(name: String, profilePath: String?) : this(
         name = name,
         profilePath = profilePath,
         movies = mutableListOf(),
