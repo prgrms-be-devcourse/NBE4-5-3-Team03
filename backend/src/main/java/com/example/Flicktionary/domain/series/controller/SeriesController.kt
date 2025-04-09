@@ -59,10 +59,10 @@ class SeriesController(
 
     @Operation(summary = "시리즈 삭제", description = "시리즈를 삭제합니다. 관리자만 접근 가능합니다.")
     @DeleteMapping("/{id}")
-    fun deleteSeries(@PathVariable id: Long): ResponseEntity<ResponseDto<Void>> {
+    fun deleteSeries(@PathVariable id: Long): ResponseEntity<ResponseDto<Nothing>> {
         seriesService.deleteSeries(id)
         return ResponseEntity
             .status(HttpStatus.NO_CONTENT)
-            .body(ResponseDto.of(HttpStatus.NO_CONTENT.value().toString(), HttpStatus.NO_CONTENT.reasonPhrase, null))
+            .body(ResponseDto.of(HttpStatus.NO_CONTENT.value().toString(), HttpStatus.NO_CONTENT.reasonPhrase))
     }
 }

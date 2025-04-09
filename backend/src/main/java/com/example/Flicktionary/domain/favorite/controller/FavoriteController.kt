@@ -44,15 +44,14 @@ class FavoriteController(
 
     // 즐겨찾기 삭제
     @DeleteMapping("/{id}")
-    fun deleteFavorite(@PathVariable id: Long): ResponseEntity<ResponseDto<Void>> {
+    fun deleteFavorite(@PathVariable id: Long): ResponseEntity<ResponseDto<Nothing>> {
         favoriteService.deleteFavorite(id)
         return ResponseEntity
             .status(HttpStatus.NO_CONTENT)
             .body(
                 ResponseDto.of(
                     HttpStatus.NO_CONTENT.value().toString(),
-                    HttpStatus.NO_CONTENT.reasonPhrase,
-                    null
+                    HttpStatus.NO_CONTENT.reasonPhrase
                 )
             )
     }

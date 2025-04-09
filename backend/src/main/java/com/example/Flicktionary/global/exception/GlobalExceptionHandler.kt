@@ -11,21 +11,25 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class GlobalExceptionHandler {
     // ServiceException 처리
     @ResponseStatus
-    @ExceptionHandler(ServiceException::class)
-    fun serviceExceptionHandler(e: ServiceException): ResponseEntity<ResponseDto<Void>> {
+    @ExceptionHandler(
+        ServiceException::class
+    )
+    fun serviceExceptionHandler(e: ServiceException): ResponseEntity<ResponseDto<Nothing>> {
         return ResponseEntity
             .status(e.code)
-            .body(ResponseDto.of<Void>(e.code.toString(), e.message?: "서버 에러가 발생했습니다.", null))
+            .body(ResponseDto.of(e.code.toString(), e.message?: ""))
     }
 
     // 그 외 모든 예외 처리
     @ResponseStatus
-    @ExceptionHandler(Exception::class)
-    fun exceptionHandler(e: Exception): ResponseEntity<ResponseDto<Void>> {
+    @ExceptionHandler(
+        Exception::class
+    )
+    fun exceptionHandler(e: Exception): ResponseEntity<ResponseDto<Nothing>> {
         val code = HttpStatus.INTERNAL_SERVER_ERROR.value()
         e.printStackTrace()
         return ResponseEntity
             .status(code)
-            .body(ResponseDto.of<Void>(code.toString(), "서버 에러가 발생했습니다.", null))
+            .body(ResponseDto.of(code.toString(), "서버 에러가 발생했습니다."))
     }
 }
