@@ -174,29 +174,30 @@ class SeriesService(
 
                 // 장르 저장
                 for (tmdbGenre in seriesDto.genres) {
-                    val genre = genreRepository.findByIdOrNull(tmdbGenre.id)
-                        ?: genreRepository.save(Genre(tmdbGenre.id, tmdbGenre.name))
+                    val genre = genreRepository.findByName(tmdbGenre.name)
+                        ?: genreRepository.save(Genre(tmdbGenre.name))
                     series.genres.add(genre)
                 }
 
                 // 배우 저장
                 for (tmdbActor in seriesDto.credits.cast.take(5)) {
-                    val actor = actorRepository.findByIdOrNull(tmdbActor.id)
-                        ?: actorRepository.save(
-                            Actor(
-                                tmdbActor.id,
-                                tmdbActor.name,
-                                tmdbActor.profilePath?.let { "$BASE_IMAGE_URL/w185$it" })
+                    val profilePath = tmdbActor.profilePath?.let { "$BASE_IMAGE_URL/w185$it" }
+                    val actor =
+                        actorRepository.findByNameAndProfilePath(tmdbActor.name, profilePath) ?: actorRepository.save(
+                            Actor(tmdbActor.name, profilePath)
                         )
+
                     series.casts.add(SeriesCast(series, actor, tmdbActor.character))
                 }
 
                 // 감독 저장
-                seriesDto.credits.crew.firstOrNull { it.job.equals("Director", ignoreCase = true) }?.let { crew ->
-                    val director = directorRepository.findByIdOrNull(crew.id)
-                        ?: directorRepository.save(
-                            Director(crew.id, crew.name, crew.profilePath?.let { "$BASE_IMAGE_URL/w185$it" })
+                seriesDto.credits.crew.firstOrNull { it.job.equals("Director", ignoreCase = true) }?.let {
+                    val profilePath = it.profilePath?.let { "$BASE_IMAGE_URL/w185$it" }
+                    val director =
+                        directorRepository.findByNameAndProfilePath(it.name, profilePath) ?: directorRepository.save(
+                            Director(it.name, profilePath)
                         )
+
                     series.director = director
                     if (!director.series.contains(series)) {
                         director.series.add(series)

@@ -23,7 +23,7 @@ class PostController(
     ): ResponseEntity<ResponseDto<PostResponseDto>> {
         val post = postService.create(postDto)
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ResponseDto.of(HttpStatus.CREATED.value().toString() + "", HttpStatus.CREATED.reasonPhrase, post))
+            .body(ResponseDto.of(HttpStatus.CREATED.value().toString(), HttpStatus.CREATED.reasonPhrase, post))
     }
 
     // 특정 게시글 조회
@@ -64,6 +64,6 @@ class PostController(
     ): ResponseEntity<ResponseDto<*>> {
         postService.delete(id)
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .body(ResponseDto.of(HttpStatus.NO_CONTENT.value().toString() + "", HttpStatus.NO_CONTENT.reasonPhrase))
+            .body(ResponseDto.of(HttpStatus.NO_CONTENT.value().toString(), HttpStatus.NO_CONTENT.reasonPhrase))
     }
 }

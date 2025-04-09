@@ -173,29 +173,30 @@ class MovieService(
 
                 // 장르 추가
                 for (tmdbGenre in movieDto.genres) {
-                    val genre = genreRepository.findByIdOrNull(tmdbGenre.id)
-                        ?: genreRepository.save(Genre(tmdbGenre.id, tmdbGenre.name))
+                    val genre = genreRepository.findByName(tmdbGenre.name)
+                        ?: genreRepository.save(Genre(tmdbGenre.name))
                     movie.genres.add(genre)
                 }
 
                 // 배우 추가 (상위 5명)
                 for (tmdbActor in movieDto.credits.cast.take(5)) {
-                    val actor = actorRepository.findByIdOrNull(tmdbActor.id)
-                        ?: actorRepository.save(
-                            Actor(
-                                tmdbActor.id,
-                                tmdbActor.name,
-                                tmdbActor.profilePath?.let { "$BASE_IMAGE_URL/w185$it" })
+                    val profilePath = tmdbActor.profilePath?.let { "$BASE_IMAGE_URL/w185$it" }
+                    val actor =
+                        actorRepository.findByNameAndProfilePath(tmdbActor.name, profilePath) ?: actorRepository.save(
+                            Actor(tmdbActor.name, profilePath)
                         )
+
                     movie.casts.add(MovieCast(movie, actor, tmdbActor.character))
                 }
 
                 // 감독 설정
-                movieDto.credits.crew.firstOrNull { it.job.equals("Director", ignoreCase = true) }?.let { crew ->
-                    val director = directorRepository.findByIdOrNull(crew.id)
-                        ?: directorRepository.save(
-                            Director(crew.id, crew.name, crew.profilePath?.let { "$BASE_IMAGE_URL/w185$it" })
+                movieDto.credits.crew.firstOrNull { it.job.equals("Director", ignoreCase = true) }?.let {
+                    val profilePath = it.profilePath?.let { "$BASE_IMAGE_URL/w185$it" }
+                    val director =
+                        directorRepository.findByNameAndProfilePath(it.name, profilePath) ?: directorRepository.save(
+                            Director(it.name, profilePath)
                         )
+
                     movie.director = director
                     if (!director.movies.contains(movie)) {
                         director.movies.add(movie)

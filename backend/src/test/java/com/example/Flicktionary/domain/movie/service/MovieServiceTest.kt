@@ -257,10 +257,10 @@ internal class MovieServiceTest {
             1L
         )
 
-        val genre1 = Genre(1L, "Action")
-        val genre2 = Genre(2L, "Drama")
-        val actor = Actor(1L, "Test Actor", null)
-        val director = Director(1L, "Test Director", "PosterPath")
+        val genre1 = Genre("Action")
+        val genre2 = Genre("Drama")
+        val actor = Actor("Test Actor", null)
+        val director = Director("Test Director", "PosterPath")
 
         val savedMovie = Movie(
             "movie",
@@ -316,10 +316,10 @@ internal class MovieServiceTest {
             1L
         )
 
-        val genre1 = Genre(1L, "Action")
-        val genre2 = Genre(2L, "Drama")
-        val actor = Actor(1L, "Actor Name", null)
-        val director = Director(1L, "Director Name", "posterPath")
+        val genre1 = Genre("Action")
+        val genre2 = Genre("Drama")
+        val actor = Actor("Actor Name", null)
+        val director = Director("Director Name", "posterPath")
 
         val movie = Movie(
             "old title", "old overview", LocalDate.of(2020, 1, 1),
