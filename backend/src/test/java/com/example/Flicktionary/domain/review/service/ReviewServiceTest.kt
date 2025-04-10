@@ -19,11 +19,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.BDDMockito.*
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.*
 import org.springframework.data.domain.*
 import java.time.LocalDate
 import java.util.*
@@ -124,7 +123,7 @@ class ReviewServiceTest {
     fun printReview() {
         given(userAccountRepository.findById(reviewDto1.userAccountId!!)).willReturn(Optional.of(testUser))
         given(movieRepository.findById(reviewDto1.movieId!!)).willReturn(Optional.of(testMovie))
-        given(reviewRepository.save(any(Review::class.java)))
+        given(reviewRepository.save(any<Review>()))
             .willReturn(
                 Review(
                     id = 1L,
@@ -206,7 +205,7 @@ class ReviewServiceTest {
             .willReturn(Optional.of(testUser))
         given(movieRepository.findById(any()))
             .willReturn(Optional.of(testMovie))
-        given(reviewRepository.save(any(Review::class.java)))
+        given(reviewRepository.save(any<Review>()))
             .willReturn(reviewDto1.toEntity(testUser, testMovie, null))
 
         // 리뷰 생성 및 변수에 저장
@@ -219,7 +218,7 @@ class ReviewServiceTest {
         assertThat(testMovie.averageRating).isEqualTo(newAverageRating)
         then(userAccountRepository).should().findById(reviewDto1.userAccountId!!)
         then(movieRepository).should().findById(reviewDto1.movieId!!)
-        then(reviewRepository).should().save(any(Review::class.java))
+        then(reviewRepository).should().save(any<Review>())
     }
 
     @Test
@@ -229,7 +228,7 @@ class ReviewServiceTest {
         val averageRating = testSeries.averageRating
         given(userAccountRepository.findById(any())).willReturn(Optional.of(testUser))
         given(seriesRepository.findById(any())).willReturn(Optional.of(testSeries))
-        given(reviewRepository.save(any(Review::class.java)))
+        given(reviewRepository.save(any<Review>()))
             .willReturn(reviewDto2.toEntity(testUser, null, testSeries))
 
         // 리뷰 생성 및 변수에 저장
@@ -242,7 +241,7 @@ class ReviewServiceTest {
         assertThat(testSeries.averageRating).isEqualTo(newAverageRating)
         then(userAccountRepository).should().findById(reviewDto2.userAccountId!!)
         then(seriesRepository).should().findById(reviewDto2.seriesId!!)
-        then(reviewRepository).should().save(any(Review::class.java))
+        then(reviewRepository).should().save(any<Review>())
     }
 
     @Test
@@ -383,7 +382,7 @@ class ReviewServiceTest {
             rating = updatedReviewDto.rating,
             content = updatedReviewDto.content
         )
-        given(reviewRepository.save(any(Review::class.java))).willReturn(updatedReviewEntity)
+        given(reviewRepository.save(any<Review>())).willReturn(updatedReviewEntity)
 
         // 수정
         val result = reviewService.updateReview(reviewDto1.id!!, updatedReviewDto)
@@ -393,7 +392,7 @@ class ReviewServiceTest {
         assertEquals(4, result.rating)
         assertEquals("(테스트)수정된 리뷰 내용", result.content)
         then(reviewRepository).should().findById(reviewDto1.id!!)
-        then(reviewRepository).should().save(any(Review::class.java))
+        then(reviewRepository).should().save(any<Review>())
     }
 
     @Test
@@ -415,7 +414,7 @@ class ReviewServiceTest {
         given(reviewRepository.findById(reviewDto1.id!!))
             .willReturn(Optional.of(updatedReviewDto.toEntity(testUser, testMovie, null)))
 
-        given(reviewRepository.save(any(Review::class.java)))
+        given(reviewRepository.save(any<Review>()))
             .willReturn(updatedReviewDto.toEntity(testUser, testMovie, null))
 
         // 수정
@@ -426,7 +425,7 @@ class ReviewServiceTest {
         assertThat(testMovie.ratingCount).isEqualTo(ratingCount)
         assertThat(testMovie.averageRating).isEqualTo(newAverageRating)
         then(reviewRepository).should().findById(reviewDto1.id!!)
-        then(reviewRepository).should().save(any(Review::class.java))
+        then(reviewRepository).should().save(any<Review>())
     }
 
     @Test
@@ -448,7 +447,7 @@ class ReviewServiceTest {
         given(reviewRepository.findById(reviewDto2.id!!))
             .willReturn(Optional.of(updatedReviewDto.toEntity(testUser, null, testSeries)))
 
-        given(reviewRepository.save(any(Review::class.java)))
+        given(reviewRepository.save(any<Review>()))
             .willReturn(updatedReviewDto.toEntity(testUser, null, testSeries))
 
         // 수정
@@ -459,7 +458,7 @@ class ReviewServiceTest {
         assertThat(testSeries.ratingCount).isEqualTo(ratingCount)
         assertThat(testSeries.averageRating).isEqualTo(newAverageRating)
         then(reviewRepository).should().findById(reviewDto2.id!!)
-        then(reviewRepository).should().save(any(Review::class.java))
+        then(reviewRepository).should().save(any<Review>())
     }
 
     @DisplayName("존재하지 않는 리뷰 수정")
@@ -482,7 +481,7 @@ class ReviewServiceTest {
     fun deleteReview() {
         given(reviewRepository.findById(reviewDto1.id!!))
             .willReturn(Optional.of(reviewDto1.toEntity(testUser, testMovie, null)))
-        doNothing().`when`(reviewRepository).delete(any())
+        doNothing().whenever(reviewRepository).delete(any())
 
         // 리뷰 삭제
         reviewService.deleteReview(reviewDto1.id!!)
@@ -499,7 +498,7 @@ class ReviewServiceTest {
         val averageRating = testMovie.averageRating
         given(reviewRepository.findById(reviewDto1.id!!))
             .willReturn(Optional.of(reviewDto1.toEntity(testUser, testMovie, null)))
-        doNothing().`when`(reviewRepository).delete(any())
+        doNothing().whenever(reviewRepository).delete(any())
 
         // 리뷰 삭제
         reviewService.deleteReview(reviewDto1.id!!)
@@ -521,7 +520,7 @@ class ReviewServiceTest {
         val averageRating = testSeries.averageRating
         given(reviewRepository.findById(reviewDto2.id!!))
             .willReturn(Optional.of(reviewDto2.toEntity(testUser, null, testSeries)))
-        doNothing().`when`(reviewRepository).delete(any())
+        doNothing().whenever(reviewRepository).delete(any())
 
         // 리뷰 삭제
         reviewService.deleteReview(reviewDto2.id!!)

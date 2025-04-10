@@ -9,10 +9,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.BDDAssertions.catchThrowable
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.BDDMockito.*
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
+import org.mockito.kotlin.given
+import org.mockito.kotlin.then
 import org.springframework.security.crypto.password.PasswordEncoder
 import java.util.*
 import kotlin.test.Test
@@ -41,9 +43,9 @@ class UserAccountServiceTest {
     @DisplayName("회원 정보가 담긴 DTO가 주어졌을때 회원을 가입시킨다.")
     @Test
     fun givenDtoWhenRegisteringUserWillPersistUserAccount() {
-        given(userAccountRepository.save(any(UserAccount::class.java)))
+        given(userAccountRepository.save(any<UserAccount>()))
             .willReturn(userAccountDto.toEntity())
-        given(passwordEncoder.encode(anyString())).willReturn(userAccountDto.password)
+        given(passwordEncoder.encode(any<String>())).willReturn(userAccountDto.password)
 
         val resUserAccountDto = userAccountService.registerUser(userAccountDto)
 
@@ -54,7 +56,7 @@ class UserAccountServiceTest {
         assertEquals(userAccountDto.email, resUserAccountDto.email)
         assertEquals(userAccountDto.nickname, resUserAccountDto.nickname)
         assertEquals(userAccountDto.role, resUserAccountDto.role)
-        then(userAccountRepository).should().save(any(UserAccount::class.java))
+        then(userAccountRepository).should().save(any<UserAccount>())
     }
 
     @DisplayName("존재하지 않는 회원의 정보를 수정할때 예외를 던진다.")
@@ -85,9 +87,9 @@ class UserAccountServiceTest {
         )
         given(userAccountRepository.findById(userAccountDto.id!!))
             .willReturn(Optional.of(userAccountDto.toEntity()))
-        given(userAccountRepository.save(any(UserAccount::class.java)))
+        given(userAccountRepository.save(any<UserAccount>()))
             .willReturn(newUserAccountDto.toEntity())
-        given(passwordEncoder.encode(anyString())).willReturn(newUserAccountDto.password)
+        given(passwordEncoder.encode(any<String>())).willReturn(newUserAccountDto.password)
 
         val result = userAccountService.modifyUser(userAccountDto.id!!, newUserAccountDto)
 
@@ -98,7 +100,7 @@ class UserAccountServiceTest {
         assertEquals(newUserAccountDto.email, result.email)
         assertEquals(newUserAccountDto.nickname, result.nickname)
         assertEquals(newUserAccountDto.role, result.role)
-        then(userAccountRepository).should().save(any(UserAccount::class.java))
+        then(userAccountRepository).should().save(any<UserAccount>())
     }
 
     @DisplayName("고유 ID로 회원을 조회한다.")
@@ -170,7 +172,7 @@ class UserAccountServiceTest {
 
         assertNotNull(result)
         assertEquals(userAccountDto.username, result)
-        then(userAccountRepository).should().delete(any(UserAccount::class.java))
+        then(userAccountRepository).should().delete(any<UserAccount>())
     }
 
     @DisplayName("존재하지 않는 고유 ID로 회원을 삭제할때 예외를 던진다.")

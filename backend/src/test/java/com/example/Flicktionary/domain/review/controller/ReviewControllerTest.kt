@@ -15,12 +15,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
-import org.mockito.BDDMockito.given
-import org.mockito.BDDMockito.then
-import org.mockito.Mockito.doNothing
-import org.mockito.Mockito.verify
+import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -229,13 +224,13 @@ class ReviewControllerTest {
     @Test
     @DisplayName("리뷰 삭제")
     fun deleteReview() {
-        val captor = ArgumentCaptor.forClass(Long::class.java)
-        doNothing().`when`(reviewService).deleteReview(captor.capture())
+        val captor = argumentCaptor<Long>()
+        doNothing().whenever(reviewService).deleteReview(captor.capture())
 
         // mockMvc로 delete 요청 후 검증
         mockMvc.perform(delete("/api/reviews/" + reviewDto1.id))
             .andExpect(status().isNoContent())
-        val captured = captor.value
+        val captured = captor.firstValue
 
         assertEquals(reviewDto1.id, captured)
         then(reviewService).should().deleteReview(reviewDto1.id!!)
@@ -277,8 +272,8 @@ class ReviewControllerTest {
     @Test
     @DisplayName("특정 드라마 리뷰 페이지 조회")
     fun getReviewMovieSeries() {
-        val longCaptor = ArgumentCaptor.forClass(Long::class.java)
-        val integerCaptor = ArgumentCaptor.forClass(Int::class.java)
+        val longCaptor = argumentCaptor<Long>()
+        val integerCaptor = argumentCaptor<Int>()
         given(
             reviewService.reviewSeriesDtoPage(
                 longCaptor.capture(),
@@ -308,17 +303,13 @@ class ReviewControllerTest {
                 jsonPath("$.data.items[0].content")
                     .value("테스트용 리뷰 내용 (드라마)")
             )
-        val longValue = longCaptor.value
+        val longValue = longCaptor.firstValue
         val integerValues = integerCaptor.allValues
 
         assertEquals(reviewDto2.seriesId, longValue)
         assertEquals(0, integerValues[0])
         assertEquals(5, integerValues[1])
         then(reviewService).should()
-            .reviewSeriesDtoPage(
-                any(Long::class.java), any(Int::class.java), any(
-                    Int::class.java
-                )
-            )
+            .reviewSeriesDtoPage(any<Long>(), any<Int>(), any<Int>())
     }
 }

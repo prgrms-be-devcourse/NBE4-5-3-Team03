@@ -10,12 +10,12 @@ import org.assertj.core.api.BDDAssertions.catchThrowable
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers.anyString
 import org.mockito.BDDMockito.given
 import org.mockito.BDDMockito.then
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.util.ReflectionTestUtils
 import java.time.LocalDateTime
@@ -71,8 +71,8 @@ class UserAccountJwtAuthenticationServiceTest {
     @DisplayName("올바른 인증 정보가 주어졌을때 해당 유저에게 접근 토큰을 발행한다.")
     @Test
     fun givenCorrectUserCredentialsWhenCreatingTokenThenReturnTokenWithCorrectClaims() {
-        given(userAccountRepository.findByUsername(anyString())).willReturn(userAccount)
-        given(passwordEncoder.matches(anyString(), anyString())).willReturn(true)
+        given(userAccountRepository.findByUsername(userAccount.username)).willReturn(userAccount)
+        given(passwordEncoder.matches(any<String>(), any<String>())).willReturn(true)
 
         val token = userAccountJwtAuthenticationService.createNewAccessTokenForUser(
                 userAccount.username,
@@ -106,8 +106,8 @@ class UserAccountJwtAuthenticationServiceTest {
     @DisplayName("올바른 리프레시 토큰이 주어졌을때 접근 토큰와 리프레시 토큰을 재발행한다.")
     @Test
     fun givenValidRefreshTokenWhenRefreshingTokensThenReturnRefreshedTokens() {
-        given(userAccountRepository.findByRefreshToken(anyString())).willReturn(userAccount)
-        given(userAccountRepository.findByUsername(anyString())).willReturn(userAccount)
+        given(userAccountRepository.findByRefreshToken(any<String>())).willReturn(userAccount)
+        given(userAccountRepository.findByUsername(any<String>())).willReturn(userAccount)
 
         val fakeRefreshToken = "=#=#=#=#=#=#=#=#=#=#=#=#"
         val fakeExpiryDate = LocalDateTime.of(3000, 1, 1, 0, 0)
@@ -127,7 +127,7 @@ class UserAccountJwtAuthenticationServiceTest {
     @DisplayName("만료된 리프레시 토큰이 주어졌을때 예외를 던진다.")
     @Test
     fun givenStaleRefreshTokenWhenRefreshingTokensThenThrowException() {
-        given(userAccountRepository.findByRefreshToken(anyString())).willReturn(userAccount)
+        given(userAccountRepository.findByRefreshToken(any<String>())).willReturn(userAccount)
 
         val wrongRefreshToken = "=#=#=#=#=#=#=#=#=#=#=#=#"
         val fakeExpiryDate = LocalDateTime.of(3000, 1, 1, 0, 0)

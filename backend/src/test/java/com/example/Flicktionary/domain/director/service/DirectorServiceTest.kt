@@ -210,7 +210,7 @@ internal class DirectorServiceTest {
         val id = 1L
 
         given(directorRepository.findById(id)).willReturn(Optional.of(director))
-        doNothing().`when`(directorRepository).delete(director)
+        doNothing().whenever(directorRepository).delete(director)
 
         // When
         directorService.deleteDirector(id)

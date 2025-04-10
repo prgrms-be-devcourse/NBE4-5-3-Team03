@@ -19,8 +19,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.*
+import org.mockito.InjectMocks
+import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.*
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -70,7 +72,7 @@ internal class MovieServiceTest {
         val page = 1
         val pageSize = 10
 
-        BDDMockito.given(
+        given(
             movieRepository.findByTitleLike(
                 keyword,
                 PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.ASC, "id"))
@@ -102,7 +104,7 @@ internal class MovieServiceTest {
         val page = 1
         val pageSize = 10
 
-        BDDMockito.given(
+        given(
             movieRepository.findByTitleLike(
                 keyword,
                 PageRequest.of(
@@ -135,7 +137,7 @@ internal class MovieServiceTest {
         val page = 1
         val pageSize = 10
 
-        BDDMockito.given(
+        given(
             movieRepository.findByTitleLike(
                 keyword,
                 PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "averageRating"))
@@ -166,7 +168,7 @@ internal class MovieServiceTest {
         val page = 1
         val pageSize = 10
 
-        BDDMockito.given(
+        given(
             movieRepository.findByTitleLike(
                 keyword,
                 PageRequest.of(page - 1, pageSize, Sort.by(Sort.Direction.DESC, "ratingCount"))
@@ -214,7 +216,7 @@ internal class MovieServiceTest {
     @Test
     @DisplayName("영화 상세 조회 - 성공 - 기본")
     fun testgetMovie1() {
-        BDDMockito.given(movieRepository.findByIdWithCastsAndDirector(testMovie.id))
+        given(movieRepository.findByIdWithCastsAndDirector(testMovie.id))
             .willReturn(testMovie)
 
         val result = movieService.getMovie(testMovie.id)
@@ -223,14 +225,14 @@ internal class MovieServiceTest {
         Assertions.assertEquals(testMovie.id, result.id)
         Assertions.assertEquals(testMovie.averageRating, result.averageRating)
         Assertions.assertEquals(testMovie.ratingCount, result.ratingCount)
-        BDDMockito.then(movieRepository).should().findByIdWithCastsAndDirector(testMovie.id)
+        then(movieRepository).should().findByIdWithCastsAndDirector(testMovie.id)
     }
 
     @Test
     @DisplayName("영화 상세 조회 - 실패 - 없는 영화 조회")
     fun testgetMovie3() {
         val id = 1000000000000000000L
-        BDDMockito.given(movieRepository.findByIdWithCastsAndDirector(id)).willReturn(null)
+        given(movieRepository.findByIdWithCastsAndDirector(id)).willReturn(null)
 
         val thrown = AssertionsForClassTypes.catchThrowable { movieService.getMovie(id) }
 
@@ -278,15 +280,15 @@ internal class MovieServiceTest {
         savedMovie.director = director
 
         // when
-        Mockito.`when`(genreRepository.findAllById(listOf(1L, 2L))).thenReturn(listOf(genre1, genre2))
-        Mockito.`when`(actorRepository.findById(1L)).thenReturn(Optional.of(actor))
-        Mockito.`when`(directorRepository.findById(1L)).thenReturn(Optional.of(director))
-        Mockito.`when`(movieRepository.save(ArgumentMatchers.any(Movie::class.java))).thenReturn(savedMovie)
+        whenever(genreRepository.findAllById(listOf(1L, 2L))).thenReturn(listOf(genre1, genre2))
+        whenever(actorRepository.findById(1L)).thenReturn(Optional.of(actor))
+        whenever(directorRepository.findById(1L)).thenReturn(Optional.of(director))
+        whenever(movieRepository.save(any<Movie>())).thenReturn(savedMovie)
 
         val response = movieService.createMovie(request)
 
         // then
-        Mockito.verify(movieRepository).save(ArgumentMatchers.any(Movie::class.java))
+        verify(movieRepository).save(any<Movie>())
         Assertions.assertNotNull(response)
         Assertions.assertEquals(savedMovie.id, response.id)
         Assertions.assertEquals(savedMovie.title, response.title)
@@ -328,10 +330,10 @@ internal class MovieServiceTest {
         movie.id = movieId
 
         // mocking
-        Mockito.`when`(movieRepository.findById(movieId)).thenReturn(Optional.of(movie))
-        Mockito.`when`(genreRepository.findAllById(listOf(1L, 2L))).thenReturn(listOf(genre1, genre2))
-        Mockito.`when`(actorRepository.findById(1L)).thenReturn(Optional.of(actor))
-        Mockito.`when`(directorRepository.findById(1L)).thenReturn(Optional.of(director))
+        whenever(movieRepository.findById(movieId)).thenReturn(Optional.of(movie))
+        whenever(genreRepository.findAllById(listOf(1L, 2L))).thenReturn(listOf(genre1, genre2))
+        whenever(actorRepository.findById(1L)).thenReturn(Optional.of(actor))
+        whenever(directorRepository.findById(1L)).thenReturn(Optional.of(director))
 
         // when
         val response = movieService.updateMovie(movieId, request)
@@ -372,7 +374,7 @@ internal class MovieServiceTest {
         )
 
         // mocking
-        Mockito.`when`(movieRepository.findById(movieId)).thenReturn(Optional.empty())
+        whenever(movieRepository.findById(movieId)).thenReturn(Optional.empty())
 
         // when
         val thrown = AssertionsForClassTypes.catchThrowable {
@@ -404,14 +406,14 @@ internal class MovieServiceTest {
             "productionCompany"
         )
 
-        Mockito.`when`(movieRepository.findById(movieId))
+        whenever(movieRepository.findById(movieId))
             .thenReturn(Optional.of(movie))
 
         // when
         movieService.deleteMovie(movieId)
 
         // then
-        Mockito.verify(movieRepository).delete(movie)
+        verify(movieRepository).delete(movie)
     }
 
     @Test
@@ -419,7 +421,7 @@ internal class MovieServiceTest {
     fun deleteMovie2() {
         // given
         val movieId = 1L
-        Mockito.`when`(movieRepository.findById(movieId))
+        whenever(movieRepository.findById(movieId))
             .thenReturn(Optional.empty())
 
         // when

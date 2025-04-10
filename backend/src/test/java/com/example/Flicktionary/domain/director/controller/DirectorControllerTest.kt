@@ -15,10 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doNothing
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.given
+import org.mockito.kotlin.*
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -240,7 +237,7 @@ internal class DirectorControllerTest {
     fun deleteDirector1() {
         val id = 999L
 
-        doNothing().`when`(directorService).deleteDirector(id)
+        doNothing().whenever(directorService).deleteDirector(id)
 
         mockMvc.perform(
             delete("/api/directors/${id}")

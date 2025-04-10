@@ -13,18 +13,23 @@ import com.example.Flicktionary.domain.series.entity.SeriesCast
 import com.example.Flicktionary.domain.series.repository.SeriesRepository
 import com.example.Flicktionary.domain.tmdb.service.TmdbService
 import com.example.Flicktionary.global.exception.ServiceException
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.catchThrowable
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.*
+import org.mockito.InjectMocks
+import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.*
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import java.time.LocalDate
 import java.util.*
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 @DisplayName("시리즈 서비스 테스트")
 @ExtendWith(MockitoExtension::class)
@@ -67,7 +72,7 @@ class SeriesServiceTest {
         val page = 1
         val pageSize = 10
 
-        BDDMockito.given(
+        given(
             seriesRepository.findByTitleLike(
                 keyword, PageRequest.of(page - 1, pageSize, Sort.by("id").ascending())
             )
@@ -82,10 +87,10 @@ class SeriesServiceTest {
 
         val series = seriesService.getSeries(keyword, page, pageSize, sortBy)
 
-        Assertions.assertThat(series).isNotNull()
-        Assertions.assertThat(series.content.size).isGreaterThan(0)
-        org.junit.jupiter.api.Assertions.assertEquals(123L, series.content[0].id)
-        org.junit.jupiter.api.Assertions.assertEquals("testTitle", series.content[0].title)
+        assertThat(series).isNotNull()
+        assertThat(series.content.size).isGreaterThan(0)
+        assertEquals(123L, series.content[0].id)
+        assertEquals("testTitle", series.content[0].title)
     }
 
     @Test
@@ -96,7 +101,7 @@ class SeriesServiceTest {
         val page = 1
         val pageSize = 10
 
-        BDDMockito.given(
+        given(
             seriesRepository.findByTitleLike(
                 keyword, PageRequest.of(page - 1, pageSize, Sort.by("averageRating").descending())
             )
@@ -111,8 +116,8 @@ class SeriesServiceTest {
 
         val series = seriesService.getSeries(keyword, page, pageSize, sortBy)
 
-        Assertions.assertThat(series).isNotNull()
-        Assertions.assertThat(series.content.size).isGreaterThan(0)
+        assertThat(series).isNotNull()
+        assertThat(series.content.size).isGreaterThan(0)
     }
 
     @Test
@@ -123,7 +128,7 @@ class SeriesServiceTest {
         val page = 1
         val pageSize = 10
 
-        BDDMockito.given(
+        given(
             seriesRepository.findByTitleLike(
                 keyword, PageRequest.of(page - 1, pageSize, Sort.by("ratingCount").descending())
             )
@@ -139,7 +144,7 @@ class SeriesServiceTest {
         val series = seriesService.getSeries(keyword, page, pageSize, sortBy)
 
 
-        Assertions.assertThat(series).isNotNull()
+        assertThat(series).isNotNull()
     }
 
     @Test
@@ -150,7 +155,7 @@ class SeriesServiceTest {
         val page = 1
         val pageSize = 10
 
-        BDDMockito.given(
+        given(
             seriesRepository.findByTitleLike(
                 keyword, PageRequest.of(page - 1, pageSize, Sort.by("id").ascending())
             )
@@ -165,7 +170,7 @@ class SeriesServiceTest {
 
         val series = seriesService.getSeries(keyword, page, pageSize, sortBy)
 
-        Assertions.assertThat(series).isNotNull()
+        assertThat(series).isNotNull()
     }
 
     @Test
@@ -176,7 +181,7 @@ class SeriesServiceTest {
         val page = 1
         val pageSize = 10
 
-        val thrown = Assertions.catchThrowable {
+        val thrown = catchThrowable {
             seriesService.getSeries(
                 keyword,
                 page,
@@ -185,7 +190,7 @@ class SeriesServiceTest {
             )
         }
 
-        Assertions.assertThat(thrown)
+        assertThat(thrown)
             .isInstanceOf(ServiceException::class.java)
             .hasMessage("잘못된 정렬 기준입니다.")
     }
@@ -195,17 +200,17 @@ class SeriesServiceTest {
     fun testGetSeriesDetail_Success() {
         // given
         val seriesId = 123L
-        BDDMockito.given(seriesRepository.findByIdWithCastsAndDirector(seriesId))
+        given(seriesRepository.findByIdWithCastsAndDirector(seriesId))
             .willReturn(series)
 
         // when
         val response = seriesService.getSeriesDetail(seriesId)
 
         // then
-        org.junit.jupiter.api.Assertions.assertNotNull(response)
-        org.junit.jupiter.api.Assertions.assertEquals(seriesId, response.id)
-        org.junit.jupiter.api.Assertions.assertEquals("testTitle", response.title)
-        BDDMockito.then(seriesRepository).should().findByIdWithCastsAndDirector(seriesId)
+        assertNotNull(response)
+        assertEquals(seriesId, response.id)
+        assertEquals("testTitle", response.title)
+        then(seriesRepository).should().findByIdWithCastsAndDirector(seriesId)
     }
 
     @Test
@@ -213,20 +218,20 @@ class SeriesServiceTest {
     fun testGetSeriesDetail_Fail_NotFound() {
         // given
         val seriesId = 999L // 존재하지 않는 ID
-        BDDMockito.given(seriesRepository.findByIdWithCastsAndDirector(seriesId)).willReturn(null)
+        given(seriesRepository.findByIdWithCastsAndDirector(seriesId)).willReturn(null)
 
         // when
-        val thrown = Assertions.catchThrowable {
+        val thrown = catchThrowable {
             seriesService.getSeriesDetail(
                 seriesId
             )
         }
 
         // then
-        Assertions.assertThat(thrown)
+        assertThat(thrown)
             .isInstanceOf(ServiceException::class.java)
             .hasMessage("${seriesId}번 시리즈를 찾을 수 없습니다.")
-        BDDMockito.then(seriesRepository).should().findByIdWithCastsAndDirector(seriesId)
+        then(seriesRepository).should().findByIdWithCastsAndDirector(seriesId)
     }
 
     @Test
@@ -269,29 +274,23 @@ class SeriesServiceTest {
         savedSeries.director = director
 
         // when
-        Mockito.`when`(genreRepository.findAllById(listOf(1L, 2L))).thenReturn(listOf(genre1, genre2))
-        Mockito.`when`(actorRepository.findById(1L)).thenReturn(Optional.of(actor))
-        Mockito.`when`(directorRepository.findById(1L)).thenReturn(Optional.of(director))
-        Mockito.`when`(
-            seriesRepository.save(
-                ArgumentMatchers.any(
-                    Series::class.java
-                )
-            )
-        ).thenReturn(savedSeries)
+        whenever(genreRepository.findAllById(listOf(1L, 2L))).thenReturn(listOf(genre1, genre2))
+        whenever(actorRepository.findById(1L)).thenReturn(Optional.of(actor))
+        whenever(directorRepository.findById(1L)).thenReturn(Optional.of(director))
+        whenever(seriesRepository.save(any<Series>())).thenReturn(savedSeries)
 
         val response = seriesService.createSeries(request)
 
         // then
-        org.junit.jupiter.api.Assertions.assertNotNull(response)
-        org.junit.jupiter.api.Assertions.assertEquals(request.title, response.title)
-        org.junit.jupiter.api.Assertions.assertEquals(request.overview, response.plot)
-        org.junit.jupiter.api.Assertions.assertEquals(request.posterPath, response.posterPath)
-        org.junit.jupiter.api.Assertions.assertEquals("Action", response.genres[0].name)
-        org.junit.jupiter.api.Assertions.assertEquals("Drama", response.genres[1].name)
-        org.junit.jupiter.api.Assertions.assertEquals("name", response.casts[0].actor.name)
-        org.junit.jupiter.api.Assertions.assertEquals("characterName", response.casts[0].characterName)
-        org.junit.jupiter.api.Assertions.assertEquals("name", response.director?.name)
+        assertNotNull(response)
+        assertEquals(request.title, response.title)
+        assertEquals(request.overview, response.plot)
+        assertEquals(request.posterPath, response.posterPath)
+        assertEquals("Action", response.genres[0].name)
+        assertEquals("Drama", response.genres[1].name)
+        assertEquals("name", response.casts[0].actor.name)
+        assertEquals("characterName", response.casts[0].characterName)
+        assertEquals("name", response.director?.name)
     }
 
     @Test
@@ -332,23 +331,23 @@ class SeriesServiceTest {
         series.id = id
 
         // when
-        Mockito.`when`(seriesRepository.findById(id)).thenReturn(Optional.of(series))
-        Mockito.`when`(genreRepository.findAllById(listOf(1L, 2L))).thenReturn(listOf(genre1, genre2))
-        Mockito.`when`(actorRepository.findById(1L)).thenReturn(Optional.of(actor))
-        Mockito.`when`(directorRepository.findById(1L)).thenReturn(Optional.of(director))
+        whenever(seriesRepository.findById(id)).thenReturn(Optional.of(series))
+        whenever(genreRepository.findAllById(listOf(1L, 2L))).thenReturn(listOf(genre1, genre2))
+        whenever(actorRepository.findById(1L)).thenReturn(Optional.of(actor))
+        whenever(directorRepository.findById(1L)).thenReturn(Optional.of(director))
 
         val response = seriesService.updateSeries(id, request)
 
         // then
-        org.junit.jupiter.api.Assertions.assertNotNull(response)
-        org.junit.jupiter.api.Assertions.assertEquals(request.title, response.title)
-        org.junit.jupiter.api.Assertions.assertEquals(request.overview, response.plot)
-        org.junit.jupiter.api.Assertions.assertEquals(request.posterPath, response.posterPath)
-        org.junit.jupiter.api.Assertions.assertEquals("Action", response.genres[0].name)
-        org.junit.jupiter.api.Assertions.assertEquals("Drama", response.genres[1].name)
-        org.junit.jupiter.api.Assertions.assertEquals("name", response.casts[0].actor.name)
-        org.junit.jupiter.api.Assertions.assertEquals("characterName", response.casts[0].characterName)
-        org.junit.jupiter.api.Assertions.assertEquals("name", response.director?.name)
+        assertNotNull(response)
+        assertEquals(request.title, response.title)
+        assertEquals(request.overview, response.plot)
+        assertEquals(request.posterPath, response.posterPath)
+        assertEquals("Action", response.genres[0].name)
+        assertEquals("Drama", response.genres[1].name)
+        assertEquals("name", response.casts[0].actor.name)
+        assertEquals("characterName", response.casts[0].characterName)
+        assertEquals("name", response.director?.name)
     }
 
     @Test
@@ -371,8 +370,8 @@ class SeriesServiceTest {
         )
 
         // when
-        Mockito.`when`(seriesRepository.findById(id)).thenReturn(Optional.empty())
-        val thrown = Assertions.catchThrowable {
+        whenever(seriesRepository.findById(id)).thenReturn(Optional.empty())
+        val thrown = catchThrowable {
             seriesService.updateSeries(
                 id,
                 request
@@ -380,7 +379,7 @@ class SeriesServiceTest {
         }
 
         // then
-        Assertions.assertThat(thrown)
+        assertThat(thrown)
             .isInstanceOf(ServiceException::class.java)
             .hasMessage("${id}번 시리즈를 찾을 수 없습니다.")
     }
@@ -404,11 +403,11 @@ class SeriesServiceTest {
         series.id = id
 
         // when
-        Mockito.`when`(seriesRepository.findById(id)).thenReturn(Optional.of(series))
+        whenever(seriesRepository.findById(id)).thenReturn(Optional.of(series))
         seriesService.deleteSeries(id)
 
         // then
-        Mockito.verify(seriesRepository).delete(series)
+        verify(seriesRepository).delete(series)
     }
 
     @Test
@@ -418,11 +417,11 @@ class SeriesServiceTest {
         val id = 1L
 
         // when
-        Mockito.`when`(seriesRepository.findById(id)).thenReturn(Optional.empty())
-        val thrown = Assertions.catchThrowable { seriesService.deleteSeries(id) }
+        whenever(seriesRepository.findById(id)).thenReturn(Optional.empty())
+        val thrown = catchThrowable { seriesService.deleteSeries(id) }
 
         // then
-        Assertions.assertThat(thrown)
+        assertThat(thrown)
             .isInstanceOf(ServiceException::class.java)
             .hasMessage("${id}번 시리즈를 찾을 수 없습니다.")
     }
