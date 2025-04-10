@@ -20,7 +20,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito
+import org.mockito.kotlin.doNothing
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -120,7 +122,7 @@ class SeriesControllerTest {
         })
 
         // mockSeriesPage를 seriesService.getSeries()에서 반환하도록 설정(when)
-        Mockito.`when`(
+        whenever(
             seriesService.getSeries(keyword, page, pageSize, sortBy)
         ).thenReturn(mockSeriesPage)
         val resultActions = mvc.perform(
@@ -165,7 +167,7 @@ class SeriesControllerTest {
         )
 
         //when
-        Mockito.`when`(seriesService.getSeriesDetail(seriesId)).thenReturn(response)
+        whenever(seriesService.getSeriesDetail(seriesId)).thenReturn(response)
 
         //then
         mvc.perform(
@@ -231,7 +233,7 @@ class SeriesControllerTest {
         )
 
         //when
-        Mockito.`when`(seriesService.createSeries(request)).thenReturn(response)
+        whenever(seriesService.createSeries(request)).thenReturn(response)
 
         //then
         val resultActions = mvc.perform(
@@ -297,7 +299,7 @@ class SeriesControllerTest {
         )
 
         //when
-        Mockito.`when`(seriesService.updateSeries(id, request)).thenReturn(response)
+        whenever(seriesService.updateSeries(id, request)).thenReturn(response)
 
         //then
         val resultActions = mvc.perform(
@@ -337,7 +339,7 @@ class SeriesControllerTest {
         )
 
         // when
-        Mockito.`when`(seriesService.updateSeries(id, request)).thenThrow(
+        whenever(seriesService.updateSeries(id, request)).thenThrow(
             ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 시리즈를 찾을 수 없습니다.")
         )
 
@@ -366,7 +368,7 @@ class SeriesControllerTest {
         val id = 1L
 
         // when
-        Mockito.doNothing().`when`(seriesService).deleteSeries(id)
+        doNothing().whenever(seriesService).deleteSeries(id)
 
         // then
         mvc.perform(MockMvcRequestBuilders.delete("/api/series/{id}", id))
@@ -384,8 +386,8 @@ class SeriesControllerTest {
         val id = 999L
 
         // when
-        Mockito.doThrow(ServiceException(404, "${id}번 시리즈를 찾을 수 없습니다."))
-            .`when`(seriesService).deleteSeries(id)
+        doThrow(ServiceException(404, "${id}번 시리즈를 찾을 수 없습니다."))
+            .whenever(seriesService).deleteSeries(id)
 
         // then
         mvc.perform(MockMvcRequestBuilders.delete("/api/series/${id}"))

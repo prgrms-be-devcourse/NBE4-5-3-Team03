@@ -9,7 +9,7 @@ import com.example.Flicktionary.global.security.CustomUserDetailsService
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -54,7 +54,7 @@ class GenreControllerTest {
         val genres = listOf(Genre("Action"), Genre("Action Adventure"))
 
         // when
-        Mockito.`when`(genreService.getGenres(keyword)).thenReturn(genres)
+        whenever(genreService.getGenres(keyword)).thenReturn(genres)
 
         // then
         mvc.get("/api/genres") {
@@ -77,7 +77,7 @@ class GenreControllerTest {
         val request = GenreRequest("Action")
 
         // when
-        Mockito.`when`(genreService.createGenre(request)).thenReturn(Genre("Action"))
+        whenever(genreService.createGenre(request)).thenReturn(Genre("Action"))
 
         // then
         mvc.post("/api/genres") {

@@ -11,11 +11,7 @@ import com.example.Flicktionary.global.security.CustomUserDetailsService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.doNothing
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.given
-import org.mockito.kotlin.then
+import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -177,7 +173,7 @@ class FavoriteControllerTest {
         // Given
         val id = 1L
         val captor = argumentCaptor<Long>()
-        doNothing().`when`(favoriteService).deleteFavorite(captor.capture())
+        doNothing().whenever(favoriteService).deleteFavorite(captor.capture())
 
         // When & Then
         val resultActions = mvc

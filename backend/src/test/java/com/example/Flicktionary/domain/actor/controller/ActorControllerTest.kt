@@ -15,17 +15,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doNothing
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.given
+import org.mockito.kotlin.*
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
@@ -226,16 +222,16 @@ class ActorControllerTest {
         val id = 1L
 
         // When
-        doNothing().`when`(actorService).deleteActor(id)
+        doNothing().whenever(actorService).deleteActor(id)
 
         // Then
         mockMvc.perform(
             delete("/api/actors/${id}")
         )
             .andExpect(status().isNoContent())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("204"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("No Content"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.data").doesNotExist())
+            .andExpect(jsonPath("$.code").value("204"))
+            .andExpect(jsonPath("$.message").value("No Content"))
+            .andExpect(jsonPath("$.data").doesNotExist())
     }
 
     @Test

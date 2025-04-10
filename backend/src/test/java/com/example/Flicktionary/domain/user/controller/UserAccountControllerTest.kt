@@ -7,11 +7,9 @@ import com.example.Flicktionary.global.security.CustomUserDetailsService
 import com.example.Flicktionary.global.utils.JwtUtils
 import jakarta.servlet.http.Cookie
 import org.junit.jupiter.api.DisplayName
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.BDDMockito.given
-import org.mockito.BDDMockito.then
-import org.mockito.Mockito
+import org.mockito.kotlin.any
+import org.mockito.kotlin.given
+import org.mockito.kotlin.then
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -42,25 +40,10 @@ class UserAccountControllerTest {
     @MockitoBean
     private lateinit var userAccountJwtAuthenticationService: UserAccountJwtAuthenticationService
 
-    /** Mockito를 코틀린과 사용할때는 non-nullable한 인자를 받는 메소드를 any(Class) argument matcher와 모킹할 수 없다.
-     * 참고:
-     * https://slack-chats.kotlinlang.org/t/458559/hi-suddenly-found-out-that-i-can-t-use-mockito-s-any-class-a
-     * https://derekwilson.net/blog/2018/08/23/mokito-kotlin
-     * https://stackoverflow.com/questions/74663281/mockito-argument-matcher-any-arguments-are-different-for-verify-method-ca
-     * 이를 해결하기 위해 any(Class) 대신 아래 헬퍼 함수를 이용하거나 mockito-kotlin 라이브러리를 사용한다.
-     */
-    private fun <T> anyOfType(clazz: Class<T>): T {
-        Mockito.any<T>(clazz)
-        return uninitialized()
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun <T> uninitialized(): T = null as T
-
     @DisplayName("회원 가입을 한다.")
     @Test
     fun givenValidDto_whenRegisteringUser_thenRegistersUser() {
-        given(userAccountService.registerUser(anyOfType(UserAccountDto::class.java)))
+        given(userAccountService.registerUser(any<UserAccountDto>()))
             .willReturn(UserAccountDto(
                 1L,
                 "testUsername",
@@ -86,7 +69,7 @@ class UserAccountControllerTest {
             .andExpect(jsonPath("$.data.nickname").value("testNickname"))
             .andExpect(jsonPath("$.data.role").value("USER"))
 
-        then(userAccountService).should().registerUser(anyOfType(UserAccountDto::class.java))
+        then(userAccountService).should().registerUser(any<UserAccountDto>())
     }
 
     @DisplayName("로그인 요청을 받으면 새 접근 토큰과 리프레시 토큰을 쿠키로 발행한다.")
@@ -158,7 +141,7 @@ class UserAccountControllerTest {
             .andExpect(jsonPath("$.message").value("토큰이 성공적으로 재발행되었습니다."))
 
         then(userAccountJwtAuthenticationService).should()
-            .createNewAccessTokenWithRefreshToken(anyString())
+            .createNewAccessTokenWithRefreshToken(any<String>())
     }
 
     @DisplayName("인증 정보가 있는 클라이언트에게 로그인 상태 확인 요청을 받으면, 인증 정보가 있다고 응답한다.")

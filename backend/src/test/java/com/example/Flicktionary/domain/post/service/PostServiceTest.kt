@@ -18,9 +18,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -95,8 +95,8 @@ class PostServiceTest {
     @DisplayName("게시글 생성")
     fun createPost() {
         // 유저 Id로 유저를 찾은 뒤 반환 후 저장된 게시글 반환, 테스트 게시글을 생성
-        `when`(userAccountRepository.findById(testUser.id!!)).thenReturn(Optional.of(testUser))
-        `when`(postRepository.save(any(Post::class.java))).thenReturn(savedPost)
+        whenever(userAccountRepository.findById(testUser.id!!)).thenReturn(Optional.of(testUser))
+        whenever(postRepository.save(any(Post::class.java))).thenReturn(savedPost)
         val testPostDto = postService.create(requestDto)
 
         /** 검증 **/
@@ -116,7 +116,7 @@ class PostServiceTest {
     fun findPostByIdSuccess() {
         // 저장된 게시글의 id로 특정 게시글을 찾아 반환되도록 설정
         val postId = savedPost.id
-        `when`(postRepository.findById(postId!!)).thenReturn(Optional.of(savedPost))
+        whenever(postRepository.findById(postId!!)).thenReturn(Optional.of(savedPost))
 
         // 게시글 Id로 조회
         val testPostDto = postService.findById(postId)
@@ -138,7 +138,7 @@ class PostServiceTest {
     fun findPostByIdFailure() {
         // 존재하지 않는 게시글 Id로 findById 호출 시 빈 Optional 반환 설정
         val postId = 1000L
-        `when`(postRepository.findById(postId)).thenReturn(Optional.empty())
+        whenever(postRepository.findById(postId)).thenReturn(Optional.empty())
 
         /** 검증 **/
         // findPostById 메서드를 호출했을 때 EntityNotFoundException이 발생하는지 확인
@@ -210,7 +210,7 @@ class PostServiceTest {
         val postPage = PageImpl(posts, pageable, posts.size.toLong())
 
         // 전체 게시글 조회
-        `when`(postRepository.findAll(pageable)).thenReturn(postPage)
+        whenever(postRepository.findAll(pageable)).thenReturn(postPage)
         val testPages = postService.getPostList(page, pageSize, null, null)
 
         /** 검증 **/
@@ -232,7 +232,7 @@ class PostServiceTest {
         val titleSearch = posts
             .filter { it.title.contains(searchKeywordTitle) }
         val titleSearchPage = PageImpl(titleSearch, pageable, titleSearch.size.toLong())
-        `when`(
+        whenever(
             postRepository.findByTitleContaining(
                 searchKeywordTitle, pageable
             )
@@ -262,7 +262,7 @@ class PostServiceTest {
             .filter { it.content.contains(searchKeywordContent) }
         val contentSearchPage =
             PageImpl(contentSearch, pageable, contentSearch.size.toLong())
-        `when`(
+        whenever(
             postRepository.findByContentContaining(
                 searchKeywordContent, pageable
             )
@@ -292,7 +292,7 @@ class PostServiceTest {
             .filter { it.userAccount!!.nickname.contains(searchKeywordNickname) }
         val nicknameSearchPage =
             PageImpl(nicknameSearch, pageable, nicknameSearch.size.toLong())
-        `when`(
+        whenever(
             postRepository.findByUserAccount_NicknameContaining(
                 searchKeywordNickname, pageable
             )
@@ -338,8 +338,8 @@ class PostServiceTest {
         )
 
         // 저장된 게시글의 id로 특정 게시글을 찾아 기존 게시글을 반환되도록 설정
-        `when`(postRepository.findById(savedPost.id!!)).thenReturn(Optional.of(savedPost))
-        `when`(postRepository.save(any(Post::class.java))).thenReturn(checkPost)
+        whenever(postRepository.findById(savedPost.id!!)).thenReturn(Optional.of(savedPost))
+        whenever(postRepository.save(any(Post::class.java))).thenReturn(checkPost)
 
         // 수정 메서드 실행 후 변수에 담기
         val testPage = postService.update(savedPost.id!!, updateRequestDto)
@@ -380,7 +380,7 @@ class PostServiceTest {
         )
 
         // 저장된 게시글의 id로 특정 게시글을 찾아 기존 게시글을 반환되도록 설정
-        `when`(postRepository.findById(postId)).thenReturn(Optional.of(existingPost))
+        whenever(postRepository.findById(postId)).thenReturn(Optional.of(existingPost))
 
         // 삭제 메서드 실행
         postService.delete(postId)

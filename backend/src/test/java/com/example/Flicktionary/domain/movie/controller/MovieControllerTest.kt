@@ -22,6 +22,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito
 import org.mockito.Mockito
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -266,7 +267,7 @@ internal class MovieControllerTest {
         )
 
         // when
-        Mockito.`when`(movieService.createMovie(request))
+        whenever(movieService.createMovie(request))
             .thenReturn(response)
 
         // then
@@ -331,7 +332,7 @@ internal class MovieControllerTest {
             DirectorDto(1L, "Director Name", null)
         )
 
-        Mockito.`when`(movieService.updateMovie(movieId, request))
+        whenever(movieService.updateMovie(movieId, request))
             .thenReturn(response)
 
         val resultActions = mvc.perform(
@@ -398,7 +399,7 @@ internal class MovieControllerTest {
         val movieId = 1L
 
         // when
-        Mockito.doNothing().`when`(movieService).deleteMovie(movieId)
+        Mockito.doNothing().whenever(movieService).deleteMovie(movieId)
 
         // then
         mvc.perform(MockMvcRequestBuilders.delete("/api/movies/${movieId}"))
@@ -417,7 +418,7 @@ internal class MovieControllerTest {
 
         // when
         Mockito.doThrow(ServiceException(404, "${movieId}번 영화를 찾을 수 없습니다."))
-            .`when`(movieService).deleteMovie(movieId)
+            .whenever(movieService).deleteMovie(movieId)
 
         // then
         mvc.perform(MockMvcRequestBuilders.delete("/api/movies/${movieId}"))

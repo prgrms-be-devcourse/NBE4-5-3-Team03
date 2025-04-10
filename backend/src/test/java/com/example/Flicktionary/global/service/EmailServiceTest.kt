@@ -4,13 +4,14 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentCaptor
+import org.mockito.BDDMockito.then
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.doNothing
-import org.mockito.BDDMockito.then
-import org.mockito.Mockito.any
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.doNothing
+import org.mockito.kotlin.whenever
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.test.util.ReflectionTestUtils
@@ -22,13 +23,6 @@ import kotlin.test.assertEquals
 class EmailServiceTest {
 
     private val testSender = "sender@email.com"
-
-    /** 자바의 nullable 타입과 코틀린의 non-null 타입을 중재하는 헬퍼 함수
-     * 참고:
-     * https://kotlinlang.org/docs/java-interop.html#null-safety-and-platform-types
-     * https://kotlinlang.org/docs/null-safety.html#not-null-assertion-operator
-     */
-    private fun <T> capture(argumentCaptor: ArgumentCaptor<T>): T = argumentCaptor.capture()
 
     @Mock
     private lateinit var javaMailSender: JavaMailSender
@@ -51,17 +45,17 @@ class EmailServiceTest {
         val to = "test@email.com"
         val subject = "testSubject"
         val content = "testContent"
-        val captor = ArgumentCaptor.forClass(SimpleMailMessage::class.java)
-        doNothing().`when`(javaMailSender).send(capture(captor))
+        val captor = argumentCaptor<SimpleMailMessage>()
+        doNothing().whenever(javaMailSender).send(captor.capture())
 
         emailService.sendSimpleEmail(to, subject, content)
-        val captured = captor.value
+        val captured = captor.firstValue
 
         assertThat(captured).isNotNull()
         assertEquals(testSender, captured.from)
         assertEquals(to, captured.to?.get(0) ?: "수신인 주소가 비어있습니다.")
         assertEquals(subject, captured.subject)
         assertEquals(content, captured.text)
-        then(javaMailSender).should().send(any(SimpleMailMessage::class.java))
+        then(javaMailSender).should().send(any<SimpleMailMessage>())
     }
 }

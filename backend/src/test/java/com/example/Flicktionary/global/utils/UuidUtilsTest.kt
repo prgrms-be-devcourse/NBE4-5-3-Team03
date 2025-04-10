@@ -1,9 +1,9 @@
 package com.example.Flicktionary.global.utils
 
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.util.*
-import org.junit.jupiter.api.Assertions.assertEquals
 
 @DisplayName("UUID 유틸리티 클래스 테스트")
 class UuidUtilsTest {
