@@ -35,7 +35,7 @@ export default function AdminCommunityPage() {
     const response = await client.GET("/api/posts", {
       params: {
         query: {
-          page: page - 1,
+          page: page,
           size: pageSize,
           sort: "-createdAt",
         },
@@ -46,7 +46,7 @@ export default function AdminCommunityPage() {
 
     if (!response.error && response.data?.data) {
       setPosts(response.data.data.items || []);
-      setTotalPages(response.data.data.totalItems || 1);
+      setTotalPages(Math.ceil((response.data.data.totalItems || 0) / pageSize));
     } else {
       console.warn("fetchAllPosts - 응답 데이터가 없음 (API 확인 필요)");
       setPosts([]);
@@ -66,7 +66,7 @@ export default function AdminCommunityPage() {
         query: {
           keyword: searchKeyword,
           keywordType: searchType,
-          page: page - 1,
+          page: page,
           size: pageSize,
           sort: "-createdAt",
         },
@@ -75,7 +75,7 @@ export default function AdminCommunityPage() {
 
     if (!response.error && response.data?.data?.items) {
       setPosts(response.data.data.items || []);
-      setTotalPages(response.data.data.totalPages || 1);
+      setTotalPages(Math.ceil((response.data.data.totalItems || 0) / pageSize));
     }
     setLoading(false);
   };
@@ -92,8 +92,9 @@ export default function AdminCommunityPage() {
 
     if (!response.error) {
       alert("삭제되었습니다.");
+
       // 삭제 후 목록 갱신
-      fetchAllPosts;
+      fetchAllPosts();
     } else {
       alert("삭제 실패: " + response.error.message);
     }
@@ -107,6 +108,7 @@ export default function AdminCommunityPage() {
   const handleSearchClick = () => {
     // 검색 시 페이지 1로 초기화
     setPage(1);
+
     if (searchKeyword.trim() === "") {
       fetchAllPosts();
     } else {
@@ -202,9 +204,21 @@ export default function AdminCommunityPage() {
         <p>로딩 중...</p>
       ) : (
         <>
-          <Table>
+          <Table style={{ tableLayout: "fixed", width: "100%" }}>
             <TableHeader style={{ backgroundColor: "lightgray" }}>
               <TableRow>
+                <TableHead
+                  style={{
+                    borderRight: "1px solid #ccc",
+                    fontSize: "1.1rem",
+                    fontWeight: "bold",
+                    textAlign: "center",
+                    color: "black",
+                    width: "10%",
+                  }}
+                >
+                  작성자
+                </TableHead>
                 <TableHead
                   style={{
                     borderRight: "1px solid #ccc",
@@ -224,17 +238,17 @@ export default function AdminCommunityPage() {
                     fontWeight: "bold",
                     textAlign: "center",
                     color: "black",
-                    width: "10%",
+                    width: "auto",
                   }}
                 >
-                  작성자
+                  내용
                 </TableHead>
                 <TableHead
                   style={{
                     borderRight: "1px solid #ccc",
                     fontSize: "1.1rem",
                     fontWeight: "bold",
-                    textAlign: "center",
+                    textAlign: "left",
                     color: "black",
                     width: "15%",
                   }}
@@ -261,13 +275,31 @@ export default function AdminCommunityPage() {
                     <TableCell
                       style={{
                         borderRight: "1px solid #ccc",
-                        textAlign: "left",
+                        textAlign: "center",
                         width: "10%",
+                      }}
+                    >
+                      {post.nickname || "알 수 없음"}
+                    </TableCell>
+                    <TableCell
+                      style={{
+                        borderRight: "1px solid #ccc",
+                        textAlign: "left",
+                        width: "15%",
+                        maxWidth: "15%",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
                       }}
                     >
                       <Link
                         href={`/community/${post.id}`}
-                        className="hover:underline"
+                        style={{
+                          display: "block",
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                          textOverflow: "ellipsis",
+                        }}
                       >
                         {post.title}
                       </Link>
@@ -275,11 +307,24 @@ export default function AdminCommunityPage() {
                     <TableCell
                       style={{
                         borderRight: "1px solid #ccc",
-                        textAlign: "center",
-                        width: "10%",
+                        textAlign: "left",
+                        width: "30%",
+                        maxWidth: "30%",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
                       }}
                     >
-                      {post.nickname || "알 수 없음"}
+                      <div
+                        style={{
+                          display: "block",
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {post.content}
+                      </div>
                     </TableCell>
                     <TableCell
                       style={{
@@ -310,7 +355,7 @@ export default function AdminCommunityPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center">
+                  <TableCell colSpan={5} className="text-center">
                     등록된 게시글이 없습니다.
                   </TableCell>
                 </TableRow>
