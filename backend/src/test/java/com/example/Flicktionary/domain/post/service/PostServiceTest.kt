@@ -95,7 +95,7 @@ class PostServiceTest {
     @DisplayName("게시글 생성")
     fun createPost() {
         // 유저 Id로 유저를 찾은 뒤 반환 후 저장된 게시글 반환, 테스트 게시글을 생성
-        `when`(userAccountRepository.findById(testUser.id)).thenReturn(Optional.of(testUser))
+        `when`(userAccountRepository.findById(testUser.id!!)).thenReturn(Optional.of(testUser))
         `when`(postRepository.save(any(Post::class.java))).thenReturn(savedPost)
         val testPostDto = postService.create(requestDto)
 

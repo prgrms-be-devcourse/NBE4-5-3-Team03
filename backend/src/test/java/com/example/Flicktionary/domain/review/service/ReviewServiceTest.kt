@@ -162,7 +162,7 @@ class ReviewServiceTest {
         )
 
         // userAccountRepository.findById()가 호출될 때 testUser를 반환하도록 스텁 처리
-        given(userAccountRepository.findById(testUser.id)).willReturn(Optional.of(testUser))
+        given(userAccountRepository.findById(testUser.id!!)).willReturn(Optional.of(testUser))
 
         val thrownOnEmpty = catchThrowable { reviewService.createReview(reviewEmpty) }
 
@@ -186,7 +186,7 @@ class ReviewServiceTest {
         )
 
         // userAccountRepository.findById()가 호출될 때 testUser를 반환하도록 스텁 처리
-        given(userAccountRepository.findById(testUser.id)).willReturn(Optional.of(testUser))
+        given(userAccountRepository.findById(testUser.id!!)).willReturn(Optional.of(testUser))
 
         val thrown = catchThrowable { reviewService.createReview(reviewNoRating) }
 
