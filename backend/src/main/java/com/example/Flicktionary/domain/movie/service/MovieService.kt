@@ -194,7 +194,7 @@ class MovieService(
                 }
 
                 // 감독 설정
-                movieDto.credits.crew.firstOrNull { it.job.equals("Director", ignoreCase = true) }?.let {
+                movieDto.credits.crew.firstOrNull { it.job.equals("Director", ignoreCase = true) }?.let { it ->
                     val profilePath = it.profilePath?.let { "$BASE_IMAGE_URL/w185$it" }
                     val director =
                         directorRepository.findByNameAndProfilePath(it.name, profilePath) ?: directorRepository.save(

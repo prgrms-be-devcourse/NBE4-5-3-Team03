@@ -63,7 +63,7 @@ class ActorService(
     @Transactional
     fun createActor(request: ActorRequest): Actor {
         if (actorRepository.existsActorByNameAndProfilePath(request.name, request.profilePath)) {
-            throw ServiceException(HttpStatus.BAD_REQUEST.value(), "이미 존재하는 배우입니다.")
+            throw ServiceException(HttpStatus.CONFLICT.value(), "이미 존재하는 배우입니다.")
         }
 
         val actor = Actor(name = request.name, profilePath = request.profilePath)

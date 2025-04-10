@@ -21,7 +21,7 @@ class GenreService(
     @Transactional
     fun createGenre(request: GenreRequest): Genre {
         if (genreRepository.existsGenreByName(request.name)) {
-            throw ServiceException(HttpStatus.BAD_REQUEST.value(), "이미 존재하는 장르입니다.")
+            throw ServiceException(HttpStatus.CONFLICT.value(), "이미 존재하는 장르입니다.")
         }
 
         val genre = Genre(request.name)
