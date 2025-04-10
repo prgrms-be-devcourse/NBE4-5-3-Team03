@@ -288,7 +288,7 @@ export default function ClientPage({
       )}
       {/* 등록 버튼 */}
       {isLoggedIn && (
-        <div className="fixed bottom-6 right-6">
+        <div className="fixed bottom-15 right-6">
           <Link href="/community/write">
             <Button>게시글 등록</Button>
           </Link>

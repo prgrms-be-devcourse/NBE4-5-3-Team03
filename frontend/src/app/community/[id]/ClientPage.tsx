@@ -133,6 +133,29 @@ const ClientPage: React.FC<Props> = ({ post }) => {
     setEditedIsSpoiler(post.isSpoiler);
   };
 
+  // 게시글 삭제
+  const handleDeleteClick = async () => {
+    if (window.confirm("정말로 삭제하시겠습니까?")) {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/posts/${post.id}`,
+          {
+            method: "DELETE",
+          }
+        );
+        if (response.ok) {
+          console.log("게시글 삭제 성공");
+          // 삭제 후 목록 페이지로 이동
+          router.push("/community");
+        } else {
+          console.error("게시글 삭제 실패");
+        }
+      } catch (error) {
+        console.error("API 요청 중 오류 발생:", error);
+      }
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto p-8">
       {currentPost?.isSpoiler && !isEditing && (
@@ -205,18 +228,26 @@ const ClientPage: React.FC<Props> = ({ post }) => {
       )}
       <div className="flex justify-end mt-8 space-x-2">
         {loggedInUserId === currentPost?.userAccountId && !isEditing && (
-          <button
-            onClick={handleEditClick}
-            className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
-          >
-            글 수정
-          </button>
+          <>
+            <button
+              onClick={handleEditClick}
+              className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
+            >
+              글 수정
+            </button>
+            <button
+              onClick={handleDeleteClick}
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            >
+              삭제
+            </button>
+          </>
         )}
         <button
           onClick={handleGoBack}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
-          글목록
+          글 목록
         </button>
       </div>
     </div>
