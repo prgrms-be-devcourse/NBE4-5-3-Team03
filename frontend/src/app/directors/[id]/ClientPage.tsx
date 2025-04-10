@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import client from "@/lib/backend/client";
 
 interface Movie {
   id: number;
@@ -33,6 +34,21 @@ export default function DirectorDetailPage({
 }) {
   const router = useRouter();
 
+  const handleDelete = async () => {
+    if (confirm("정말 이 배우를 삭제하시겠습니까?")) {
+      const res = await client.DELETE("/api/directors/{id}", {
+        params: { path: { id: director.id } },
+      });
+
+      if (res.error) {
+        alert(res.error.message);
+      } else {
+        alert("삭제되었습니다.");
+        router.push("/directors");
+      }
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
       <h1 className="text-3xl font-bold mb-6 text-center">🎭 감독 정보</h1>
@@ -46,7 +62,20 @@ export default function DirectorDetailPage({
           height={150}
           className="rounded-lg"
         />
-        <h1 className="text-2xl font-bold">{director.name}</h1>
+        <div className="flex-1 mt-4 md:mt-0">
+          <h1 className="text-2xl font-bold">{director.name}</h1>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button
+              variant="default"
+              onClick={() => router.push(`/directors/edit/${director.id}`)}
+            >
+              수정
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              삭제
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* 연출 영화 리스트 */}
