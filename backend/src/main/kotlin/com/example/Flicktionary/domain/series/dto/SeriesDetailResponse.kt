@@ -3,14 +3,8 @@ package com.example.Flicktionary.domain.series.dto
 import com.example.Flicktionary.domain.director.dto.DirectorDto
 import com.example.Flicktionary.domain.genre.dto.GenreDto
 import com.example.Flicktionary.domain.series.entity.Series
-import lombok.AllArgsConstructor
-import lombok.Builder
-import lombok.Getter
 import java.time.LocalDate
 
-@AllArgsConstructor
-@Builder
-@Getter
 class SeriesDetailResponse(
     val id: Long,
     val title: String,
