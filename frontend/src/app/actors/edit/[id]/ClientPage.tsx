@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import client from "@/lib/backend/client";
 import { components } from "@/lib/backend/apiV1/schema";
 
-export default function ActorCreatePage({
+export default function ActorUpdatePage({
   data,
 }: {
   data: components["schemas"]["ActorResponse"];

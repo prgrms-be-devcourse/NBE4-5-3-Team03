@@ -283,7 +283,7 @@ export default function MovieCreatePage() {
                 type="submit"
                 className="px-6 py-2 text-base font-semibold"
               >
-                수정
+                등록
               </Button>
               <Button
                 type="button"
