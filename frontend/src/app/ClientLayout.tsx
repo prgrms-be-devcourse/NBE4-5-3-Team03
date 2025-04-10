@@ -161,6 +161,11 @@ export default function ClientLayout({
                     리뷰 관리
                   </Link>
                 )}
+                {user?.role === "ADMIN" && (
+                  <Link href="/admin/community" className="hover:text-gray-300">
+                    커뮤니티 관리
+                  </Link>
+                )}
                 <Link href="/my/profile" className="hover:text-gray-300">
                   내 정보
                 </Link>
