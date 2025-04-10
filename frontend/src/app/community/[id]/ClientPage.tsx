@@ -67,7 +67,6 @@ const ClientPage: React.FC<Props> = ({ post }) => {
 
   // 게시글 수정 버튼
   const handleEditClick = () => {
-    console.log("게시글 수정 성공");
     setIsEditing(true);
   };
 
@@ -93,7 +92,6 @@ const ClientPage: React.FC<Props> = ({ post }) => {
       );
 
       if (response.ok) {
-        console.log("게시글 수정 성공");
         // 수정 완료 후 보기 모드로 전환
         setIsEditing(false);
 
@@ -106,8 +104,6 @@ const ClientPage: React.FC<Props> = ({ post }) => {
             if (updatedResponse.ok) {
               const updatedPostDataFromServer = await updatedResponse.json();
               setCurrentPost(updatedPostDataFromServer.data);
-            } else {
-              console.error("수정된 게시글 정보 불러오기 실패");
             }
           } catch (error) {
             console.error("수정된 게시글 정보 불러오는 중 오류 발생:", error);
@@ -115,8 +111,6 @@ const ClientPage: React.FC<Props> = ({ post }) => {
         };
 
         fetchUpdatedPost();
-      } else {
-        console.error("게시글 수정 실패");
       }
     } catch (error) {
       console.error("API 요청 중 오류 발생:", error);
@@ -144,11 +138,8 @@ const ClientPage: React.FC<Props> = ({ post }) => {
           }
         );
         if (response.ok) {
-          console.log("게시글 삭제 성공");
           // 삭제 후 목록 페이지로 이동
           router.push("/community");
-        } else {
-          console.error("게시글 삭제 실패");
         }
       } catch (error) {
         console.error("API 요청 중 오류 발생:", error);
