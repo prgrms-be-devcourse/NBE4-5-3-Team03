@@ -5,9 +5,9 @@ import jakarta.persistence.*
 @Entity
 class Actor(
     @Column(nullable = false)
-    val name: String,
+    var name: String,
 
-    val profilePath: String?
+    var profilePath: String?
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

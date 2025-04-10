@@ -11,4 +11,6 @@ interface DirectorRepository : JpaRepository<Director, Long> {
     fun findByNameLike(keyword: String, pageable: Pageable): Page<Director>
 
     fun findByNameAndProfilePath(name: String, profilePath: String?): Director?
+
+    fun existsDirectorByNameAndProfilePath(name: String, profilePath: String?): Boolean
 }
