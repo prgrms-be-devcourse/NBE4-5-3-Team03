@@ -10,6 +10,6 @@ data class DirectorDto(
     constructor(director: Director) : this(
         id = director.id,
         name = director.name,
-        profilePath = director.profilePath?.let { "https://image.tmdb.org/t/p/w$it" }
+        profilePath = director.profilePath
     )
 }

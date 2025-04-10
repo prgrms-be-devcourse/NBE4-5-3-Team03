@@ -14,7 +14,7 @@ import com.example.Flicktionary.domain.user.entity.UserAccountType
  * @param role
  */
 data class UserAccountDto(
-    val id: Long,
+    val id: Long?,
     val username: String,
     val password: String,
     val email: String,

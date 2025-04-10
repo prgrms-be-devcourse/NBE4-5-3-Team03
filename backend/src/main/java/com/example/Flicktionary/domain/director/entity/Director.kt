@@ -7,9 +7,9 @@ import jakarta.persistence.*
 @Entity
 class Director(
     @Column(nullable = false)
-    val name: String,
+    var name: String,
 
-    val profilePath: String? = null,
+    var profilePath: String? = null,
 
     @OneToMany(mappedBy = "director", fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
     val movies: MutableList<Movie> = mutableListOf(),

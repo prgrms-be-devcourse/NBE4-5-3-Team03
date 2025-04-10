@@ -1,12 +1,15 @@
 package com.example.Flicktionary.domain.actor.controller
 
 import com.example.Flicktionary.domain.actor.dto.ActorDto
+import com.example.Flicktionary.domain.actor.dto.ActorRequest
 import com.example.Flicktionary.domain.actor.entity.Actor
 import com.example.Flicktionary.domain.actor.service.ActorService
 import com.example.Flicktionary.domain.movie.entity.Movie
 import com.example.Flicktionary.domain.series.entity.Series
 import com.example.Flicktionary.global.dto.PageDto
 import com.example.Flicktionary.global.dto.ResponseDto
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -35,6 +38,42 @@ class ActorController(
         val actorDtoPage = actorPage.map { ActorDto(it) }
 
         return ResponseEntity.ok(ResponseDto.ok(PageDto(actorDtoPage)))
+    }
+
+    @PostMapping
+    fun createActor(@Valid @RequestBody request: ActorRequest): ResponseEntity<ResponseDto<ActorDto>> {
+        val actor = actorService.createActor(request)
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(
+                ResponseDto.of(
+                    HttpStatus.CREATED.value().toString(),
+                    HttpStatus.CREATED.reasonPhrase,
+                    ActorDto(actor)
+                )
+            )
+    }
+
+    @PutMapping("/{id}")
+    fun updateActor(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: ActorRequest
+    ): ResponseEntity<ResponseDto<ActorDto>> {
+        val actor = actorService.updateActor(id, request)
+        return ResponseEntity.ok(ResponseDto.ok(ActorDto(actor)))
+    }
+
+    @DeleteMapping("/{id}")
+    fun deleteActor(@PathVariable id: Long): ResponseEntity<ResponseDto<Nothing>> {
+        actorService.deleteActor(id)
+        return ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .body(
+                ResponseDto.of(
+                    HttpStatus.NO_CONTENT.value().toString(),
+                    HttpStatus.NO_CONTENT.reasonPhrase
+                )
+            )
     }
 
     // DTO 클래스 (내부 클래스로 정의 가능)

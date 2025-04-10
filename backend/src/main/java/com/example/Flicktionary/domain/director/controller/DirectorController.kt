@@ -2,12 +2,15 @@ package com.example.Flicktionary.domain.director.controller
 
 import com.example.Flicktionary.domain.actor.controller.ActorController
 import com.example.Flicktionary.domain.director.dto.DirectorDto
+import com.example.Flicktionary.domain.director.dto.DirectorRequest
 import com.example.Flicktionary.domain.director.entity.Director
 import com.example.Flicktionary.domain.director.service.DirectorService
 import com.example.Flicktionary.domain.movie.entity.Movie
 import com.example.Flicktionary.domain.series.entity.Series
 import com.example.Flicktionary.global.dto.PageDto
 import com.example.Flicktionary.global.dto.ResponseDto
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -35,6 +38,42 @@ class DirectorController(
         val series = directorService.getSeriesByDirectorId(id)
 
         return ResponseEntity.ok(ResponseDto.ok(DirectorResponse(director, movies, series)))
+    }
+
+    @PostMapping
+    fun createDirector(@Valid @RequestBody request: DirectorRequest): ResponseEntity<ResponseDto<DirectorDto>> {
+        val director = directorService.createDirector(request)
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(
+                ResponseDto.of(
+                    HttpStatus.CREATED.value().toString(),
+                    HttpStatus.CREATED.reasonPhrase,
+                    DirectorDto(director)
+                )
+            )
+    }
+
+    @PutMapping("/{id}")
+    fun updateDirector(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: DirectorRequest
+    ): ResponseEntity<ResponseDto<DirectorDto>> {
+        val director = directorService.updateDirector(id, request)
+        return ResponseEntity.ok(ResponseDto.ok(DirectorDto(director)))
+    }
+
+    @DeleteMapping("/{id}")
+    fun deleteDirector(@PathVariable id: Long): ResponseEntity<ResponseDto<Nothing>> {
+        directorService.deleteDirector(id)
+        return ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .body(
+                ResponseDto.of(
+                    HttpStatus.NO_CONTENT.value().toString(),
+                    HttpStatus.NO_CONTENT.reasonPhrase
+                )
+            )
     }
 
     data class DirectorResponse(

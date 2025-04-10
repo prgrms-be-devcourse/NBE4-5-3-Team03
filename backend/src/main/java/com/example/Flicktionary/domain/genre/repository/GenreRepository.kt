@@ -9,4 +9,6 @@ interface GenreRepository : JpaRepository<Genre, Long> {
 
     @Query("SELECT g FROM Genre g WHERE LOWER(REPLACE(g.name, ' ', '')) LIKE CONCAT('%', :keyword, '%')")
     fun findByNameLike(keyword: String): List<Genre>
+
+    fun existsGenreByName(name: String): Boolean
 }

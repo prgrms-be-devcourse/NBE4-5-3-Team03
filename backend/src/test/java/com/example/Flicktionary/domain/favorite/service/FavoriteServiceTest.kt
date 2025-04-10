@@ -101,14 +101,14 @@ class FavoriteServiceTest {
 
         favorite1 = FavoriteDto(
             id = 0L,
-            userId = testUser.id,
+            userId = testUser.id!!,
             contentType = ContentType.MOVIE,
             contentId = testMovie1.id
         )
 
         favorite2 = FavoriteDto(
             id = 0L,
-            userId = testUser.id,
+            userId = testUser.id!!,
             contentType = ContentType.SERIES,
             contentId = testSeries.id
         )
@@ -119,7 +119,7 @@ class FavoriteServiceTest {
     fun createFavorite_Success() {
         val captor = argumentCaptor<Favorite>()
 
-        given(userAccountRepository.findById(testUser.id))
+        given(userAccountRepository.findById(testUser.id!!))
             .willReturn(Optional.of(testUser))
         given(
             favoriteRepository.existsByUserAccountIdAndContentTypeAndContentId(
@@ -143,7 +143,7 @@ class FavoriteServiceTest {
         assertEquals(favorite1.contentType, result.contentType)
         assertEquals(favorite1.contentId, result.contentId)
 
-        then(userAccountRepository).should().findById(testUser.id)
+        then(userAccountRepository).should().findById(testUser.id!!)
         then(favoriteRepository).should().existsByUserAccountIdAndContentTypeAndContentId(
             favorite1.userId,
             favorite1.contentType,
@@ -156,7 +156,7 @@ class FavoriteServiceTest {
     @Test
     @DisplayName("중복된 즐겨찾기 추가 시 예외 발생")
     fun createFavorite_Duplicate_ThrowsException() {
-        given(userAccountRepository.findById(testUser.id))
+        given(userAccountRepository.findById(testUser.id!!))
             .willReturn(Optional.of(testUser))
         given(
             favoriteRepository.existsByUserAccountIdAndContentTypeAndContentId(
@@ -175,7 +175,7 @@ class FavoriteServiceTest {
             .isInstanceOf(ServiceException::class.java)
             .hasMessage("이미 즐겨찾기에 추가된 항목입니다.")
 
-        then(userAccountRepository).should().findById(testUser.id)
+        then(userAccountRepository).should().findById(testUser.id!!)
         then(favoriteRepository).should().existsByUserAccountIdAndContentTypeAndContentId(
             favorite1.userId,
             favorite1.contentType,
@@ -267,7 +267,7 @@ class FavoriteServiceTest {
 
         // When
         val favorites = favoriteService.getUserFavorites(
-            testUser.id, page, pageSize, sortBy, direction
+            testUser.id!!, page, pageSize, sortBy, direction
         )
         val captured = captor.firstValue
 
@@ -322,7 +322,7 @@ class FavoriteServiceTest {
             )
 
         // When
-        favoriteService.getUserFavorites(testUser.id, page, pageSize, sortBy, direction)
+        favoriteService.getUserFavorites(testUser.id!!, page, pageSize, sortBy, direction)
         val captured = captor.firstValue
 
         // Then
@@ -372,7 +372,7 @@ class FavoriteServiceTest {
             )
 
         // When
-        favoriteService.getUserFavorites(testUser.id, page, pageSize, sortBy, direction)
+        favoriteService.getUserFavorites(testUser.id!!, page, pageSize, sortBy, direction)
         val captured = captor.firstValue
 
         // Then
@@ -400,7 +400,7 @@ class FavoriteServiceTest {
 
         val thrown = catchThrowable {
             favoriteService.getUserFavorites(
-                testUser.id,
+                testUser.id!!,
                 page,
                 pageSize,
                 sortBy,
