@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import client from "@/lib/backend/client";
 import { components } from "@/lib/backend/apiV1/schema";
+import { useRouter } from "next/navigation";
 
 type Director = components["schemas"]["DirectorDto"];
 
@@ -27,6 +28,8 @@ export default function DirectorSearchModal({
 }: Props) {
   const [keyword, setKeyword] = useState("");
   const [results, setResults] = useState<Director[]>([]);
+
+  const router = useRouter();
 
   // 모달 열릴 때 keyword, results 초기화
   useEffect(() => {
@@ -72,6 +75,19 @@ export default function DirectorSearchModal({
               </Button>
             </div>
           ))}
+        </div>
+
+        {/* 감독 등록하기 버튼 */}
+        <div className="pt-4 text-right">
+          <Button
+            variant="outline"
+            onClick={() => {
+              onClose(); // 모달 닫기
+              router.push("/directors/create"); // 등록 페이지로 이동
+            }}
+          >
+            + 감독 등록하기
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

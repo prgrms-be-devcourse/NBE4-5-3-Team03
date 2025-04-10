@@ -287,12 +287,20 @@ export default function SeriesCreatePage() {
               </div>
             </div>
 
-            <div className="text-right pt-6">
+            <div className="text-right pt-6 flex justify-end gap-2">
               <Button
                 type="submit"
                 className="px-6 py-2 text-base font-semibold"
               >
                 등록
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => router.back()}
+                className="px-6 py-2 text-base font-semibold"
+              >
+                취소
               </Button>
             </div>
           </form>

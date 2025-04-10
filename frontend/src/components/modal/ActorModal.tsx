@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import client from "@/lib/backend/client";
 import { components } from "@/lib/backend/apiV1/schema";
+import { useRouter } from "next/navigation";
 
 type Actor = components["schemas"]["ActorDto"];
 
@@ -25,6 +26,8 @@ export default function ActorSearchModal({
   onClose,
   onSelect,
 }: ActorSearchModalProps) {
+  const router = useRouter();
+
   const [keyword, setKeyword] = useState("");
   const [results, setResults] = useState<Actor[]>([]);
 
@@ -72,6 +75,18 @@ export default function ActorSearchModal({
               </Button>
             </div>
           ))}
+        </div>
+        {/* 배우 등록하기 버튼 */}
+        <div className="pt-4 text-right">
+          <Button
+            variant="outline"
+            onClick={() => {
+              onClose(); // 모달 닫기
+              router.push("/actors/create"); // 등록 페이지로 이동
+            }}
+          >
+            + 배우 등록하기
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
