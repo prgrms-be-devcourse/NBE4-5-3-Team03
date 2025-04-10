@@ -1,12 +1,16 @@
 package com.example.Flicktionary.domain.director.service
 
+import com.example.Flicktionary.domain.director.dto.DirectorRequest
 import com.example.Flicktionary.domain.director.entity.Director
 import com.example.Flicktionary.domain.director.repository.DirectorRepository
 import com.example.Flicktionary.domain.movie.entity.Movie
 import com.example.Flicktionary.domain.movie.repository.MovieRepository
 import com.example.Flicktionary.domain.series.entity.Series
 import com.example.Flicktionary.domain.series.repository.SeriesRepository
+import com.example.Flicktionary.global.exception.ServiceException
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.catchThrowable
+import org.assertj.core.api.AssertionsForClassTypes
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
@@ -140,5 +144,96 @@ internal class DirectorServiceTest {
         assertNotNull(seriesList)
         assertEquals(1, seriesList.size)
         assertEquals(series.title, seriesList[0].title)
+    }
+
+    @Test
+    @DisplayName("감독 등록 - 성공")
+    fun createDirector1() {
+        // Given
+        val request = DirectorRequest("director", "director.png")
+
+        given(directorRepository.save(any<Director>()))
+            .willReturn(director)
+
+        // When
+        val result = directorService.createDirector(request)
+
+        // Then
+        assertThat(result).isNotNull()
+        assertEquals(director, result)
+
+        then(directorRepository).should().save(any<Director>())
+    }
+
+    @Test
+    @DisplayName("감독 수정 - 성공")
+    fun updateDirector1() {
+        // Given
+        val id = 1L
+        val request = DirectorRequest("director", "director.png")
+
+        given(directorRepository.findById(id)).willReturn(Optional.of(director))
+
+        // When
+        val result = directorService.updateDirector(id, request)
+
+        // Then
+        assertThat(result).isNotNull()
+        assertEquals(director, result)
+
+        then(directorRepository).should().findById(id)
+    }
+
+    @Test
+    @DisplayName("감독 수정 - 실패 - 없는 감독")
+    fun updateDirector2() {
+        // Given
+        val id = 999L
+        val request = DirectorRequest("director", "director.png")
+
+
+        given(directorRepository.findById(id)).willReturn(Optional.empty())
+
+        // When
+        val thrown = AssertionsForClassTypes.catchThrowable { directorService.updateDirector(id, request) }
+
+        // then
+        AssertionsForClassTypes.assertThat(thrown)
+            .isInstanceOf(ServiceException::class.java)
+            .hasMessage("${id}번 감독을 찾을 수 없습니다.")
+    }
+
+    @Test
+    @DisplayName("감독 삭제 - 성공")
+    fun deleteDirector1() {
+        // Given
+        val id = 1L
+
+        given(directorRepository.findById(id)).willReturn(Optional.of(director))
+        doNothing().`when`(directorRepository).delete(director)
+
+        // When
+        directorService.deleteDirector(id)
+
+        // Then
+        then(directorRepository).should().findById(id)
+        then(directorRepository).should().delete(director)
+    }
+
+    @Test
+    @DisplayName("감독 삭제 - 실패 - 없는 감독")
+    fun deleteDirector2() {
+        // Given
+        val id = 999L
+
+        given(directorRepository.findById(id)).willReturn(Optional.empty())
+
+        // When
+        val thrown = catchThrowable { directorService.deleteDirector(id) }
+
+        // then
+        assertThat(thrown)
+            .isInstanceOf(ServiceException::class.java)
+            .hasMessage("${id}번 감독을 찾을 수 없습니다.")
     }
 }

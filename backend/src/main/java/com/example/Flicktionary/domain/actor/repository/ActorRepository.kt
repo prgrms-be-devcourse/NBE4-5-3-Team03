@@ -11,4 +11,6 @@ interface ActorRepository : JpaRepository<Actor, Long> {
     fun findByNameLike(keyword: String, pageable: Pageable): Page<Actor>
 
     fun findByNameAndProfilePath(name: String, profilePath: String?): Actor?
+
+    fun existsActorByNameAndProfilePath(name: String, profilePath: String?): Boolean
 }

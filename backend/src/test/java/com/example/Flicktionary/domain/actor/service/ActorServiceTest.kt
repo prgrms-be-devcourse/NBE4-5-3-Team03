@@ -1,5 +1,6 @@
 package com.example.Flicktionary.domain.actor.service
 
+import com.example.Flicktionary.domain.actor.dto.ActorRequest
 import com.example.Flicktionary.domain.actor.entity.Actor
 import com.example.Flicktionary.domain.actor.repository.ActorRepository
 import com.example.Flicktionary.domain.movie.entity.Movie
@@ -8,6 +9,8 @@ import com.example.Flicktionary.domain.movie.repository.MovieCastRepository
 import com.example.Flicktionary.domain.series.entity.Series
 import com.example.Flicktionary.domain.series.entity.SeriesCast
 import com.example.Flicktionary.domain.series.repository.SeriesCastRepository
+import com.example.Flicktionary.global.exception.ServiceException
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -32,10 +35,13 @@ import java.util.*
 class ActorServiceTest {
     @Mock
     private lateinit var actorRepository: ActorRepository
+
     @Mock
     private lateinit var movieCastRepository: MovieCastRepository
+
     @Mock
     private lateinit var seriesCastRepository: SeriesCastRepository
+
     @InjectMocks
     private lateinit var actorService: ActorService
 
@@ -51,14 +57,18 @@ class ActorServiceTest {
         actor2 = Actor("actor2", "test2.png")
         actor3 = Actor("actor3", "test3.png")
 
-        movie = Movie("movie", "",
+        movie = Movie(
+            "movie", "",
             LocalDate.of(2022, 1, 1), "",
-            "movie.png", 100, "", "")
+            "movie.png", 100, "", ""
+        )
         movie.id = 1L
 
-        series = Series("series", "",
+        series = Series(
+            "series", "",
             LocalDate.of(2022, 1, 1), LocalDate.of(2023, 1, 1),
-            "", "series.png", 10, "", "")
+            "", "series.png", 10, "", ""
+        )
         series.id = 1L
     }
 
@@ -197,5 +207,81 @@ class ActorServiceTest {
         assertEquals(actor3.profilePath, result.content.first().profilePath)
 
         then(actorRepository).should().findByNameLike(any<String>(), any<Pageable>())
+    }
+
+    @Test
+    @DisplayName("배우 등록 - 성공")
+    fun createActor1() {
+        val request = ActorRequest("actor1", "test1.png")
+        given(actorRepository.save(any<Actor>())).willReturn(actor1)
+
+        val result = actorService.createActor(request)
+
+        assertThat(result).isNotNull()
+        assertThat(result).isEqualTo(actor1)
+        then(actorRepository).should().save(any<Actor>())
+    }
+
+    @Test
+    @DisplayName("배우 수정 - 성공")
+    fun updateActor1() {
+        val id = 1L
+        val request = ActorRequest("actor1", "test1.png")
+        given(actorRepository.findById(id)).willReturn(Optional.of(actor1))
+
+        val result = actorService.updateActor(id, request)
+
+        assertThat(result).isNotNull()
+        assertThat(result).isEqualTo(actor1)
+    }
+
+    @Test
+    @DisplayName("배우 수정 - 실패 - 없는 배우 수정")
+    fun updateActor2() {
+        val id = 999L
+        val request = ActorRequest("actor1", "test1.png")
+        given(actorRepository.findById(id)).willReturn(Optional.empty())
+
+        val thrown = Assertions.catchThrowable {
+            actorService.updateActor(
+                id,
+                request
+            )
+        }
+
+        // then
+        assertThat(thrown)
+            .isInstanceOf(ServiceException::class.java)
+            .hasMessage("${id}번 배우를 찾을 수 없습니다.")
+
+    }
+
+    @Test
+    @DisplayName("배우 삭제 - 성공")
+    fun deleteActor1() {
+        val id = 1L
+        given(actorRepository.findById(id)).willReturn(Optional.of(actor1))
+
+        actorService.deleteActor(id)
+
+        then(actorRepository).should().delete(actor1)
+    }
+
+    @Test
+    @DisplayName("배우 삭제 - 실패 - 없는 배우 삭제")
+    fun deleteActor2() {
+        val id = 999L
+
+        given(actorRepository.findById(id)).willReturn(Optional.empty())
+
+        val thrown = Assertions.catchThrowable {
+            actorService.deleteActor(
+                id
+            )
+        }
+
+        assertThat(thrown)
+            .isInstanceOf(ServiceException::class.java)
+            .hasMessage("${id}번 배우를 찾을 수 없습니다.")
     }
 }

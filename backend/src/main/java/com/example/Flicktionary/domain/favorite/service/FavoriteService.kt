@@ -25,8 +25,6 @@ class FavoriteService(
     private val movieRepository: MovieRepository,
     private val seriesRepository: SeriesRepository
 ) {
-
-
     @Transactional
     fun createFavorite(favoriteDto: FavoriteDto): FavoriteDto {
         val user = userAccountRepository.findById(favoriteDto.userId)
@@ -67,6 +65,7 @@ class FavoriteService(
         return fromEntity(favorite)
     }
 
+    @Transactional(readOnly = true)
     fun getUserFavorites(
         userId: Long,
         page: Int,
