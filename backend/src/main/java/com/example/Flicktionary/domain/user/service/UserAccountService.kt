@@ -59,10 +59,10 @@ class UserAccountService(
      * @param userAccountDto 새로 변경될 닉네임 정보
      * @return 변경된 회원에 해당하는 DTO
      */
-    fun modifyNickname(id: Long, userAccountDto: UserAccountDto): UserAccountDto {
+    fun modifyNickname(id: Long, newNickname: String): UserAccountDto {
         val userAccount = userAccountRepository.findByIdOrNull(id)?:
             throw ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 유저를 찾을 수 없습니다.")
-        userAccount.nickname = userAccountDto.nickname
+        userAccount.nickname = newNickname
         return UserAccountDto.from(userAccountRepository.save(userAccount))
     }
 
@@ -73,10 +73,10 @@ class UserAccountService(
      * @param userAccountDto 새로 변경될 비밀번호 정보
      * @return 변경된 회원에 해당하는 DTO
      */
-    fun modifyPassword(id: Long, userAccountDto: UserAccountDto): UserAccountDto {
+    fun modifyPassword(id: Long, newPassword: String): UserAccountDto {
         val userAccount = userAccountRepository.findByIdOrNull(id)?:
             throw ServiceException(HttpStatus.NOT_FOUND.value(), "${id}번 유저를 찾을 수 없습니다.")
-        userAccount.password = passwordEncoder.encode("{bcrypt}" + userAccountDto.password)
+        userAccount.password = passwordEncoder.encode("{bcrypt}${newPassword}")
         return UserAccountDto.from(userAccountRepository.save(userAccount))
     }
 

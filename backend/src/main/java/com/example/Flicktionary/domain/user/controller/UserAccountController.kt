@@ -1,5 +1,7 @@
 package com.example.Flicktionary.domain.user.controller
 
+import com.example.Flicktionary.domain.user.dto.NicknameUpdateRequest
+import com.example.Flicktionary.domain.user.dto.PasswordUpdateRequest
 import com.example.Flicktionary.domain.user.dto.UserAccountDto
 import com.example.Flicktionary.domain.user.service.UserAccountService
 import com.example.Flicktionary.domain.user.service.UserAccountJwtAuthenticationService
@@ -143,8 +145,8 @@ class UserAccountController(
      */
 
     @PatchMapping("/{id}/nickname")
-    fun updateNickname(@PathVariable id: Long, @RequestBody userAccountDto: UserAccountDto): ResponseEntity<ResponseDto<UserAccountDto>> {
-        return ResponseEntity.ok(ResponseDto.ok(userAccountService.modifyNickname(id, userAccountDto)))
+    fun updateNickname(@PathVariable id: Long, @RequestBody request: NicknameUpdateRequest): ResponseEntity<ResponseDto<UserAccountDto>> {
+        return ResponseEntity.ok(ResponseDto.ok(userAccountService.modifyNickname(id, request.nickname)))
     }
 
     /**
@@ -155,8 +157,8 @@ class UserAccountController(
      * @return 수정된 회원의 정보를 포함한 DTO
      */
     @PatchMapping("/{id}/password")
-    fun updatePassword(@PathVariable id: Long, @RequestBody userAccountDto: UserAccountDto): ResponseEntity<ResponseDto<UserAccountDto>> {
-        return ResponseEntity.ok(ResponseDto.ok(userAccountService.modifyPassword(id, userAccountDto)))
+    fun updatePassword(@PathVariable id: Long, @RequestBody request: PasswordUpdateRequest): ResponseEntity<ResponseDto<UserAccountDto>> {
+        return ResponseEntity.ok(ResponseDto.ok(userAccountService.modifyPassword(id, request.password)))
     }
 
     /**
