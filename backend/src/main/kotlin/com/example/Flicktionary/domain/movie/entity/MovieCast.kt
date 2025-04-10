@@ -16,6 +16,7 @@ class MovieCast(
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private var _id: Long? = null;
 
     var id: Long
