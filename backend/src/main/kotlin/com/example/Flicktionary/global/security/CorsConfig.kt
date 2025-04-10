@@ -1,7 +1,6 @@
 package com.example.Flicktionary.global.security
 
 import jakarta.servlet.http.HttpServletRequest
-import lombok.NonNull
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
@@ -11,7 +10,7 @@ class CorsConfig(): CorsConfigurationSource {
     private val ALLOWED_ORIGIN = "http://localhost:3000"
     private val ALLOWED_METHODS = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
     
-    override fun getCorsConfiguration(@NonNull request: HttpServletRequest): CorsConfiguration {
+    override fun getCorsConfiguration(request: HttpServletRequest): CorsConfiguration {
         val config = CorsConfiguration()
         config.allowedOrigins = listOf(ALLOWED_ORIGIN)
         config.allowedMethods = ALLOWED_METHODS

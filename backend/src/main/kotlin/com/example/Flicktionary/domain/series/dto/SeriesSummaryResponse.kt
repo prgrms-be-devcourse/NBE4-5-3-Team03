@@ -1,13 +1,7 @@
 package com.example.Flicktionary.domain.series.dto
 
 import com.example.Flicktionary.domain.series.entity.Series
-import lombok.AllArgsConstructor
-import lombok.Builder
-import lombok.Getter
 
-@AllArgsConstructor
-@Builder
-@Getter
 class SeriesSummaryResponse(
     val id: Long,
     val title: String,
