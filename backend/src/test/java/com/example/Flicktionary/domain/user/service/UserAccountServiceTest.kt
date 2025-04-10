@@ -48,7 +48,7 @@ class UserAccountServiceTest {
         val resUserAccountDto = userAccountService.registerUser(userAccountDto)
 
         assertNotNull(resUserAccountDto)
-        assertEquals(userAccountDto.id, resUserAccountDto.id)
+        assertEquals(userAccountDto.id!!, resUserAccountDto.id)
         assertEquals(userAccountDto.username, resUserAccountDto.username)
         assertEquals(userAccountDto.password, resUserAccountDto.password)
         assertEquals(userAccountDto.email, resUserAccountDto.email)
@@ -83,13 +83,13 @@ class UserAccountServiceTest {
             "newnickname",
             "USER"
         )
-        given(userAccountRepository.findById(userAccountDto.id))
+        given(userAccountRepository.findById(userAccountDto.id!!))
             .willReturn(Optional.of(userAccountDto.toEntity()))
         given(userAccountRepository.save(any(UserAccount::class.java)))
             .willReturn(newUserAccountDto.toEntity())
         given(passwordEncoder.encode(anyString())).willReturn(newUserAccountDto.password)
 
-        val result = userAccountService.modifyUser(userAccountDto.id, newUserAccountDto)
+        val result = userAccountService.modifyUser(userAccountDto.id!!, newUserAccountDto)
 
         assertNotNull(result)
         assertEquals(newUserAccountDto.id, result.id)
@@ -104,13 +104,13 @@ class UserAccountServiceTest {
     @DisplayName("고유 ID로 회원을 조회한다.")
     @Test
     fun givenUserIdWhenFindingUserThenReturnsUser() {
-        given(userAccountRepository.findById(userAccountDto.id))
+        given(userAccountRepository.findById(userAccountDto.id!!))
             .willReturn(Optional.of(userAccountDto.toEntity()))
 
-        val result = userAccountService.getUserById(userAccountDto.id)
+        val result = userAccountService.getUserById(userAccountDto.id!!)
 
         assertNotNull(result)
-        assertEquals(userAccountDto.id, result.id)
+        assertEquals(userAccountDto.id!!, result.id)
         assertEquals(userAccountDto.username, result.username)
         assertEquals(userAccountDto.password, result.password)
         assertEquals(userAccountDto.email, result.email)
@@ -139,7 +139,7 @@ class UserAccountServiceTest {
         val result = userAccountService.getUserByUsername(userAccountDto.username)
 
         assertNotNull(result)
-        assertEquals(userAccountDto.id, result.id)
+        assertEquals(userAccountDto.id!!, result.id)
         assertEquals(userAccountDto.username, result.username)
         assertEquals(userAccountDto.password, result.password)
         assertEquals(userAccountDto.email, result.email)
@@ -163,10 +163,10 @@ class UserAccountServiceTest {
     @DisplayName("회원을 삭제한다.")
     @Test
     fun givenUserIdWhenDeletingUserThenReturnsDeletedUserUsername() {
-        given(userAccountRepository.findById(userAccountDto.id))
+        given(userAccountRepository.findById(userAccountDto.id!!))
             .willReturn(Optional.of(userAccountDto.toEntity()))
 
-        val result = userAccountService.deleteUserById(userAccountDto.id)
+        val result = userAccountService.deleteUserById(userAccountDto.id!!)
 
         assertNotNull(result)
         assertEquals(userAccountDto.username, result)

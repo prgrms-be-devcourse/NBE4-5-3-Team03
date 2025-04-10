@@ -47,17 +47,10 @@ class UserAccount(
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private var _id: Long? = null
+    var id: Long? = null
 
-    var id: Long
-        get() = _id ?: 0
-        set(value) {
-            _id = value
-        }
-
-    constructor(id: Long, username: String, password: String, email: String, nickname: String, role: UserAccountType): this(username, password, email, nickname, role) {
-        this._id = id
+    constructor(id: Long?, username: String, password: String, email: String, nickname: String, role: UserAccountType): this(username, password, email, nickname, role) {
+        this.id = id
     }
 
     /**
