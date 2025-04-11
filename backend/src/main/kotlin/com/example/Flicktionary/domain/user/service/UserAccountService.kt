@@ -1,5 +1,6 @@
 package com.example.Flicktionary.domain.user.service
 
+import com.example.Flicktionary.domain.post.service.PostService
 import com.example.Flicktionary.domain.review.service.ReviewService
 import com.example.Flicktionary.domain.user.dto.UserAccountDto
 import com.example.Flicktionary.domain.user.entity.UserAccount
@@ -20,7 +21,8 @@ import org.springframework.transaction.annotation.Transactional
 class UserAccountService(
     private val userAccountRepository: UserAccountRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val reviewService: ReviewService
+    private val reviewService: ReviewService,
+    private val postService: PostService
 ) {
     /**
      * 새 회원을 생성한 뒤 영속한다.
@@ -103,6 +105,9 @@ class UserAccountService(
 
         // ReviewService를 통해 리뷰의 userAccount를 null로 설정
         reviewService.disassociateReviewsFromUser(userAccount)
+
+        // PostService를 통해 게시글의 userAccount를 null로 설정
+        postService.disassociatePostsFromUser(userAccount)
 
         userAccountRepository.delete(userAccount)
         return userAccount.username
