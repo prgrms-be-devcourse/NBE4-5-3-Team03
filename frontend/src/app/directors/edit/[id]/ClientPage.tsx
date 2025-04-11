@@ -36,6 +36,7 @@ export default function DirectorUpdatePage({
         name,
         profilePath,
       },
+      credentials: "include",
     });
 
     if (res.error) {

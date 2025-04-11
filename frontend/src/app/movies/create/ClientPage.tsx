@@ -85,6 +85,7 @@ export default function MovieCreatePage() {
         })),
         directorId: director!!.id,
       },
+      credentials: "include",
     });
 
     if (res.error) {

@@ -36,6 +36,7 @@ export default function ActorUpdatePage({
         name,
         profilePath,
       },
+      credentials: "include",
     });
 
     if (res.error) {
