@@ -24,13 +24,15 @@ class SecurityConfig(
             .authorizeHttpRequests {
                 /** 모든 엔드포인트를 개방한다. {@link CustomAuthenticationFilter} 참조. */
                 it
+                    // "/api/admin/"으로 시작하는 모든 요청은 ADMIN 역할을 사용자만 접근 가능
+                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
                     .anyRequest()
                     .permitAll()
             }
             // CORS 설정 적용
-        .cors { cors -> cors.configurationSource(corsConfig) }
+            .cors { cors -> cors.configurationSource(corsConfig) }
             // CSRF 보호 비활성
-        .csrf { csrf -> csrf.disable() }
+            .csrf { csrf -> csrf.disable() }
             // XSS 보호 비활성
             .headers { headers -> headers.disable() }
             // Spring Security 세션 비활성 (JSESSIONID 쿠키 비생성)
@@ -39,11 +41,11 @@ class SecurityConfig(
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
             // 커스텀 인증 필터 추가
-        .addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
             // 인증 필터 예외 처리
             .exceptionHandling { exceptionHandling ->
                 exceptionHandling
-                    .authenticationEntryPoint { _ , response , _  ->
+                    .authenticationEntryPoint { _, response, _ ->
                         response.contentType = "application/jsoncharset=UTF-8"
                         response.status = HttpStatus.FORBIDDEN.value()
                         response.writer.write(
@@ -51,17 +53,21 @@ class SecurityConfig(
                                 ResponseDto.of(
                                     HttpStatus.FORBIDDEN.value().toString(),
                                     "로그인이 필요합니다."
-                                )))
+                                )
+                            )
+                        )
                     }
                     .accessDeniedHandler { _, response, _ ->
-                            response.contentType = "application/jsoncharset=UTF-8"
-                            response.status = HttpStatus.UNAUTHORIZED.value()
-                            response.writer.write(
-                                objectMapper.writeValueAsString(
-                                    ResponseDto.of(
-                                        HttpStatus.UNAUTHORIZED.value().toString(),
-                                        "접근 권한이 없습니다."
-                                    )))
+                        response.contentType = "application/jsoncharset=UTF-8"
+                        response.status = HttpStatus.UNAUTHORIZED.value()
+                        response.writer.write(
+                            objectMapper.writeValueAsString(
+                                ResponseDto.of(
+                                    HttpStatus.UNAUTHORIZED.value().toString(),
+                                    "접근 권한이 없습니다."
+                                )
+                            )
+                        )
                     }
             }
         return http.build()
