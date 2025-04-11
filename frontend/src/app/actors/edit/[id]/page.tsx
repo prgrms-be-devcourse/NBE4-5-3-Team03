@@ -1,5 +1,7 @@
 import client from "@/lib/backend/client";
 import ClientPage from "./ClientPage";
+import { cookies } from "next/headers";
+import { fetchUserProfileServer } from "@/lib/api/user";
 
 export default async function Page({
   params,

@@ -7,7 +7,6 @@ import ReviewPage from "@/components/review/ClientPage";
 import FavoriteButton from "@/components/favorite/FavoriteButton";
 import client from "@/lib/backend/client";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/lib/hooks/useAuth";
 
 export default function ClientPage({
   data,
