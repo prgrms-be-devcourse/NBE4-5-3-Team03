@@ -10,8 +10,10 @@ import { Button } from "@/components/ui/button";
 
 export default function ClientPage({
   data,
+  isAdmin,
 }: {
   data: components["schemas"]["MovieResponseWithDetail"];
+  isAdmin: boolean;
 }) {
   const router = useRouter();
 
@@ -47,17 +49,19 @@ export default function ClientPage({
         <div className="w-full md:w-2/3 space-y-4">
           <div className="flex justify-between items-start">
             <h1 className="text-4xl font-bold">{data.title}</h1>
-            <div className="space-x-2">
-              <Button
-                variant="default"
-                onClick={() => router.push(`/movies/edit/${data.id}`)}
-              >
-                수정
-              </Button>
-              <Button variant="destructive" onClick={handleDelete}>
-                삭제
-              </Button>
-            </div>
+            {isAdmin && (
+              <div className="space-x-2">
+                <Button
+                  variant="default"
+                  onClick={() => router.push(`/movies/edit/${data.id}`)}
+                >
+                  수정
+                </Button>
+                <Button variant="destructive" onClick={handleDelete}>
+                  삭제
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="text-gray-500">

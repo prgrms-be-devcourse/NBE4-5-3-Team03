@@ -8,6 +8,13 @@ export default async function Page({
     id: number;
   };
 }) {
+  const cookieHeader = cookies().toString();
+  const user = await fetchUserProfileServer(cookieHeader);
+
+  if (!user || user.role !== "ADMIN") {
+    return <div>권한이 없습니다.</div>;
+  }
+
   const { id } = await params;
 
   const response = await client.GET("/api/actors/{actorId}", {

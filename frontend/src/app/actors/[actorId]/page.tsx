@@ -1,5 +1,7 @@
 import client from "@/lib/backend/client";
 import ClientPage from "./ClientPage";
+import { cookies } from "next/headers";
+import { fetchUserProfileServer } from "@/lib/api/user";
 
 export default async function Page({
   params,
@@ -20,7 +22,12 @@ export default async function Page({
       return <div>배우 정보를 불러오는 데 실패했습니다.</div>;
     }
 
-    return <ClientPage actor={response.data.data} />;
+    const cookieHeader = cookies().toString();
+    const user = await fetchUserProfileServer(cookieHeader);
+
+    const isAdmin = user !== null && user.role === "ADMIN";
+
+    return <ClientPage actor={response.data.data} isAdmin={isAdmin} />;
   } catch (error) {
     console.error("에러 발생:", error);
     return <div>에러 발생: {String(error)}</div>;
