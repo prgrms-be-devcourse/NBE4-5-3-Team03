@@ -12,7 +12,7 @@ class CustomUserDetails(userAccount: UserAccount) :
     User(
         userAccount.username,
         userAccount.password,
-        Stream.of(userAccount.role.toString()).map { role: String? -> SimpleGrantedAuthority(role) }.toList()
+        Stream.of(userAccount.role.toString()).map { role: String? -> SimpleGrantedAuthority("ROLE_$role") }.toList()
     ) {
     private val id = userAccount.id
 }
