@@ -24,8 +24,6 @@ class SecurityConfig(
             .authorizeHttpRequests {
                 /** 모든 엔드포인트를 개방한다. {@link CustomAuthenticationFilter} 참조. */
                 it
-                    // "/api/admin/"으로 시작하는 모든 요청은 ADMIN 역할을 사용자만 접근 가능
-                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
                     .anyRequest()
                     .permitAll()
             }
