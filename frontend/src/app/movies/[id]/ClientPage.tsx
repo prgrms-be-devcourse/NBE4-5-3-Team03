@@ -21,6 +21,7 @@ export default function ClientPage({
     if (confirm("정말 이 영화를 삭제하시겠습니까?")) {
       const res = await client.DELETE("/api/movies/{id}", {
         params: { path: { id: data.id } },
+        credentials: "include",
       });
 
       if (res.error) {

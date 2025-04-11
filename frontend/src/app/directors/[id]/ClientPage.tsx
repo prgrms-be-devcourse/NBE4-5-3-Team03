@@ -40,6 +40,7 @@ export default function DirectorDetailPage({
     if (confirm("정말 이 배우를 삭제하시겠습니까?")) {
       const res = await client.DELETE("/api/directors/{id}", {
         params: { path: { id: director.id } },
+        credentials: "include",
       });
 
       if (res.error) {

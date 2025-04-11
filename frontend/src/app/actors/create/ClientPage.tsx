@@ -26,6 +26,7 @@ export default function ActorCreatePage() {
         name,
         profilePath,
       },
+      credentials: "include",
     });
 
     if (res.error) {

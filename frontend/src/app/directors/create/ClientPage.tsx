@@ -26,6 +26,7 @@ export default function DirectorCreatePage() {
         name,
         profilePath,
       },
+      credentials: "include",
     });
 
     if (res.error) {

@@ -24,6 +24,7 @@ export default function GenreCreatePage() {
       body: {
         name,
       },
+      credentials: "include",
     });
 
     if (res.error) {

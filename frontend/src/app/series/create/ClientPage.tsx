@@ -87,6 +87,7 @@ export default function SeriesCreatePage() {
         })),
         directorId: director!!.id,
       },
+      credentials: "include",
     });
 
     if (res.error) {
