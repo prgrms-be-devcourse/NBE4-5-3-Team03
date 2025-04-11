@@ -1,5 +1,6 @@
 package com.example.Flicktionary.domain.user.service
 
+import com.example.Flicktionary.domain.post.service.PostService
 import com.example.Flicktionary.domain.review.service.ReviewService
 import com.example.Flicktionary.domain.user.dto.UserAccountDto
 import com.example.Flicktionary.domain.user.entity.UserAccount
@@ -29,6 +30,7 @@ class UserAccountServiceTest {
     @Mock private lateinit var userAccountRepository: UserAccountRepository
     @Mock private lateinit var passwordEncoder: PasswordEncoder
     @Mock private lateinit var reviewService: ReviewService
+    @Mock private lateinit var postService: PostService
     @InjectMocks private lateinit var userAccountService: UserAccountService
 
     private val userAccountDto = UserAccountDto(
