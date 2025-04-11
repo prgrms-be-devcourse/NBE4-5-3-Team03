@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -41,6 +42,7 @@ class SeriesController(
 
     @Operation(summary = "시리즈 생성", description = "시리즈를 생성합니다. 관리자만 접근 가능합니다.")
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     fun createSeries(@RequestBody @Valid request: SeriesRequest): ResponseEntity<ResponseDto<SeriesDetailResponse>> {
         val response = seriesService.createSeries(request)
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -49,6 +51,7 @@ class SeriesController(
 
     @Operation(summary = "시리즈 수정", description = "시리즈를 수정합니다. 관리자만 접근 가능합니다.")
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun updateSeries(
         @PathVariable id: Long,
         @RequestBody @Valid request: SeriesRequest
@@ -59,6 +62,7 @@ class SeriesController(
 
     @Operation(summary = "시리즈 삭제", description = "시리즈를 삭제합니다. 관리자만 접근 가능합니다.")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun deleteSeries(@PathVariable id: Long): ResponseEntity<ResponseDto<Nothing>> {
         seriesService.deleteSeries(id)
         return ResponseEntity

@@ -11,6 +11,7 @@ import com.example.Flicktionary.global.dto.ResponseDto
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.*
 class ActorController(
     private val actorService: ActorService
 ) {
-
     @GetMapping("/{actorId}")
     fun getActorWithMovies(@PathVariable actorId: Long): ResponseEntity<ResponseDto<ActorResponse>> {
         val actor = actorService.getActorById(actorId)
@@ -41,6 +41,7 @@ class ActorController(
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     fun createActor(@Valid @RequestBody request: ActorRequest): ResponseEntity<ResponseDto<ActorDto>> {
         val actor = actorService.createActor(request)
         return ResponseEntity
@@ -55,6 +56,7 @@ class ActorController(
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun updateActor(
         @PathVariable id: Long,
         @Valid @RequestBody request: ActorRequest
@@ -64,6 +66,7 @@ class ActorController(
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun deleteActor(@PathVariable id: Long): ResponseEntity<ResponseDto<Nothing>> {
         actorService.deleteActor(id)
         return ResponseEntity
