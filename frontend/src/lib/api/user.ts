@@ -3,7 +3,7 @@ const API_BASE_URL = "http://localhost:8080"; // API 기본 URL
 // 🔹 서버 측 요청을 위한 fetch 함수 (SSR)
 export const fetchUserProfileServer = async (cookieHeader: string) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/users`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users`, {
       method: "GET",
       headers: { Cookie: cookieHeader }, // 서버에서 쿠키를 포함해서 요청
     });

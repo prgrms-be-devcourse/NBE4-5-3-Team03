@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://backend:8080/api/:path*', // spring 서버로 포워딩
+      },
+    ];
+  },
 };
 
 export default nextConfig;
