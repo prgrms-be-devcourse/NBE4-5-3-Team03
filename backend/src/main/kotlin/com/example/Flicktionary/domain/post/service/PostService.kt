@@ -6,6 +6,7 @@ import com.example.Flicktionary.domain.post.dto.PostResponseDto.Companion.fromEn
 import com.example.Flicktionary.domain.post.dto.PostUpdateRequestDto
 import com.example.Flicktionary.domain.post.entity.Post
 import com.example.Flicktionary.domain.post.repository.PostRepository
+import com.example.Flicktionary.domain.user.entity.UserAccount
 import com.example.Flicktionary.domain.user.repository.UserAccountRepository
 import com.example.Flicktionary.global.dto.PageDto
 import com.example.Flicktionary.global.exception.ServiceException
@@ -121,5 +122,16 @@ class PostService(
             }
 
         postRepository.delete(post)
+    }
+
+    // 특정 유저의 모든 게시글에서 userAccount를 null로 설정하는 메서드
+    fun disassociatePostsFromUser(userAccount: UserAccount) {
+        val postsToUpdate: List<Post> = postRepository.findByUserAccount(userAccount)
+
+        postsToUpdate.forEach {
+            it.userAccount = null
+        }
+
+        postRepository.saveAll(postsToUpdate)
     }
 }
