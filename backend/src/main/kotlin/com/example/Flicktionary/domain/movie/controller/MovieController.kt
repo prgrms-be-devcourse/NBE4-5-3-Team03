@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -40,6 +41,7 @@ class MovieController(
 
     @Operation(summary = "영화 생성", description = "영화를 생성합니다. 관리자만 접근 가능합니다.")
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     fun createMovie(@RequestBody @Valid request: MovieRequest): ResponseEntity<ResponseDto<MovieResponseWithDetail>> {
         val response = movieService.createMovie(request)
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -48,6 +50,7 @@ class MovieController(
 
     @Operation(summary = "영화 수정", description = "영화를 수정합니다. 관리자만 접근 가능합니다.")
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun updateMovie(
         @PathVariable id: Long,
         @RequestBody @Valid request: MovieRequest
@@ -58,6 +61,7 @@ class MovieController(
 
     @Operation(summary = "영화 삭제", description = "영화를 삭제합니다. 관리자만 접근 가능합니다.")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun deleteMovie(@PathVariable id: Long): ResponseEntity<ResponseDto<Nothing>> {
         movieService.deleteMovie(id)
         return ResponseEntity
