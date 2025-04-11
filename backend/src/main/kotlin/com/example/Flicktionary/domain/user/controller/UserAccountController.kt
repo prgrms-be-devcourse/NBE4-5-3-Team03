@@ -3,8 +3,8 @@ package com.example.Flicktionary.domain.user.controller
 import com.example.Flicktionary.domain.user.dto.NicknameUpdateRequest
 import com.example.Flicktionary.domain.user.dto.PasswordUpdateRequest
 import com.example.Flicktionary.domain.user.dto.UserAccountDto
-import com.example.Flicktionary.domain.user.service.UserAccountService
 import com.example.Flicktionary.domain.user.service.UserAccountJwtAuthenticationService
+import com.example.Flicktionary.domain.user.service.UserAccountService
 import com.example.Flicktionary.global.dto.ResponseDto
 import com.example.Flicktionary.global.security.CustomUserDetails
 import jakarta.servlet.http.Cookie
@@ -55,10 +55,22 @@ class UserAccountController(
      * @return 성공 메시지 문자열을 답고 있는 ResponseEntity 오브젝트
      */
     @PostMapping("/login")
-    fun loginUser(@RequestBody loginRequest: LoginRequest, response: HttpServletResponse): ResponseEntity<ResponseDto<*>> {
+    fun loginUser(
+        @RequestBody loginRequest: LoginRequest,
+        response: HttpServletResponse
+    ): ResponseEntity<ResponseDto<*>> {
         // DB 접근을 1회 줄이기 위해 아래 UserAccountJwtAuthenticationService의 두 메서드를 하나로 합치는 것을 검토
-        val accessToken = newCookieWithDefaultSettings("accessToken", userAccountJwtAuthenticationService.createNewAccessTokenForUser(loginRequest.username, loginRequest.password))
-        val refreshToken = newCookieWithDefaultSettings("refreshToken", userAccountJwtAuthenticationService.rotateRefreshTokenOfUser(loginRequest.username))
+        val accessToken = newCookieWithDefaultSettings(
+            "accessToken",
+            userAccountJwtAuthenticationService.createNewAccessTokenForUser(
+                loginRequest.username,
+                loginRequest.password
+            )
+        )
+        val refreshToken = newCookieWithDefaultSettings(
+            "refreshToken",
+            userAccountJwtAuthenticationService.rotateRefreshTokenOfUser(loginRequest.username)
+        )
         response.addCookie(accessToken)
         response.addCookie(refreshToken)
 
@@ -89,7 +101,10 @@ class UserAccountController(
      * @return 성공 메시지 문자열을 담고 있는 ResponseEntity 오브젝트
      */
     @GetMapping("/refresh")
-    fun refreshAccessToken(@CookieValue("refreshToken") refreshTokenBase64: String, response: HttpServletResponse): ResponseEntity<ResponseDto<*>> {
+    fun refreshAccessToken(
+        @CookieValue("refreshToken") refreshTokenBase64: String,
+        response: HttpServletResponse
+    ): ResponseEntity<ResponseDto<*>> {
         val tokenSet = userAccountJwtAuthenticationService.createNewAccessTokenWithRefreshToken(refreshTokenBase64)
         val accessToken = newCookieWithDefaultSettings("accessToken", tokenSet.access)
         val refreshToken = newCookieWithDefaultSettings("refreshToken", tokenSet.refresh)
@@ -115,10 +130,11 @@ class UserAccountController(
         if (accessToken.isEmpty() || refreshToken.isEmpty()) {
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
-                .body(ResponseDto.of(
-                    HttpStatus.FORBIDDEN.value().toString(),
-                    "인증 정보가 존재하지 않습니다."
-                )
+                .body(
+                    ResponseDto.of(
+                        HttpStatus.FORBIDDEN.value().toString(),
+                        "인증 정보가 존재하지 않습니다."
+                    )
                 )
         }
         return ResponseEntity.ok(ResponseDto.ok("인증 정보가 존재합니다."))
@@ -132,7 +148,10 @@ class UserAccountController(
      * @return 수정된 회원에 해당하는 DTO
      */
     @PutMapping("/{id}")
-    fun updateUser(@PathVariable id: Long, @RequestBody userAccountDto: UserAccountDto): ResponseEntity<ResponseDto<UserAccountDto>> {
+    fun updateUser(
+        @PathVariable id: Long,
+        @RequestBody userAccountDto: UserAccountDto
+    ): ResponseEntity<ResponseDto<UserAccountDto>> {
         return ResponseEntity.ok(ResponseDto.ok(userAccountService.modifyUser(id, userAccountDto)))
     }
 
@@ -145,7 +164,10 @@ class UserAccountController(
      */
 
     @PatchMapping("/{id}/nickname")
-    fun updateNickname(@PathVariable id: Long, @RequestBody request: NicknameUpdateRequest): ResponseEntity<ResponseDto<UserAccountDto>> {
+    fun updateNickname(
+        @PathVariable id: Long,
+        @RequestBody request: NicknameUpdateRequest
+    ): ResponseEntity<ResponseDto<UserAccountDto>> {
         return ResponseEntity.ok(ResponseDto.ok(userAccountService.modifyNickname(id, request.nickname)))
     }
 
@@ -157,7 +179,10 @@ class UserAccountController(
      * @return 수정된 회원의 정보를 포함한 DTO
      */
     @PatchMapping("/{id}/password")
-    fun updatePassword(@PathVariable id: Long, @RequestBody request: PasswordUpdateRequest): ResponseEntity<ResponseDto<UserAccountDto>> {
+    fun updatePassword(
+        @PathVariable id: Long,
+        @RequestBody request: PasswordUpdateRequest
+    ): ResponseEntity<ResponseDto<UserAccountDto>> {
         return ResponseEntity.ok(ResponseDto.ok(userAccountService.modifyPassword(id, request.password)))
     }
 
@@ -179,7 +204,13 @@ class UserAccountController(
      * @return 조회된 회원에 해당하는 DTO
      */
     @GetMapping
-    fun getUserByPrinciple(@AuthenticationPrincipal principal: CustomUserDetails): ResponseEntity<ResponseDto<UserAccountDto>> {
+    fun getUserByPrinciple(@AuthenticationPrincipal principal: CustomUserDetails?): ResponseEntity<ResponseDto<UserAccountDto?>> {
+        if (principal == null) {
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ResponseDto.of(HttpStatus.UNAUTHORIZED.value().toString(), "로그인 상태가 아닙니다.", null))
+        }
+
         return ResponseEntity.ok(ResponseDto.ok(UserAccountDto.from(userAccountService.getUserByUsername(principal.username))))
     }
 

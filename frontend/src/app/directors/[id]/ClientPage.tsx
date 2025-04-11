@@ -29,8 +29,10 @@ interface Director {
 
 export default function DirectorDetailPage({
   director,
+  isAdmin,
 }: {
   director: Director;
+  isAdmin: boolean;
 }) {
   const router = useRouter();
 
@@ -64,17 +66,19 @@ export default function DirectorDetailPage({
         />
         <div className="flex-1 mt-4 md:mt-0">
           <h1 className="text-2xl font-bold">{director.name}</h1>
-          <div className="flex justify-end space-x-2 mt-4">
-            <Button
-              variant="default"
-              onClick={() => router.push(`/directors/edit/${director.id}`)}
-            >
-              수정
-            </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              삭제
-            </Button>
-          </div>
+          {isAdmin && (
+            <div className="flex justify-end space-x-2 mt-4">
+              <Button
+                variant="default"
+                onClick={() => router.push(`/directors/edit/${director.id}`)}
+              >
+                수정
+              </Button>
+              <Button variant="destructive" onClick={handleDelete}>
+                삭제
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 

@@ -1,5 +1,7 @@
 import client from "@/lib/backend/client";
 import ClientPage from "./ClientPage";
+import { cookies } from "next/headers";
+import { fetchUserProfileServer } from "@/lib/api/user";
 
 export default async function Page({
   params,
@@ -8,6 +10,13 @@ export default async function Page({
     id: number;
   };
 }) {
+  const cookieHeader = cookies().toString();
+  const user = await fetchUserProfileServer(cookieHeader);
+
+  if (!user || user.role !== "ADMIN") {
+    return <div>권한이 없습니다.</div>;
+  }
+
   const { id } = await params;
 
   const response = await client.GET("/api/series/{id}", {

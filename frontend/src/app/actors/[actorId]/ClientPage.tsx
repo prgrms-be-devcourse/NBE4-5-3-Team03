@@ -27,7 +27,13 @@ interface Actor {
   series: Series[];
 }
 
-export default function ActorDetailPage({ actor }: { actor: Actor }) {
+export default function ActorDetailPage({
+  actor,
+  isAdmin,
+}: {
+  actor: Actor;
+  isAdmin: boolean;
+}) {
   const router = useRouter();
 
   const handleDelete = async () => {
@@ -60,17 +66,19 @@ export default function ActorDetailPage({ actor }: { actor: Actor }) {
         />
         <div className="flex-1 mt-4 md:mt-0">
           <h1 className="text-2xl font-bold">{actor.name}</h1>
-          <div className="flex justify-end space-x-2 mt-4">
-            <Button
-              variant="default"
-              onClick={() => router.push(`/actors/edit/${actor.id}`)}
-            >
-              수정
-            </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              삭제
-            </Button>
-          </div>
+          {isAdmin && (
+            <div className="flex justify-end space-x-2 mt-4">
+              <Button
+                variant="default"
+                onClick={() => router.push(`/actors/edit/${actor.id}`)}
+              >
+                수정
+              </Button>
+              <Button variant="destructive" onClick={handleDelete}>
+                삭제
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 

@@ -8,6 +8,7 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -24,6 +25,7 @@ class GenreController(
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     fun createGenre(@Valid @RequestBody request: GenreRequest): ResponseEntity<ResponseDto<GenreDto>> {
         val genre = genreService.createGenre(request)
         return ResponseEntity

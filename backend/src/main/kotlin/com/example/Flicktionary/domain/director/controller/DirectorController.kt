@@ -12,6 +12,7 @@ import com.example.Flicktionary.global.dto.ResponseDto
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -41,6 +42,7 @@ class DirectorController(
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     fun createDirector(@Valid @RequestBody request: DirectorRequest): ResponseEntity<ResponseDto<DirectorDto>> {
         val director = directorService.createDirector(request)
         return ResponseEntity
@@ -55,6 +57,7 @@ class DirectorController(
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun updateDirector(
         @PathVariable id: Long,
         @Valid @RequestBody request: DirectorRequest
@@ -64,6 +67,7 @@ class DirectorController(
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun deleteDirector(@PathVariable id: Long): ResponseEntity<ResponseDto<Nothing>> {
         directorService.deleteDirector(id)
         return ResponseEntity
